@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ru" class="min-h-screen bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBP Information</title>
+    <meta name="app-build" content="step19.10-compact-layout-2026-10-31-v1">
+    <meta name="application-name" content="SBP Information">
+    <meta name="apple-mobile-web-app-title" content="SBP Information">
+    <link rel="manifest" href="manifest.webmanifest?v=20261017-admin-tap-v1">
+    <meta name="theme-color" content="#ffffff">
+    <script>
+      // Resolve the saved/system theme before styles load to avoid a white flash.
+      (() => {
+        let choice='light';
+        try { choice=localStorage.getItem('sbp_design_theme')||'light'; } catch (_) {}
+        if (!['light','dark','system'].includes(choice)) choice='light';
+        const systemDark=window.matchMedia?.('(prefers-color-scheme: dark)').matches===true;
+        const resolved=choice==='dark'||(choice==='system'&&systemDark)?'dark':'light';
+        document.documentElement.dataset.sbpTheme=resolved;
+        document.documentElement.style.colorScheme=resolved;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content',resolved==='dark'?'#0b0f18':'#fafafe');
+      })();
+    </script>
+    <script>
+      (() => {
+        try {
+          const url = new URL(location.href);
+          const fromAndroidShell = url.searchParams.get('source') === 'android-app';
+          const nativeLaunch = fromAndroidShell && url.searchParams.get('launch') === '1';
+          const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+          const navEntry = performance.getEntriesByType?.('navigation')?.[0];
+          const isReload = navEntry?.type === 'reload' || performance.navigation?.type === 1;
+          if (nativeLaunch || (!fromAndroidShell && standalone && !isReload)) {
+            document.documentElement.classList.add('sbp-app-launch');
+          }
+          if (fromAndroidShell && url.searchParams.has('launch')) {
+            url.searchParams.delete('launch');
+            history.replaceState(null, '', url.pathname + url.search + url.hash);
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <script>
+      (() => {
+        try {
+          const savedView = localStorage.getItem('toe_current_view');
+          const initialView = ['home','tracker','roster','schedule','college'].includes(savedView) ? savedView : 'home';
+          document.documentElement.setAttribute('data-initial-view', initialView);
+        } catch (_) {
+          document.documentElement.setAttribute('data-initial-view', 'home');
+        }
+      })();
+    </script>
+    <style>
+      html[data-initial-view] #view-home,
+      html[data-initial-view] #view-tracker,
+      html[data-initial-view] #view-roster,
+      html[data-initial-view] #view-college,
+      html[data-initial-view] #view-schedule{display:none!important}
+      html[data-initial-view="home"] #view-home{display:flex!important}
+      html[data-initial-view="tracker"] #view-tracker{display:block!important}
+      html[data-initial-view="roster"] #view-roster{display:flex!important}
+      html[data-initial-view="schedule"] #view-schedule{display:block!important}
+      html[data-initial-view="college"] #view-college{display:block!important}
+
+      #sbp-launch-animation{display:none}
+      html.sbp-app-launch #sbp-launch-animation{
+        position:fixed;
+        inset:0;
+        z-index:2147483647;
+        display:block;
+        overflow:hidden;
+        pointer-events:none;
+        background:
+          radial-gradient(circle at 18% 22%,rgba(156,119,255,.72),transparent 34%),
+          radial-gradient(circle at 82% 30%,rgba(91,196,255,.58),transparent 38%),
+          radial-gradient(circle at 48% 88%,rgba(115,86,231,.62),transparent 40%),
+          linear-gradient(145deg,#5d48cf 0%,#7658e8 34%,#667eea 68%,#7fc9ee 100%);
+        opacity:1;
+        transform:scale(1);
+        transition:opacity .28s ease,transform .36s cubic-bezier(.2,.7,.2,1);
+      }
+      html.sbp-app-launch #sbp-launch-animation::before,
+      html.sbp-app-launch #sbp-launch-animation::after{
+        content:"";
+        position:absolute;
+        inset:-28%;
+        border-radius:42%;
+        filter:blur(34px);
+        will-change:transform,opacity;
+      }
+      html.sbp-app-launch #sbp-launch-animation::before{
+        background:
+          conic-gradient(from 35deg,
+            transparent 0 12%,
+            rgba(255,255,255,.30) 18%,
+            transparent 30% 48%,
+            rgba(191,229,255,.30) 57%,
+            transparent 70% 100%);
+        animation:sbpLaunchSpin 1.15s cubic-bezier(.2,.72,.18,1) both;
+      }
+      html.sbp-app-launch #sbp-launch-animation::after{
+        inset:-10% -35%;
+        background:linear-gradient(105deg,
+          transparent 16%,
+          rgba(255,255,255,.08) 31%,
+          rgba(255,255,255,.56) 47%,
+          rgba(202,238,255,.22) 57%,
+          transparent 74%);
+        transform:translateX(-48%) rotate(-9deg);
+        animation:sbpLaunchSweep .92s cubic-bezier(.22,.78,.18,1) .04s both;
+      }
+      #sbp-launch-animation .sbp-launch-orb{
+        position:absolute;
+        width:54vmax;
+        height:54vmax;
+        left:50%;
+        top:50%;
+        border-radius:50%;
+        transform:translate(-50%,-50%) scale(.18);
+        background:radial-gradient(circle,rgba(255,255,255,.38) 0%,rgba(232,225,255,.18) 32%,transparent 67%);
+        filter:blur(9px);
+        animation:sbpLaunchPulse .95s cubic-bezier(.16,.8,.24,1) both;
+      }
+      #sbp-launch-animation.is-leaving{
+        opacity:0!important;
+        transform:scale(1.035)!important;
+      }
+      @keyframes sbpLaunchSpin{
+        0%{transform:rotate(-24deg) scale(.82);opacity:.34}
+        60%{opacity:1}
+        100%{transform:rotate(72deg) scale(1.08);opacity:.72}
+      }
+      @keyframes sbpLaunchSweep{
+        0%{transform:translateX(-58%) rotate(-9deg);opacity:0}
+        18%{opacity:.92}
+        100%{transform:translateX(58%) rotate(-9deg);opacity:0}
+      }
+      @keyframes sbpLaunchPulse{
+        0%{transform:translate(-50%,-50%) scale(.12);opacity:.22}
+        58%{opacity:.74}
+        100%{transform:translate(-50%,-50%) scale(1.28);opacity:0}
+      }
+      @media(prefers-reduced-motion:reduce){
+        html.sbp-app-launch #sbp-launch-animation::before,
+        html.sbp-app-launch #sbp-launch-animation::after,
+        #sbp-launch-animation .sbp-launch-orb{animation-duration:.18s!important}
+      }
+    </style>
+    <link rel="icon" type="image/png" href="sbp-information.png?v=20261017-admin-tap-v1">
+    <link rel="apple-touch-icon" href="sbp-information.png?v=20261017-admin-tap-v1">
+    <link rel="stylesheet" href="tailwind-local.css?v=20261017-admin-tap-v1">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=20261017-admin-tap-v1">
+    <link rel="stylesheet" href="desktop.css?v=20261017-admin-tap-v1" media="(min-width: 768px)">
+    <link rel="stylesheet" href="gradients.css?v=20261017-admin-tap-v1">
+    <link rel="stylesheet" href="responsive-fit.css?v=20261017-admin-tap-v1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="modulepreload" href="app.js?v=20261031-dark-mode-v1" fetchpriority="high">
+    <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
+    <link rel="modulepreload" href="utils.js?v=20261017-admin-tap-v1">
+    <link rel="modulepreload" href="schedule.js?v=20261017-admin-tap-v1">
+    <script defer src="performance.js?v=20261017-admin-tap-v1"></script>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+
+<link rel="stylesheet" href="soft-frames.css?v=20261017-admin-tap-v1">
+<link rel="stylesheet" href="home-overview.css?v=20261017-admin-tap-v1">
+<link rel="stylesheet" href="group-banners.css?v=20261031-group-banners-v1">
+<link rel="stylesheet" href="redesign.css?v=20261031-dark-mode-v1">
+<link rel="stylesheet" href="site-improvements.css?v=20261017-admin-tap-v1">
+<link rel="stylesheet" href="dark-mode.css?v=20261031-dark-mode-v1">
+<link rel="stylesheet" href="compact-layout.css?v=20261031-compact-v1">
+</head>
+<body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
+    <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
+    <script>
+      (() => {
+        if (!document.documentElement.classList.contains('sbp-app-launch')) return;
+        const splash = document.getElementById('sbp-launch-animation');
+        if (!splash) return;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const visibleFor = reduced ? 60 : 240;
+        window.setTimeout(() => {
+          splash.classList.add('is-leaving');
+          window.setTimeout(() => {
+            splash.remove();
+            document.documentElement.classList.remove('sbp-app-launch');
+          }, reduced ? 40 : 150);
+        }, visibleFor);
+      })();
+    </script>
+
+    <!-- Настройки теперь открываются из нижней навигации -->
+
+    <div id="admin-settings-modal" onclick="if(event.target===this) closeAdminSettings()" class="fixed inset-0 z-[60] hidden items-center justify-center settings-reference">
+      <div class="settings-reference-page">
+        <header class="settings-modal-header settings-reference-header">
+          <h2>Настройки</h2>
+          <button type="button" onclick="closeAdminSettings()" aria-label="Закрыть настройки"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="settings-reference-list">
+          <section class="settings-reference-card settings-language-card">
+            <div class="settings-reference-summary">
+              <span class="settings-reference-icon"><i class="fa-solid fa-globe"></i></span>
+              <strong>Язык</strong>
+              <div class="lang-toggle" role="group" aria-label="Язык интерфейса">
+                <button id="lang-ru" type="button" onclick="setInterfaceLanguage('ru')">РУ</button>
+                <button id="lang-kz" type="button" onclick="setInterfaceLanguage('kz')">КЗ</button>
+              </div>
+            </div>
+          </section>
+          <section class="settings-reference-card sbp-theme-card" data-i18n-skip>
+            <div class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-palette"></i></span><span class="settings-reference-copy"><strong data-sbp-text="theme">Тема оформления</strong><small data-sbp-text="themeHint">Выберите удобный внешний вид</small></span></div>
+            <div class="sbp-theme-options"><button type="button" data-sbp-theme="light" aria-pressed="true"><i class="fa-regular fa-sun"></i><span data-sbp-text="light">Светлая</span></button><button type="button" data-sbp-theme="dark" aria-pressed="false"><i class="fa-regular fa-moon"></i><span data-sbp-text="dark">Тёмная</span></button><button type="button" data-sbp-theme="system" aria-pressed="false"><i class="fa-solid fa-display"></i><span data-sbp-text="system">Как на устройстве</span></button></div>
+          </section>
+          <details class="settings-reference-card" id="settings-display-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="settings-reference-copy"><strong>Отображение</strong><small>Телефон / Компьютер</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <div class="settings-reference-content settings-device-options">
+              <button id="device-phone" type="button" onclick="setDeviceMode('phone')" class="device-mode-btn"><i class="fa-solid fa-mobile-screen-button"></i><span><strong>Телефон</strong><small>Мобильный вид</small></span></button>
+              <button id="device-pc" type="button" onclick="setDeviceMode('pc')" class="device-mode-btn"><i class="fa-solid fa-desktop"></i><span><strong>Компьютер</strong><small>Широкий вид</small></span></button>
+            </div>
+          </details>
+          <details class="settings-reference-card" id="settings-group-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-user-group"></i></span><span class="settings-reference-copy"><strong>Данные группы</strong><small>Основная информация</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <form class="settings-reference-content settings-group-form" id="settings-group-form" onsubmit="saveGroupSettings(event)">
+              <fieldset id="settings-group-fields" disabled>
+                <label><span>Название группы</span><input id="settings-group-name" required maxlength="60" oninput="markGroupSettingsDirty()" autocomplete="off"></label>
+                <label><span>Куратор</span><input id="settings-group-curator" maxlength="80" oninput="markGroupSettingsDirty()" autocomplete="off"></label>
+                <label><span>Староста</span><input id="settings-group-headman" maxlength="80" oninput="markGroupSettingsDirty()" autocomplete="off"></label>
+                <label><span>Зам. старосты</span><input id="settings-group-deputy" maxlength="80" oninput="markGroupSettingsDirty()" autocomplete="off"></label>
+              </fieldset>
+              <div class="settings-group-count"><span>Количество студентов</span><output id="settings-student-count">19</output></div>
+              <div class="settings-group-icon-row"><span>Иконка группы</span><div id="settings-group-icon-preview" class="settings-group-icon-preview"><i class="fa-solid fa-user-group"></i></div></div>
+              <div id="settings-group-icon-tools" class="hidden">
+                <div class="settings-group-icon-options" id="settings-group-icon-options" role="group" aria-label="Выбор иконки группы"></div>
+                <div class="settings-group-photo-actions"><label class="student-photo-upload"><i class="fa-regular fa-image"></i> Выбрать фото<input id="settings-group-photo" type="file" accept="image/*" onchange="handleGroupPhoto(this)"></label><button id="settings-group-remove-photo" class="hidden" type="button" onclick="removeGroupPhoto()">Убрать фото</button></div>
+              </div>
+              <button id="settings-group-save" type="submit" class="settings-reference-save hidden">Сохранить изменения</button>
+              <p id="settings-group-save-status" role="status" class="settings-reference-status"></p>
+            </form>
+          </details>
+          <details class="settings-reference-card" id="settings-admins-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-shield-halved"></i></span><span class="settings-reference-copy"><strong>Администраторы и права</strong><small>Управление доступом</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <div class="settings-reference-content"><div id="admin-login-box" class="space-y-3">
+                <div>
+                    <label for="admin-login" class="block text-[11px] font-semibold text-slate-600 mb-1">Логин</label>
+                    <input id="admin-login" type="text" autocomplete="username" placeholder="owner / admin1 / admin2" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-400">
+                </div>
+                <div>
+                    <label for="admin-password" class="block text-[11px] font-semibold text-slate-600 mb-1">Пароль</label>
+                    <input id="admin-password" type="password" autocomplete="current-password" placeholder="Пароль" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-400">
+                </div>
+                <button id="admin-login-btn" onclick="adminLogin()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold">Войти</button>
+                <p class="text-[9px] text-slate-400 text-center">Доступ имеют только владелец и два администратора.</p>
+            </div>
+              <div id="admin-panel" class="hidden space-y-3"><div id="admin-role-banner" class="settings-access-banner"></div><div id="admin-role-description" class="settings-reference-status"></div><div id="owner-permissions-section" class="hidden pt-2 border-t border-slate-100 space-y-3">
+                    <div>
+                        <div class="text-[11px] font-semibold text-slate-700">Права администраторов</div>
+                        <p class="text-[9px] text-slate-400 mt-0.5">Каждое право работает отдельно. Если право выключено, соответствующие кнопки и функции полностью скрываются.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <details class="admin-permission-card rounded-xl border border-slate-200 bg-slate-50 p-3" open>
+                            <summary class="admin-permission-summary text-xs font-bold text-slate-800">
+                                <span>Администратор 1 <span class="font-normal text-slate-400">(admin1)</span></span>
+                                <i class="fa-solid fa-chevron-down text-slate-400"></i>
+                            </summary>
+                            <div class="admin-permission-options space-y-2 pt-2">
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Редактирование журнала</span>
+                                <input id="perm-admin1-journal" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Редактирование расписания</span>
+                                <input id="perm-admin1-schedule" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Изменение главной информации</span>
+                                <input id="perm-admin1-groupInfo" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Управление составом группы</span>
+                                <input id="perm-admin1-students" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Резервные копии</span>
+                                <input id="perm-admin1-backups" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Управление правами администраторов</span>
+                                <input id="perm-admin1-manageAdmins" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Публикация уведомлений</span>
+                                <input id="perm-admin1-notifications" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Ответы в поддержке</span>
+                                <input id="perm-admin1-support" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            </div>
+                        </details>
+                        <details class="admin-permission-card rounded-xl border border-slate-200 bg-slate-50 p-3">
+                            <summary class="admin-permission-summary text-xs font-bold text-slate-800">
+                                <span>Администратор 2 <span class="font-normal text-slate-400">(admin2)</span></span>
+                                <i class="fa-solid fa-chevron-down text-slate-400"></i>
+                            </summary>
+                            <div class="admin-permission-options space-y-2 pt-2">
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Редактирование журнала</span>
+                                <input id="perm-admin2-journal" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Редактирование расписания</span>
+                                <input id="perm-admin2-schedule" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Изменение главной информации</span>
+                                <input id="perm-admin2-groupInfo" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Управление составом группы</span>
+                                <input id="perm-admin2-students" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Резервные копии</span>
+                                <input id="perm-admin2-backups" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Управление правами администраторов</span>
+                                <input id="perm-admin2-manageAdmins" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Публикация уведомлений</span>
+                                <input id="perm-admin2-notifications" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            <label class="flex items-center justify-between gap-3 text-xs text-slate-700 cursor-pointer">
+                                <span>Ответы в поддержке</span>
+                                <input id="perm-admin2-support" type="checkbox" class="w-4 h-4 accent-indigo-600">
+                            </label>
+                            </div>
+                        </details>
+                    </div>
+                    <button id="save-admin-permissions-btn" onclick="saveAdminPermissions()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">Сохранить права</button>
+                    <div id="admin-permissions-status" class="text-[9px] text-slate-400 text-center">Права синхронизируются через Firebase.</div>
+                </div></div>
+            </div>
+          </details>
+          <details class="settings-reference-card hidden" id="settings-backups-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span><span class="settings-reference-copy"><strong>Резервные копии</strong><small>Сохранение и восстановление данных</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <div class="settings-reference-content"><div id="owner-backup-section" class="hidden pt-2 border-t border-slate-100 space-y-2">
+                    <div class="text-[11px] font-semibold text-slate-600">Резервная копия сайта</div>
+                    <div id="backup-status" class="text-[10px] text-slate-400">Резервная копия ещё не создана</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="createManualBackup()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Создать копию</button>
+                        <button onclick="restoreLatestBackup()" class="py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 text-xs font-semibold">Восстановить данные</button>
+                    </div>
+                    <p class="text-[9px] text-slate-400">Этот блок показывается только при наличии права «Резервные копии».</p>
+                </div></div>
+          </details>
+          <details class="settings-reference-card" id="settings-notifications-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-regular fa-bell"></i></span><span class="settings-reference-copy"><strong>Уведомления</strong><small>Звук и уведомления на устройство</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <div class="settings-reference-content notification-preferences">
+              <label class="notification-preference-row"><span><strong>Звук уведомлений</strong><small>Ответы поддержки и новые объявления</small></span><input id="notification-sound-toggle" type="checkbox"></label>
+              <button id="notification-sound-test" class="notification-setting-button" type="button"><i class="fa-solid fa-volume-low"></i> <span>Послушать звук</span></button>
+              <p>Уведомления на устройство включаются только с вашего разрешения</p>
+              <button id="notification-device-enable" class="notification-setting-button primary" type="button">Разрешить уведомления</button>
+              <button id="notification-device-disable" class="notification-setting-button" type="button" hidden>Отключить уведомления</button>
+              <p id="notification-device-status" role="status" data-i18n-skip></p>
+            </div>
+          </details>
+          <details class="settings-reference-card" id="settings-system-section">
+            <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-circle-info"></i></span><span class="settings-reference-copy"><strong>Система</strong><small>Версия и состояние синхронизации</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
+            <div class="settings-reference-content settings-system-grid"><span>Версия сайта</span><strong id="settings-build-version" data-i18n-skip></strong><span>Синхронизация</span><strong id="settings-sync-status"></strong></div>
+          </details>
+        </div>
+        <button id="settings-logout" type="button" class="settings-reference-logout hidden" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket"></i><span>Выйти из режима администратора</span></button>
+      </div>
+    </div>
+
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 w-[90%] max-w-sm pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-3 border border-slate-800">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span id="toast-message" class="text-xs font-medium">Скопировано в буфер обмена</span>
+        </div>
+    </div>
+
+    <div id="app-update-bar" class="app-update-bar hidden" role="status" aria-live="polite" aria-atomic="true">
+        <span class="app-update-icon"><i class="fa-solid fa-arrow-rotate-right"></i></span>
+        <div class="app-update-copy">
+            <strong>Доступно обновление</strong>
+            <span>Обновите сайт и приложение до актуальной версии.</span>
+        </div>
+        <button id="app-update-now" type="button">Обновить сейчас</button>
+        <button id="app-update-later" type="button" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="undo-action-bar" class="undo-action-bar hidden" role="status" aria-live="polite" aria-atomic="true">
+        <span class="undo-action-icon"><i class="fa-solid fa-rotate-left"></i></span>
+        <span id="undo-action-message" class="undo-action-message">Изменение выполнено</span>
+        <button id="undo-action-button" type="button">Отменить</button>
+        <button id="undo-action-close" type="button" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div id="system-status-banner" class="system-status-banner hidden" role="status" aria-live="polite" aria-atomic="true">
+        <span class="system-status-icon"><i id="system-status-icon" class="fa-solid fa-circle-info"></i></span>
+        <div class="system-status-copy">
+            <strong id="system-status-title">Состояние системы</strong>
+            <span id="system-status-text">—</span>
+        </div>
+        <button id="system-status-close" type="button" class="system-status-close hidden" onclick="dismissSystemStatus()" aria-label="Скрыть сообщение">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <header class="sbp-brandbar" data-i18n-skip>
+      
+      <div class="sbp-language" aria-label="Язык"><button type="button" data-sbp-lang="ru" aria-pressed="true">РУ</button><button type="button" data-sbp-lang="kz" aria-pressed="false">КЗ</button></div>
+    </header>
+    <div id="view-home" class="home-overview home-reference max-w-md mx-auto min-h-screen flex flex-col pb-20">
+        <div class="app-mobile-topbar home-ref-topbar">
+            <button class="home-ref-topbtn" onclick="openAppMenu()" aria-label="Меню"><i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span></button>
+            <div class="home-ref-page-title">Главная</div>
+            <button class="home-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+                <i class="fa-regular fa-bell"></i>
+                <span id="notification-badge" class="notification-badge hidden">0</span>
+            </button>
+        </div>
+
+        <div class="section-skeleton section-skeleton-home" aria-hidden="true">
+            <div class="skeleton-card skeleton-hero">
+                <span class="skeleton-shape skeleton-avatar skeleton-avatar-lg"></span>
+                <div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-52"></span><span class="skeleton-shape skeleton-line w-30"></span></div>
+            </div>
+            <div class="skeleton-card skeleton-stack">
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-square"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-56"></span><span class="skeleton-shape skeleton-line w-36"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-square"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-64"></span><span class="skeleton-shape skeleton-line w-44"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-square"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-48"></span><span class="skeleton-shape skeleton-line w-32"></span></div></div>
+            </div>
+        </div>
+
+        <main class="home-ref-shell">
+            <section id="home-pinned-announcement" class="gt-pinned-announcement" data-i18n-skip hidden></section>
+            <section id="sbp-home-banner" class="sbp-cover-banner" aria-label="Баннер главной страницы" data-aria-ru="Баннер главной страницы" data-aria-kz="Басты беттің баннері">
+                <img alt="" hidden><button type="button" class="sbp-banner-edit" onclick="openBannerEditor('home')" hidden data-i18n-skip>✎ <span class="sbp-banner-edit-text" data-ru="Изменить баннер" data-kz="Баннерді өзгерту">Изменить баннер</span></button>
+            </section>
+            <section class="home-ref-group-card">
+                <button type="button" id="group-icon-home" class="home-ref-group-icon" onclick="openGroupSettings()" disabled aria-disabled="true" aria-label="Изменить иконку группы"><i class="fa-solid fa-user-group"></i></button>
+                <div class="home-ref-group-copy">
+                    <h1 id="group-name" class="admin-inline-edit" data-group-field="groupName" tabindex="0">ТОЭ-26-9-1</h1>
+                    <div class="home-ref-student-line"><span id="group-student-count">19</span> студентов</div>
+                </div>
+            </section>
+
+            <section class="home-ref-today">
+                <section id="home-tomorrow-changes" data-i18n-skip aria-live="polite" hidden></section>
+                <div class="home-ref-today-head">
+                    <h2 id="home-reference-title">Сегодня</h2>
+                    <div class="home-ref-date">
+                        <strong id="home-reference-date">—</strong>
+                        <span id="home-reference-weekday">—</span>
+                    </div>
+                </div>
+                <div id="home-day-timeline" class="home-ref-schedule-list"></div>
+                <button id="home-schedule-toggle" type="button" onclick="toggleHomeScheduleOverview()" data-i18n-skip aria-controls="home-day-timeline" aria-expanded="false" hidden>Показать остальные пары</button>
+            </section>
+
+            <section class="home-ref-notifications">
+                <div class="home-ref-section-head">
+                    <h2>Последние уведомления</h2>
+                    <button onclick="openNotifications()">Все уведомления <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div id="home-latest-notification"></div>
+            </section>
+
+            <span id="group-name-footer" class="hidden">ТОЭ-26-9-1</span>
+        </main>
+    </div>
+
+    <div id="view-tracker" class="hidden journal-reference-page min-h-screen">
+        <div class="journal-ref-topbar">
+            <button class="journal-ref-topbtn" onclick="openAppMenu()" aria-label="Меню"><i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span></button>
+            <div class="journal-ref-title">
+                <h1>Журнал</h1>
+                <span>Посещаемость студентов</span>
+            </div>
+            <button class="journal-ref-topbtn journal-ref-bell" onclick="openNotifications()" aria-label="Уведомления"><i class="fa-regular fa-bell"></i></button>
+        </div>
+
+        <div class="section-skeleton section-skeleton-tracker" aria-hidden="true">
+            <div class="skeleton-tabs"><span class="skeleton-shape"></span><span class="skeleton-shape"></span></div>
+            <div class="skeleton-datebar"><span class="skeleton-shape skeleton-button"></span><span class="skeleton-shape skeleton-line w-46"></span><span class="skeleton-shape skeleton-button"></span></div>
+            <div class="skeleton-card skeleton-table">
+                <div class="skeleton-table-head"><span class="skeleton-shape skeleton-line w-32"></span><span class="skeleton-shape skeleton-line w-24"></span><span class="skeleton-shape skeleton-line w-28"></span></div>
+                <div class="skeleton-table-row"><span class="skeleton-shape skeleton-avatar"></span><span class="skeleton-shape skeleton-line w-48"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span></div>
+                <div class="skeleton-table-row"><span class="skeleton-shape skeleton-avatar"></span><span class="skeleton-shape skeleton-line w-58"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span></div>
+                <div class="skeleton-table-row"><span class="skeleton-shape skeleton-avatar"></span><span class="skeleton-shape skeleton-line w-42"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span></div>
+                <div class="skeleton-table-row"><span class="skeleton-shape skeleton-avatar"></span><span class="skeleton-shape skeleton-line w-54"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span><span class="skeleton-shape skeleton-pill"></span></div>
+            </div>
+        </div>
+        <span id="tracker-group-name" class="hidden">ТОЭ-26-9-1</span>
+        <span id="tracker-curator" class="hidden">Негманова Г.Б.</span>
+
+        <div class="journal-section-tabs" role="tablist" aria-label="Разделы журнала">
+            <button id="journal-tab-editor" class="active" type="button" onclick="showJournalTab('editor')">Журнал</button>
+            <button id="journal-tab-stats" type="button" onclick="showJournalTab('stats')">Оценка посещаемости</button>
+        </div>
+
+        <section id="journal-editor-main" class="journal-editor-view">
+            <div class="journal-ref-datebar">
+                <button type="button" class="journal-ref-arrow" onclick="changeJournalDate(-1)" aria-label="Предыдущий день"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="relative journal-ref-datewrap">
+                    <input type="date" id="date-picker" onchange="onDateChanged()" class="sr-only" aria-hidden="true" tabindex="-1">
+                    <button type="button" id="calendar-trigger" data-calendar-toggle onclick="toggleMiniCalendar()" class="journal-ref-date-trigger">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <span id="calendar-trigger-text">Сегодня</span>
+                    </button>
+                    <div id="mini-calendar" class="mini-calendar is-hidden">
+                        <div class="mini-calendar-head">
+                            <button type="button" onclick="changeMiniCalendarMonth(-1)" class="mini-calendar-nav" aria-label="Предыдущий месяц"><i class="fa-solid fa-chevron-left"></i></button>
+                            <div id="mini-calendar-title" class="mini-calendar-title"></div>
+                            <button type="button" onclick="changeMiniCalendarMonth(1)" class="mini-calendar-nav" aria-label="Следующий месяц"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="mini-calendar-week"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+                        <div id="mini-calendar-days" class="mini-calendar-days"></div>
+                        <button type="button" onclick="selectMiniCalendarDate(formatLocalDate(new Date()))" class="mini-calendar-today">Сегодня</button>
+                    </div>
+                </div>
+                <button type="button" class="journal-ref-arrow" onclick="changeJournalDate(1)" aria-label="Следующий день"><i class="fa-solid fa-chevron-right"></i></button>
+                <button type="button" class="journal-ref-calendar-btn" data-calendar-toggle onclick="toggleMiniCalendar()"><i class="fa-regular fa-calendar-days"></i> Календарь</button>
+                <button type="button" class="journal-ref-today-btn" onclick="goToToday()">Сегодня</button>
+            </div>
+
+            <main class="journal-ref-editor journal-ref-editor-wide">
+                <div id="journal-admin-hint" class="journal-ref-admin-hint">
+                    <i class="fa-solid fa-lock"></i><span>Изменение журнала доступно только администратору</span>
+                </div>
+
+                <div class="journal-ref-controls">
+                    <div id="save-status" class="save-status journal-ref-save"><span class="dot"></span><span id="save-status-text">Сохранено</span></div>
+                    <span id="selected-date-label" class="hidden">Сегодня</span>
+                    <div id="journal-edit-tools" class="journal-ref-edit-tools">
+                        <button onclick="markAll('present')"><i class="fa-solid fa-check"></i><span>Все присутствуют</span></button>
+                    </div>
+                </div>
+
+                <div class="journal-ref-table">
+                    <div class="journal-ref-head">
+                        <span>№</span><span>ФИО</span>
+                        <span class="status-head present">П</span>
+                        <span class="status-head sick">Б</span>
+                        <span class="status-head excused">У</span>
+                        <span class="status-head unexcused">Н</span>
+                        <span class="status-head late">О</span>
+                        <span class="note-head">Примечание</span>
+                    </div>
+                    <div id="students-container" class="journal-ref-students"></div>
+                </div>
+
+                <section id="journal-report-actions" class="journal-inline-actions">
+                    <h2>Быстрые действия</h2>
+                    <div>
+                        <button onclick="openReportPreview('absent')"><i class="fa-regular fa-file-lines"></i><span>Отчёт за день</span></button>
+                        <button onclick="openReportPreview('full')"><i class="fa-regular fa-calendar"></i><span>Полный отчёт</span></button>
+                    </div>
+                </section>
+            </main>
+        </section>
+
+        <section id="attendance-analytics" class="journal-assessment-view hidden">
+            <section class="journal-ref-panel journal-group-panel assessment-group-summary">
+                <div class="journal-ref-panel-head"><div><h2>Статистика группы</h2><span>За выбранную в журнале дату</span></div></div>
+                <div class="journal-group-tiles">
+                    <div class="present"><span>Присутствуют</span><strong id="stat-present">0</strong></div>
+                    <div class="sick"><span>Болеют</span><strong id="stat-sick">0</strong></div>
+                    <div class="excused"><span>Уважительная</span><strong id="stat-excused">0</strong></div>
+                    <div class="unexcused"><span>Неуважительная</span><strong id="stat-unexcused">0</strong></div>
+                    <div class="late"><span>Опоздания</span><strong id="stat-late">0</strong></div>
+                </div>
+                <div class="journal-group-progress"><i id="journal-group-progress" style="width:0%"></i></div>
+                <div class="journal-group-meta"><span id="journal-group-percent">Посещаемость группы: 0%</span><span id="journal-group-marked">0 из 0</span></div>
+            </section>
+
+            <section id="attendance-student-list-view" class="journal-ref-panel assessment-list-panel">
+                <div class="journal-ref-panel-head">
+                    <div><h2>Все студенты</h2><span>Посещаемость за всё сохранённое время</span></div>
+                </div>
+                <div class="assessment-list-head">
+                    <span>Студент</span><span>Посещ.</span><span>П</span><span>Б</span><span>У</span><span>Н</span><span>О</span><span>Пропуски</span>
+                </div>
+                <div id="attendance-student-list" class="assessment-student-list"></div>
+            </section>
+
+            <section id="attendance-student-detail" class="journal-ref-panel assessment-detail-panel hidden">
+                <button type="button" class="assessment-back-btn" onclick="closeAttendanceStudentDetail()"><i class="fa-solid fa-chevron-left"></i> Все студенты</button>
+                <div class="assessment-detail-head">
+                    <div id="assessment-detail-avatar" class="assessment-detail-avatar"></div>
+                    <div class="assessment-detail-name"><h2 id="assessment-detail-name">—</h2><span>Полная история посещаемости</span></div>
+                    <strong id="assessment-detail-percent">0%</strong>
+                </div>
+                <div class="assessment-detail-stats">
+                    <div class="present"><span>Присутствовал</span><strong id="assessment-detail-present">0</strong></div>
+                    <div class="sick"><span>Болел</span><strong id="assessment-detail-sick">0</strong></div>
+                    <div class="excused"><span>Уважительная</span><strong id="assessment-detail-excused">0</strong></div>
+                    <div class="unexcused"><span>Неуважительная</span><strong id="assessment-detail-unexcused">0</strong></div>
+                    <div class="late"><span>Опоздания</span><strong id="assessment-detail-late">0</strong></div>
+                    <div class="total"><span>Всего отметок</span><strong id="assessment-detail-total">0</strong></div>
+                </div>
+                <div id="assessment-detail-history" class="assessment-detail-history"></div>
+            </section>
+        </section>
+    </div>
+
+    <div id="view-schedule" class="hidden schedule-reference-page min-h-screen">
+        <div class="schedule-ref-topbar">
+            <button class="schedule-ref-topbtn" onclick="openAppMenu()" aria-label="Меню"><i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span></button>
+            <div class="schedule-ref-title"><h1>Расписание</h1><span id="schedule-group-name" class="hidden">ТОЭ-26-9-1</span></div>
+            <button class="schedule-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+        </div>
+
+        <div class="section-skeleton section-skeleton-schedule" aria-hidden="true">
+            <div class="skeleton-tabs"><span class="skeleton-shape"></span><span class="skeleton-shape"></span></div>
+            <div class="skeleton-datebar"><span class="skeleton-shape skeleton-button"></span><span class="skeleton-shape skeleton-line w-52"></span><span class="skeleton-shape skeleton-button"></span></div>
+            <div class="skeleton-days"><span class="skeleton-shape"></span><span class="skeleton-shape"></span><span class="skeleton-shape"></span><span class="skeleton-shape"></span><span class="skeleton-shape"></span></div>
+            <div class="skeleton-card skeleton-stack">
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-circle-sm"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-30"></span><span class="skeleton-shape skeleton-line w-64"></span><span class="skeleton-shape skeleton-line w-52"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-circle-sm"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-36"></span><span class="skeleton-shape skeleton-line w-58"></span><span class="skeleton-shape skeleton-line w-46"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-circle-sm"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-28"></span><span class="skeleton-shape skeleton-line w-68"></span><span class="skeleton-shape skeleton-line w-50"></span></div></div>
+            </div>
+        </div>
+
+        <div class="schedule-ref-week-switch" role="tablist" aria-label="Тип недели">
+            <button type="button" onclick="setScheduleWeekType('numerator')" id="sched-btn-num">Числитель</button>
+            <button type="button" onclick="setScheduleWeekType('denominator')" id="sched-btn-den">Знаменатель</button>
+        </div>
+
+        <div class="schedule-ref-datebar">
+            <button type="button" class="schedule-ref-date-arrow" onclick="shiftScheduleReferenceDate(-1)" aria-label="Предыдущий учебный день">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="schedule-ref-date-copy">
+                <div><i class="fa-regular fa-calendar-days"></i><strong id="schedule-reference-date">—</strong></div>
+                <span id="schedule-week-range">—</span>
+            </div>
+            <button type="button" class="schedule-ref-date-arrow" onclick="shiftScheduleReferenceDate(1)" aria-label="Следующий учебный день">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="schedule-ref-days">
+            <button type="button" onclick="setScheduleDay('mon')" id="tab-mon"><strong>Пн</strong><span id="date-mon">—</span></button>
+            <button type="button" onclick="setScheduleDay('tue')" id="tab-tue"><strong>Вт</strong><span id="date-tue">—</span></button>
+            <button type="button" onclick="setScheduleDay('wed')" id="tab-wed"><strong>Ср</strong><span id="date-wed">—</span></button>
+            <button type="button" onclick="setScheduleDay('thu')" id="tab-thu"><strong>Чт</strong><span id="date-thu">—</span></button>
+            <button type="button" onclick="setScheduleDay('fri')" id="tab-fri"><strong>Пт</strong><span id="date-fri">—</span></button>
+        </div>
+
+        <div id="home-week-banner-text" class="hidden">—</div>
+        <span id="home-week-dates" class="hidden">—</span>
+
+        <div id="schedule-edit-scope-box" class="hidden" style="margin:12px 16px;padding:12px;background:#f5f3ff;border-radius:14px">
+            <label for="schedule-edit-scope">Режим изменений</label>
+            <select id="schedule-edit-scope" onchange="setScheduleEditScope(this.value)" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #e9e5f3;border-radius:10px;background:white">
+                <option value="date">Только на выбранную дату</option>
+                <option value="template">Постоянное расписание</option>
+            </select>
+            <p id="schedule-scope-hint" data-i18n-skip style="font-size:12px;margin:8px 0 0"></p>
+        </div>
+        <button id="schedule-pause-manage-btn" type="button" onclick="openSchedulePauseEditor()" class="schedule-pause-manage hidden"><span><i class="fa-solid fa-pause"></i></span><div><strong>Пауза расписания</strong><small>Каникулы или технические работы</small></div><i class="fa-solid fa-chevron-right"></i></button>
+        <div id="schedule-pause-status" class="hidden"></div>
+        <button id="schedule-add-btn" onclick="openScheduleEditor(-1)" class="schedule-ref-add hidden">
+            <i class="fa-solid fa-plus"></i><span>Добавить пару</span>
+        </button>
+                    <button id="schedule-bell-btn" onclick="openScheduleBellEditor()" class="schedule-bell-btn hidden"><span class="schedule-bell-btn-icon"><i class="fa-solid fa-clock"></i></span><span class="schedule-bell-btn-copy"><strong>Расписание звонков</strong><small>Настроить время пар и перемен</small></span><i class="fa-solid fa-chevron-right schedule-bell-btn-arrow"></i></button>
+
+        <div id="schedule-live-summary"></div>
+        <button id="schedule-share-button" class="gt-share-button" type="button" data-i18n-skip><i class="fa-solid fa-arrow-up-from-bracket"></i><span data-gt="share">Поделиться расписанием</span></button>
+        <div id="schedule-day-heading" class="schedule-ref-day-heading"></div>
+        <div id="schedule-container" class="schedule-ref-timeline"></div>
+    </div>
+
+    <div id="view-college" class="hidden college-page" data-i18n-skip>
+      <div class="college-topbar"><button type="button" onclick="openAppMenu()" data-sbp-aria="menu" aria-label="Меню"><i class="fa-solid fa-bars"></i></button><h1 data-sbp-text="college">О колледже</h1><button type="button" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления"><i class="fa-regular fa-bell"></i></button></div>
+      <main id="college-content"></main>
+    </div>
+
+    <div id="view-roster" class="hidden roster-reference-page min-h-screen flex flex-col max-w-2xl mx-auto p-4 pb-20">
+        <div class="roster-ref-topbar">
+            <button class="roster-ref-topbtn" onclick="openAppMenu()" aria-label="Меню">
+                <i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span>
+            </button>
+            <div class="roster-ref-title">
+                <h1>Группа <span id="roster-group-name" class="hidden">ТОЭ-26-9-1</span></h1>
+                <span><span id="roster-student-count">19</span> студентов</span>
+            </div>
+            <button class="roster-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+        </div>
+        <section id="sbp-group-banner" class="sbp-cover-banner sbp-roster-cover" aria-label="Баннер группы" data-aria-ru="Баннер группы" data-aria-kz="Топ баннері">
+            <img alt="" hidden><button type="button" class="sbp-banner-edit" onclick="openBannerEditor('group')" hidden data-i18n-skip>✎ <span class="sbp-banner-edit-text" data-ru="Изменить баннер" data-kz="Баннерді өзгерту">Изменить баннер</span></button>
+        </section>
+        <button id="group-icon-roster" type="button" class="sbp-roster-icon" onclick="openGroupSettings()" disabled aria-label="Иконка группы" data-aria-ru="Иконка группы" data-aria-kz="Топ белгішесі"><i class="fa-solid fa-user-group"></i></button>
+
+        <div class="section-skeleton section-skeleton-roster" aria-hidden="true">
+            <div class="skeleton-grid skeleton-grid-3">
+                <div class="skeleton-card skeleton-profile"><span class="skeleton-shape skeleton-avatar skeleton-avatar-lg"></span><span class="skeleton-shape skeleton-line w-38"></span><span class="skeleton-shape skeleton-line w-58"></span></div>
+                <div class="skeleton-card skeleton-profile"><span class="skeleton-shape skeleton-avatar skeleton-avatar-lg"></span><span class="skeleton-shape skeleton-line w-34"></span><span class="skeleton-shape skeleton-line w-52"></span></div>
+                <div class="skeleton-card skeleton-profile"><span class="skeleton-shape skeleton-avatar skeleton-avatar-lg"></span><span class="skeleton-shape skeleton-line w-42"></span><span class="skeleton-shape skeleton-line w-48"></span></div>
+            </div>
+            <div class="skeleton-section-label"><span class="skeleton-shape skeleton-line w-36"></span></div>
+            <div class="skeleton-card skeleton-stack">
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-avatar"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-56"></span><span class="skeleton-shape skeleton-line w-30"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-avatar"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-62"></span><span class="skeleton-shape skeleton-line w-26"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-avatar"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-48"></span><span class="skeleton-shape skeleton-line w-34"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton-shape skeleton-avatar"></span><div class="skeleton-copy"><span class="skeleton-shape skeleton-line w-54"></span><span class="skeleton-shape skeleton-line w-28"></span></div></div>
+            </div>
+        </div>
+
+        <div class="group-leadership-grid">
+            <div class="leadership-card"><button type="button" id="leader-avatar-curator-roster" class="leader-profile-avatar" disabled aria-disabled="true" onclick="openLeaderPhotoEditor('curator')" aria-label="Фото куратора"><i class="fa-regular fa-user"></i></button><span>Куратор</span><strong id="roster-curator">Негманова Г.Б.</strong></div>
+            <div class="leadership-card"><button type="button" id="leader-avatar-headman-roster" class="leader-profile-avatar" disabled aria-disabled="true" onclick="openLeaderPhotoEditor('headman')" aria-label="Фото старосты"><i class="fa-regular fa-user"></i></button><span>Староста</span><strong id="roster-headman">Синёв Б.П.</strong></div>
+            <div class="leadership-card"><button type="button" id="leader-avatar-deputy-roster" class="leader-profile-avatar" disabled aria-disabled="true" onclick="openLeaderPhotoEditor('deputy')" aria-label="Фото заместителя старосты"><i class="fa-regular fa-user"></i></button><span>Зам. старосты</span><strong id="roster-deputy">—</strong></div>
+        </div>
+
+        <div class="roster-section-divider"><h2>Состав группы</h2></div>
+
+        <div id="roster-admin-tools" class="hidden roster-profile-tools">
+            <div>
+                <strong>Управление составом</strong>
+                <span>Пол, аватар и фото синхронизируются вместе с составом группы.</span>
+            </div>
+            <button onclick="openStudentProfileEditor(-1)"><i class="fa-solid fa-plus"></i> Добавить ученика</button>
+        </div>
+
+        <div id="roster-container" class="space-y-2">
+            <!-- Populated via JS -->
+        </div>
+    </div>
+
+    <div id="leader-profile-modal" class="app-overlay hidden" onclick="if(event.target===this) closeLeaderPhotoEditor()">
+        <section class="leader-profile-modal-card">
+            <div class="student-profile-modal-head">
+                <div><span>Фото профиля</span><h2 id="leader-profile-modal-title">Профиль</h2></div>
+                <button type="button" onclick="closeLeaderPhotoEditor()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="student-profile-preview-wrap">
+                <div id="leader-profile-preview" class="leader-profile-preview"><i class="fa-regular fa-user"></i></div>
+                <div><strong id="leader-profile-name">—</strong><span>Фото будет отображаться на Главной и в разделе «Группа».</span></div>
+            </div>
+
+            <div class="student-profile-field">
+                <span>Фотография</span>
+                <div class="student-photo-actions">
+                    <label class="student-photo-upload"><i class="fa-regular fa-image"></i> Выбрать фото<input id="leader-profile-photo" type="file" accept="image/*" onchange="handleLeaderProfilePhoto(this)"></label>
+                    <button id="leader-profile-remove-photo" type="button" onclick="removeLeaderProfilePhoto()"><i class="fa-regular fa-trash-can"></i> Убрать фото</button>
+                </div>
+                <small>Фотография будет видна всем посетителям сайта. Перед сохранением изображение уменьшается и пере-кодируется без EXIF/геометок.</small>
+            </div>
+
+            <div class="student-profile-modal-actions">
+                <button type="button" class="secondary" onclick="closeLeaderPhotoEditor()">Отмена</button>
+                <button type="button" class="primary" onclick="saveLeaderProfilePhoto()">Сохранить</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="student-profile-modal" class="app-overlay hidden" onclick="if(event.target===this) closeStudentProfileEditor()">
+        <section class="student-profile-modal-card">
+            <div class="student-profile-modal-head">
+                <div><span>Профиль студента</span><h2 id="student-profile-modal-title">Добавление ученика</h2></div>
+                <button type="button" onclick="closeStudentProfileEditor()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="student-profile-preview-wrap">
+                <div id="student-profile-preview" class="student-profile-preview neutral"><i class="fa-solid fa-user"></i></div>
+                <div><strong>Аватар</strong><span>Фото необязательно. Без фото используется цветная иконка по выбранному полу.</span></div>
+            </div>
+
+            <label class="student-profile-field">
+                <span>Фамилия и имя *</span>
+                <input id="student-profile-name" maxlength="80" placeholder="Например: Абрамов Артём">
+            </label>
+
+            <div class="student-profile-field">
+                <span>Пол *</span>
+                <div class="student-gender-switch">
+                    <button id="student-gender-male" type="button" onclick="setStudentProfileGender('male')"><i class="fa-solid fa-user"></i> Мужской</button>
+                    <button id="student-gender-female" type="button" onclick="setStudentProfileGender('female')"><i class="fa-solid fa-user"></i> Женский</button>
+                </div>
+            </div>
+
+            <div class="student-profile-field">
+                <span>Фото профиля</span>
+                <div class="student-photo-actions">
+                    <label class="student-photo-upload"><i class="fa-regular fa-image"></i> Выбрать фото<input id="student-profile-photo" type="file" accept="image/*" onchange="handleStudentProfilePhoto(this)"></label>
+                    <button id="student-profile-remove-photo" type="button" onclick="removeStudentProfilePhoto()"><i class="fa-regular fa-trash-can"></i> Убрать фото</button>
+                </div>
+                <small>Фотография будет видна всем посетителям сайта. Перед сохранением изображение уменьшается и пере-кодируется без EXIF/геометок.</small>
+            </div>
+
+            <div class="student-profile-modal-actions">
+                <button type="button" class="secondary" onclick="closeStudentProfileEditor()">Отмена</button>
+                <button type="button" class="primary" onclick="saveStudentProfile()">Сохранить</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="schedule-bell-modal" class="bell-editor-overlay hidden" onclick="if(event.target===this) closeScheduleBellEditor()">
+        <section class="bell-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="schedule-bell-title">
+            <header class="bell-editor-header">
+                <span class="bell-editor-icon"><i class="fa-solid fa-clock"></i></span>
+                <div><h2 id="schedule-bell-title">Расписание звонков</h2><p>Для выбранного учебного дня</p></div>
+                <button type="button" class="bell-editor-close" onclick="closeScheduleBellEditor()" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="bell-editor-body">
+                <p id="schedule-bell-scope" data-i18n-skip></p>
+                <p class="bell-editor-note">Измените начало первой пары, длительность занятий и перемены. Время всех следующих пар пересчитается автоматически.</p>
+                <div class="bell-editor-fields">
+                    <label>Начало первой пары<input id="schedule-bell-start" type="time" oninput="renderScheduleBellPreview()"></label>
+                    <label>Длительность пары, мин<input id="schedule-bell-duration" type="number" inputmode="numeric" min="1" max="240" value="60" oninput="renderScheduleBellPreview()"></label>
+                </div>
+                <div id="schedule-bell-breaks" class="bell-editor-fields"></div>
+                <div class="bell-editor-preview-section"><h3>Предпросмотр</h3><div id="schedule-bell-preview"></div></div>
+            </div>
+            <footer class="bell-editor-actions">
+                <button type="button" class="bell-editor-cancel" onclick="closeScheduleBellEditor()">Отмена</button>
+                <button type="button" class="bell-editor-save" onclick="saveScheduleBellEditor()">Применить ко всему дню</button>
+            </footer>
+        </section>
+    </div>
+
+    <div id="schedule-editor-modal" onclick="if(event.target===this) closeScheduleEditor()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-[70] hidden items-center justify-center p-4">
+        <div class="schedule-editor-sheet bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="modal-sticky-header flex items-center justify-between">
+                <div><h2 id="schedule-editor-title" class="font-bold text-base text-slate-900">Редактирование пары</h2><p class="text-[11px] text-slate-500 mt-0.5">Только для администратора</p></div>
+                <button onclick="closeScheduleEditor()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-xmark text-xs"></i></button>
+            </div>
+            <p id="schedule-editor-scope" data-i18n-skip class="text-xs text-indigo-700"></p>
+            <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-3 text-[10px] text-indigo-800">
+                Текущие данные пары подставляются автоматически. Выберите тип изменения — редактор оставит активными только нужные поля.
+            </div>
+            <label class="block text-[11px] text-slate-600">Тип изменения
+                <select id="edit-change-type" onchange="onScheduleChangeTypeChanged()" class="mt-1 w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm">
+                    <option value="normal">Обычное редактирование</option>
+                    <option value="room">Замена кабинета</option>
+                    <option value="teacher">Замена преподавателя</option>
+                    <option value="subject">Замена предмета</option>
+                    <option value="time">Перенос пары / изменение времени</option>
+                    <option value="replace">Полная замена пары</option>
+                    <option value="cancel">Пары не будет</option>
+                </select>
+            </label>
+            <div id="schedule-change-hint" class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-[10px] text-slate-600">Можно изменить любые данные пары.</div>
+            <div class="grid grid-cols-2 gap-2">
+                <label class="text-[11px] text-slate-600">Время<input id="edit-time" list="schedule-time-list" onchange="onScheduleTimeChanged();onScheduleEditorFieldChanged()" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="08:00 - 09:30"></label>
+                <label class="text-[11px] text-slate-600">Перемена<input id="edit-break" list="schedule-break-list" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="Перемена: 10 мин"></label>
+            </div>
+            <label class="block text-[11px] text-slate-600">Предмет<input id="edit-subject" list="schedule-subject-list" onchange="onScheduleSubjectChanged();onScheduleEditorFieldChanged()" oninput="onScheduleSubjectChanged(true);onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="Начните вводить предмет"></label>
+            <label class="block text-[11px] text-slate-600">Кабинет / место<input id="edit-room" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></label>
+            <label class="block text-[11px] text-slate-600">Преподаватель<input id="edit-teacher" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"></label>
+            <label class="block text-[11px] text-slate-600">Комментарий / текст изменения
+                <textarea id="edit-change-note" rows="2" oninput="markScheduleChangeNoteManual()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm resize-none" placeholder="Сформируется автоматически, но можно изменить вручную"></textarea>
+            </label>
+            <datalist id="schedule-subject-list"></datalist>
+            <datalist id="schedule-time-list"></datalist>
+            <datalist id="schedule-break-list"></datalist>
+            <label class="flex items-center gap-2 text-xs text-slate-600"><input id="edit-class-hour" type="checkbox" class="w-4 h-4"> Классный час</label>
+            <div class="flex gap-2"><button id="schedule-delete-btn" onclick="deleteScheduleLesson()" class="hidden flex-1 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 text-sm font-semibold">Удалить</button><button onclick="saveScheduleLesson()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold">Сохранить</button></div>
+        </div>
+    </div>
+
+    <div id="schedule-pause-modal" class="app-overlay hidden" onclick="if(event.target===this) closeSchedulePauseEditor()">
+        <section class="schedule-pause-editor-card" role="dialog" aria-modal="true" aria-labelledby="schedule-pause-title">
+            <header class="schedule-pause-editor-header">
+                <span><i class="fa-solid fa-pause"></i></span>
+                <div><h2 id="schedule-pause-title">Пауза расписания</h2><p>Только для администратора</p></div>
+                <button type="button" onclick="closeSchedulePauseEditor()" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="schedule-pause-editor-body">
+                <p class="schedule-pause-editor-note">В период паузы пары, таймеры и текущий урок не отображаются. Само расписание сохраняется.</p>
+                <label>Причина
+                    <select id="schedule-pause-type">
+                        <option value="vacation">Каникулы</option>
+                        <option value="maintenance">Технические работы</option>
+                        <option value="temporary">Временная пауза</option>
+                    </select>
+                </label>
+                <div class="schedule-pause-editor-dates">
+                    <label>Начало<input id="schedule-pause-start" type="date"></label>
+                    <label>Окончание<input id="schedule-pause-end" type="date"></label>
+                </div>
+                <p class="schedule-pause-editor-auto"><i class="fa-solid fa-rotate"></i><span>Расписание автоматически возобновится после окончания периода.</span></p>
+            </div>
+            <footer class="schedule-pause-editor-actions">
+                <button id="schedule-pause-disable-btn" type="button" class="danger hidden" onclick="disableSchedulePause()">Отключить паузу</button>
+                <span></span>
+                <button type="button" class="secondary" onclick="closeSchedulePauseEditor()">Отмена</button>
+                <button type="button" class="primary" onclick="saveSchedulePause()">Сохранить</button>
+            </footer>
+        </section>
+    </div>
+
+    <div id="app-menu-drawer" class="app-overlay hidden" onclick="if(event.target===this) closeAppMenu()">
+        <aside class="app-drawer">
+            <div class="drawer-head">
+                <div><strong>SBP Information</strong><span>Информация группы</span></div>
+                <button onclick="closeAppMenu()" aria-label="Закрыть меню"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="drawer-nav-section">
+                <div class="drawer-section-label">Навигация</div>
+                <button onclick="closeAppMenu();switchView('home')"><i class="fa-solid fa-house"></i><span>Главная</span></button>
+                <button onclick="closeAppMenu();switchView('tracker')"><i class="fa-solid fa-book-open"></i><span>Журнал</span></button>
+                <button onclick="closeAppMenu();switchView('schedule')"><i class="fa-regular fa-calendar-days"></i><span>Расписание</span></button>
+                <button onclick="closeAppMenu();switchView('roster')"><i class="fa-solid fa-user-group"></i><span>Группа</span></button>
+                <button id="menu-college-button" type="button" onclick="closeAppMenu();switchView('college')" data-i18n-skip><i class="fa-solid fa-building-columns"></i><span data-sbp-text="college">О колледже</span></button>
+
+            </div>
+
+            <div class="drawer-nav-section">
+                <div class="drawer-section-label">Сервис</div>
+                <button id="menu-support-button" onclick="closeAppMenu();openSupport()"><i class="fa-regular fa-comments"></i><span>Поддержка</span><span id="support-menu-badge" class="support-unread-badge hidden" data-i18n-skip aria-live="polite">0</span></button>
+                <button onclick="closeAppMenu();openAdminSettings()"><i class="fa-solid fa-gear"></i><span>Настройки</span></button>
+                <button onclick="closeAppMenu();openHelpNavigation()"><i class="fa-regular fa-circle-question"></i><span>Помощь и навигация</span></button>
+                <button id="menu-release-history-button" type="button" onclick="openReleaseHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span id="menu-release-history-label" data-i18n-skip>История обновлений</span></button>
+                <button id="menu-action-history-button" type="button" class="hidden" data-i18n-skip><i class="fa-solid fa-list-check"></i><span data-gt="audit">История действий</span></button>
+                <button id="menu-update-button" class="drawer-install-action" type="button">
+                    <i class="fa-solid fa-arrow-rotate-right"></i>
+                    <span class="drawer-install-copy"><strong>Обновить</strong><small id="menu-update-hint" data-i18n-skip>Загрузить актуальную версию</small></span>
+                </button>
+                <button id="menu-install-button" class="drawer-install-action" type="button" onclick="installSBPApp()">
+                    <i class="fa-solid fa-arrow-down-to-line"></i>
+                    <span class="drawer-install-copy">
+                        <strong id="menu-install-label" data-i18n-skip>Установить приложение</strong>
+                        <small id="menu-install-hint" data-i18n-skip>SBP Information на этом устройстве</small>
+                    </span>
+                </button>
+                <button id="menu-apk-download-button" class="drawer-install-action drawer-apk-action is-coming-soon" type="button" disabled aria-disabled="true">
+                    <i class="fa-brands fa-android"></i>
+                    <span class="drawer-install-copy">
+                        <strong id="menu-apk-label">Android-приложение</strong>
+                        <small id="menu-apk-version">Скоро будет доступно</small>
+                    </span>
+                </button>
+            </div>
+
+            <div class="drawer-beta-card">
+                <div class="drawer-beta-head"><span>БЕТА-ВЕРСИЯ</span><i class="fa-solid fa-flask"></i></div>
+                <p>SBP Information находится в стадии тестирования. Возможны ошибки, временная недоступность и потеря локальных данных.</p>
+                <small>Безопасность и сохранность данных не гарантируются. Не используйте пароль, который применяете в других сервисах, и сохраняйте резервные копии важных данных.</small>
+                <div class="drawer-ai-note"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Сайт и приложение разрабатываются человеком с использованием технологий искусственного интеллекта.</span></div>
+            </div>
+
+            <div class="drawer-note">Сообщения поддержки и важные объявления доступны через колокольчик.</div>
+        </aside>
+    </div>
+
+    <div id="release-notes-modal" class="release-notes-overlay hidden" data-i18n-skip>
+        <section class="release-notes-sheet" role="dialog" aria-modal="true" aria-labelledby="release-notes-heading">
+            <header class="release-notes-header">
+                <span class="release-notes-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <div><span class="release-notes-eyebrow">SBP Information</span><h2 id="release-notes-heading">Что нового</h2></div>
+                <button id="release-notes-close" type="button" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div id="release-notes-content" class="release-notes-content"></div>
+            <footer class="release-notes-actions">
+                <button id="release-notes-history" type="button">История обновлений</button>
+                <button id="release-notes-acknowledge" type="button">Понятно</button>
+            </footer>
+        </section>
+    </div>
+
+    <div id="help-navigation-modal" class="app-overlay hidden" onclick="if(event.target===this) closeHelpNavigation()">
+        <section class="sheet-panel help-navigation-panel">
+            <div class="sheet-head">
+                <div><span class="eyebrow">SBP Information</span><h2>Помощь и навигация</h2></div>
+                <button onclick="closeHelpNavigation()" aria-label="Закрыть помощь"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="help-navigation-hero">
+                <i class="fa-regular fa-compass"></i>
+                <div><strong>Как пользоваться сайтом и приложением</strong><span>Короткая памятка по основным разделам и настройкам.</span></div>
+            </div>
+
+            <div class="help-navigation-grid">
+                <article><i class="fa-solid fa-house"></i><div><strong>Главная</strong><span>Общая информация о группе, ближайшие занятия и последние уведомления.</span></div></article>
+                <article><i class="fa-solid fa-book-open"></i><div><strong>Журнал</strong><span>Посещаемость студентов, выбор даты, примечания, статистика и отчёты.</span></div></article>
+                <article><i class="fa-regular fa-calendar-days"></i><div><strong>Расписание</strong><span>Пары по дням, текущая неделя, числитель и знаменатель, изменения занятий.</span></div></article>
+                <article><i class="fa-solid fa-user-group"></i><div><strong>Группа</strong><span>Состав группы, профили студентов, куратор, староста и заместитель.</span></div></article>
+                <article><i class="fa-solid fa-gear"></i><div><strong>Настройки</strong><span>Здесь меняются язык RU/KZ, вид телефона или компьютера, уведомления и доступные параметры.</span></div></article>
+                <article><i class="fa-regular fa-comments"></i><div><strong>Поддержка</strong><span>Сообщите о проблеме или предложите улучшение. Ответ появится в диалоге и центре событий.</span></div></article>
+                <article><i class="fa-regular fa-bell"></i><div><strong>Центр событий</strong><span>Колокольчик показывает объявления, важные изменения и ответы поддержки.</span></div></article>
+                <article><i class="fa-solid fa-cloud-arrow-down"></i><div><strong>Установка приложения</strong><span>В меню нажмите «Установить приложение». Если кнопка браузера недоступна, появится подсказка для вашего устройства.</span></div></article>
+            </div>
+
+            <div class="help-navigation-tip"><i class="fa-solid fa-language"></i><div><strong>Где поменять язык?</strong><span>Откройте «Настройки» → «Язык интерфейса» и выберите русский или қазақша.</span></div></div>
+            <div class="help-navigation-tip"><i class="fa-solid fa-mobile-screen-button"></i><div><strong>Сайт и приложение синхронизированы</strong><span>Изменения из облака применяются на телефоне, компьютере и в установленной PWA-версии.</span></div></div>
+
+            <div class="help-beta-note">
+                <strong>Бета-версия</strong>
+                <span>Сервис тестируется и предоставляется без гарантий бесперебойной работы, безопасности или сохранности данных. Для важных данных используйте резервные копии.</span>
+            </div>
+        </section>
+    </div>
+
+    <div id="notifications-modal" class="app-overlay hidden" onclick="if(event.target===this) closeNotifications()">
+        <section class="sheet-panel notification-panel">
+            <div class="sheet-head"><div><span class="eyebrow">Центр событий</span><h2>Уведомления</h2></div><button onclick="closeNotifications()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="notification-admin-composer" class="hidden notification-composer">
+                <select id="notification-priority" aria-label="Тип объявления">
+                    <option value="normal">Обычное объявление</option>
+                    <option value="important">Важное объявление</option>
+                </select>
+                <label class="gt-field" data-i18n-skip><span data-gt="titleRu">Заголовок на русском</span><input id="notification-title" data-gt-placeholder="titleRu" placeholder="Заголовок на русском" maxlength="200"></label>
+                <label class="gt-field" data-i18n-skip><span data-gt="textRu">Текст на русском</span><textarea id="notification-text" data-gt-placeholder="textRu" rows="3" placeholder="Текст на русском" maxlength="6000"></textarea></label>
+                <label class="gt-field" data-i18n-skip><span data-gt="titleKz">Заголовок на казахском</span><input id="notification-title-kz" data-gt-placeholder="titleKz" placeholder="Заголовок на казахском" maxlength="200"></label>
+                <label class="gt-field" data-i18n-skip><span data-gt="textKz">Текст на казахском</span><textarea id="notification-text-kz" data-gt-placeholder="textKz" rows="3" placeholder="Текст на казахском" maxlength="6000"></textarea></label>
+                <button id="notification-publish-button" type="button" onclick="publishNotification()"><i class="fa-solid fa-paper-plane"></i> Опубликовать для всех</button>
+            </div>
+            <div id="notifications-list" class="notification-list"></div>
+        </section>
+    </div>
+
+    <div id="support-modal" class="app-overlay hidden" onclick="if(event.target===this) closeSupport()">
+        <section class="sheet-panel support-panel">
+            <div class="sheet-head"><div><span class="eyebrow">Обратная связь</span><h2>Поддержка <span id="support-dialog-badge" class="support-unread-badge hidden" data-i18n-skip aria-live="polite">0</span></h2></div><button onclick="closeSupport()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="support-intro">Можно сообщить о проблеме или предложить улучшение. Ответ владельца/администратора появится в этом диалоге и в уведомлениях.</div>
+            <input id="support-name" class="support-input" placeholder="Ваше имя (необязательно)">
+            <div id="support-staff-inbox" class="hidden support-staff-inbox"></div>
+            <div id="support-active-thread" class="hidden support-active-thread" data-i18n-skip role="status"></div>
+            <div id="support-messages" class="support-messages"></div>
+            <div class="support-compose"><textarea id="support-text" rows="2" placeholder="Напишите сообщение..."></textarea><button id="support-send-button" type="button" onclick="sendSupportMessage()" aria-label="Отправить сообщение"><i class="fa-solid fa-paper-plane"></i></button></div>
+        </section>
+    </div>
+
+    <div id="attendance-note-modal" class="app-overlay hidden" onclick="if(event.target===this) closeAttendanceNote()">
+        <section class="sheet-panel note-panel">
+            <div class="sheet-head"><div><span class="eyebrow">Примечание</span><h2 id="attendance-note-title">Студент</h2></div><button onclick="closeAttendanceNote()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="attendance-note-presets" class="note-presets"></div>
+            <textarea id="attendance-note-text" rows="4" placeholder="Например: опоздал на 10 минут"></textarea>
+            <button class="primary-wide" onclick="saveAttendanceNote()">Сохранить примечание</button>
+        </section>
+    </div>
+
+    <script type="module" src="release-notes.js?v=20261031-compact-v1"></script>
+    <script type="module" src="app.js?v=20261031-dark-mode-v1"></script>
+
+    <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="modal-sticky-header flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                <div>
+                    <div class="font-bold text-sm text-slate-900" id="report-preview-title">Отчёт</div>
+                    <div class="text-[10px] text-slate-400" id="report-preview-date"></div>
+                </div>
+                <button onclick="closeReportPreview()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <pre id="report-preview-content" class="m-0 p-4 max-h-[55vh] overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-700 bg-slate-50"></pre>
+            <div class="grid grid-cols-2 gap-2 p-3 border-t border-slate-200">
+                <button onclick="copyPreviewReport()" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Скопировать</button>
+                <button onclick="downloadPreviewReport()" class="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">Скачать</button>
+            </div>
+        </div>
+    </div>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Навигация">
+        
+
+        <button data-nav="home" onclick="handleBottomNav('home')"><i class="fa-solid fa-house"></i><span>Главная</span></button>
+        <button data-nav="tracker" onclick="handleBottomNav('tracker')"><i class="fa-solid fa-book"></i><span>Журнал</span></button>
+        <button data-nav="schedule" onclick="handleBottomNav('schedule')"><i class="fa-regular fa-calendar-days"></i><span>Расписание</span></button>
+        <button data-nav="roster" onclick="handleBottomNav('roster')"><i class="fa-solid fa-user-group"></i><span>Группа</span></button>
+        <button data-nav="college" type="button" onclick="handleBottomNav('college')" data-i18n-skip><i class="fa-solid fa-building-columns"></i><span data-sbp-text="college">О колледже</span></button>
+        <button data-nav="settings" onclick="openAdminSettings()"><i class="fa-solid fa-gear"></i><span>Настройки</span></button>
+        <button class="sbp-sidebar-menu" type="button" onclick="openAppMenu()" data-i18n-skip><i class="fa-solid fa-bars"></i><span data-sbp-text="menu">Меню</span></button>
+    </nav>
+
+<!-- Диагностика realtime: загружается только с ?debug=1 -->
+<template id="realtime-debug-template">
+<button id="realtime-debug-toggle" title="Синхронизация в реальном времени">☁</button>
+<div id="realtime-debug-panel">
+  <div class="rtd-title">Синхронизация в реальном времени</div>
+  <div class="rtd-sub">Показывает, получает ли этот браузер изменения из Firestore.</div>
+  <div class="rtd-grid">
+    <div class="rtd-card"><div class="rtd-label">Firebase</div><div id="rtd-firebase" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Anonymous Auth</div><div id="rtd-auth" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Realtime listener</div><div id="rtd-listener" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Проверка Firestore</div><div id="rtd-read" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Последний cloud update</div><div id="rtd-update" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Документ</div><div id="rtd-doc" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">UID этого браузера</div><div id="rtd-uid" class="rtd-value">—</div></div>
+    <div class="rtd-card"><div class="rtd-label">Источник последнего изменения</div><div id="rtd-source" class="rtd-value">—</div></div>
+  </div>
+  <div class="rtd-actions">
+    <button class="rtd-btn" id="rtd-check">Проверить сейчас</button>
+    <button class="rtd-btn secondary" id="rtd-rebind">Переподключить</button>
+    <button class="rtd-btn secondary" id="rtd-copy">Скопировать лог</button>
+  </div>
+  <div id="rtd-log" class="rtd-log">Запуск режима…</div>
+</div>
+</template>
+<script>
+(() => {
+  const template = document.getElementById('realtime-debug-template');
+  if (!template) return;
+  const enabled = new URLSearchParams(location.search).get('debug') === '1';
+  if (!enabled) { template.remove(); return; }
+  document.body.appendChild(template.content.cloneNode(true));
+  template.remove();
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = 'realtime-debug.css?v=20261017-admin-tap-v1';
+  css.onload = () => {
+    const script = document.createElement('script');
+    script.src = 'realtime-debug.js?v=20261017-admin-tap-v1';
+    script.defer = true;
+    document.body.appendChild(script);
+  };
+  document.head.appendChild(css);
+})();
+</script>
+
+<div id="sbp-banner-editor" class="sbp-banner-modal" hidden data-i18n-skip role="dialog" aria-modal="true" aria-labelledby="sbp-banner-editor-title" onclick="if(event.target===this)closeBannerEditor()">
+    <div class="sbp-banner-dialog">
+        <div class="sbp-banner-dialog-header"><h2 id="sbp-banner-editor-title">Баннер</h2><button type="button" onclick="closeBannerEditor()" aria-label="Закрыть" data-aria-ru="Закрыть" data-aria-kz="Жабу">✕</button></div>
+        <div id="sbp-banner-editor-preview" class="sbp-cover-banner"><img alt="" hidden></div>
+        <label class="sbp-banner-file-label"><span data-ru="Выбрать изображение" data-kz="Суретті таңдау">Выбрать изображение</span><input id="sbp-banner-file" type="file" accept="image/*" onchange="chooseBannerImage(this)"></label>
+        <label class="sbp-banner-slider-label"><span data-ru="Положение изображения" data-kz="Суреттің орналасуы">Положение изображения</span><input id="sbp-banner-position" type="range" min="0" max="100" value="50" oninput="setBannerPosition(this.value)"></label>
+        <div class="sbp-banner-actions"><button type="button" onclick="removeBannerImage()" data-ru="Удалить изображение" data-kz="Суретті жою">Удалить изображение</button><button id="sbp-banner-save" type="button" onclick="saveBannerImage()" data-ru="Сохранить" data-kz="Сақтау">Сохранить</button></div>
+    </div>
+</div>
+<script>
+(function(){
+ // Avoid observing <html lang>: i18n writes it on every translation pass.
+ // Observing it and rewriting label nodes caused an endless MutationObserver loop.
+ const translateBanners=()=>{
+   const kz=localStorage.getItem('toe_ui_language')==='kz';
+   document.querySelectorAll('[data-ru][data-kz]').forEach(el=>{
+     const copy=el.dataset[kz?'kz':'ru'];
+     if(el.textContent!==copy)el.textContent=copy;
+   });
+   document.querySelectorAll('[data-aria-ru][data-aria-kz]').forEach(el=>{
+     const copy=el.dataset[kz?'ariaKz':'ariaRu'];
+     if(el.getAttribute('aria-label')!==copy)el.setAttribute('aria-label',copy);
+   });
+ };
+ window.refreshBannerLabels=translateBanners;
+ translateBanners();
+})();
+</script>
+</body>
+</html>
+

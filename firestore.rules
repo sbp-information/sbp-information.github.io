@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return signedIn()
+        && request.auth.token.email == 'owner.toe2691@example.com';
+    }
+
+    function isAdmin1() {
+      return signedIn()
+        && request.auth.token.email == 'admin1.toe2691@example.com';
+    }
+
+    function isAdmin2() {
+      return signedIn()
+        && request.auth.token.email == 'admin2.toe2691@example.com';
+    }
+
+    function permissionsExist() {
+      return exists(/databases/$(database)/documents/toe_group/shared/access/admin_permissions);
+    }
+
+    function defaultAdminPermission(field) {
+      // Совместимость со старым документом: журнал и расписание были включены.
+      return field == 'journal' || field == 'schedule';
+    }
+
+    function admin1Has(field) {
+      return isAdmin1() && (
+        (!permissionsExist() && defaultAdminPermission(field))
+        || (permissionsExist()
+            && field in get(/databases/$(database)/documents/toe_group/shared/access/admin_permissions).data.admin1
+            && get(/databases/$(database)/documents/toe_group/shared/access/admin_permissions).data.admin1[field] == true)
+      );
+    }
+
+    function admin2Has(field) {
+      return isAdmin2() && (
+        (!permissionsExist() && defaultAdminPermission(field))
+        || (permissionsExist()
+            && field in get(/databases/$(database)/documents/toe_group/shared/access/admin_permissions).data.admin2
+            && get(/databases/$(database)/documents/toe_group/shared/access/admin_permissions).data.admin2[field] == true)
+      );
+    }
+
+    function hasPermission(field) {
+      return isOwner() || admin1Has(field) || admin2Has(field);
+    }
+
+    match /toe_group/shared/access/admin_permissions {
+      allow read: if signedIn();
+      // Владелец всегда может менять права. Администратор — только если владелец
+      // заранее выдал ему отдельное право manageAdmins.
+      allow write: if isOwner() || admin1Has('manageAdmins') || admin2Has('manageAdmins');
+    }
+
+    match /toe_group/shared/attendance_records/{docId} {
+      allow read: if signedIn();
+
+      // Данные главной страницы: название группы, куратор, староста, зам. старосты.
+      allow write: if docId == 'group_info_shared' && hasPermission('groupInfo');
+
+      // Добавление и удаление студентов.
+      allow write: if docId == 'students_shared' && hasPermission('students');
+
+      // Журнал и общая статистика посещаемости.
+      allow write: if hasPermission('journal')
+        && (docId == 'roster_stats_shared' || docId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'));
+    }
+
+    match /toe_group/shared/schedule/{docId} {
+      allow read: if signedIn();
+      allow write: if docId == 'main' && hasPermission('schedule');
+    }
+
+    match /toe_group/shared/notifications/{notificationId} {
+      allow read: if signedIn();
+      allow create: if isOwner() || admin1Has('notifications') || admin2Has('notifications')
+        || (hasPermission('schedule')
+            && request.resource.data.type == 'schedule_change'
+            && request.resource.data.authorUid == request.auth.uid);
+      allow update, delete: if isOwner() || admin1Has('notifications') || admin2Has('notifications');
+    }
+
+    // Private, append-only client action history.
+    match /toe_group/shared/audit_logs/{auditId} {
+      function historyReader() {
+        return hasPermission('journal') || hasPermission('schedule');
+      }
+
+      function validActor() {
+        return (isOwner() && request.resource.data.actorLogin == 'owner')
+          || (isAdmin1() && request.resource.data.actorLogin == 'admin1')
+          || (isAdmin2() && request.resource.data.actorLogin == 'admin2');
+      }
+
+      allow get: if historyReader();
+      allow list: if historyReader()
+        && request.query.limit != null
+        && request.query.limit <= 100;
+
+      allow create: if validActor()
+        && request.resource.data.keys().hasOnly([
+          'actorUid',
+          'actorLogin',
+          'kind',
+          'target',
+          'operationId',
+          'createdAt',
+          'changes',
+          'receivedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'actorUid',
+          'actorLogin',
+          'kind',
+          'target',
+          'operationId',
+          'createdAt',
+          'changes',
+          'receivedAt'
+        ])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.receivedAt == request.time
+        && request.resource.data.createdAt is string
+        && request.resource.data.operationId is string
+        && request.resource.data.changes is list
+        && request.resource.data.changes.size() > 0
+        && request.resource.data.changes.size() <= 1000
+        && (
+          (
+            request.resource.data.kind == 'attendance'
+            && request.resource.data.target is string
+            && request.resource.data.target.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+            && hasPermission('journal')
+          )
+          || (
+            request.resource.data.kind == 'schedule'
+            && request.resource.data.target == 'main'
+            && hasPermission('schedule')
+          )
+        );
+
+      allow update, delete: if false;
+    }
+
+    match /toe_group/shared/support/{threadId} {
+      allow read, write: if isOwner()
+        || admin1Has('support')
+        || admin2Has('support')
+        || (signedIn() && threadId == request.auth.uid);
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "SBP Information — ТОЭ-26-9-1",
+  "short_name": "SBP Information",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fafafe",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "sbp-information.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
