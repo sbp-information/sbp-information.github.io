@@ -49,3 +49,28 @@
  grid-template-columns:48px minmax(0,1fr) 48px 64px!important;
  }
 }
+
+/* Keep text in a safe central column, away from notification and language buttons. */
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title){
+  inset:auto!important;
+  position:relative!important;
+  grid-column:2!important;grid-row:1!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  overflow:visible!important;
+  align-self:center!important;justify-self:stretch!important;
+  gap:1px!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title) :is(h1,span){
+  max-width:100%!important;min-width:0!important;
+  text-align:center!important;
+  white-space:normal!important;overflow-wrap:break-word!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title)>span{
+  font-size:clamp(9px,2.5vw,11px)!important;line-height:1.15!important;
+}
+:root:root body.sbp-redesign #view-roster .roster-ref-title>span{
+  white-space:nowrap!important;
+}
