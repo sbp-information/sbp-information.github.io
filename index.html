@@ -181,7 +181,7 @@
 <link rel="stylesheet" href="home-header-alignment.css?v=20261031-center-v2">
 <link rel="stylesheet" href="desktop-header-align.css?v=20261031-v1">
 <link rel="stylesheet" href="secondary-header-alignment.css?v=20261031-exact-center-v4">
-<style id="sbp-no-home-banner">#view-home #sbp-home-banner,#view-home #group-icon-home{display:none!important}#view-home .home-ref-group-card{gap:0!important}</style>
+<style id="sbp-group-only-cleanup">#view-roster #sbp-group-banner,#view-roster #group-icon-roster{display:none!important}</style>
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
     <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
@@ -452,11 +452,11 @@
 
         <main class="home-ref-shell">
             <section id="home-pinned-announcement" class="gt-pinned-announcement" data-i18n-skip hidden></section>
-            <section id="sbp-home-banner" class="sbp-cover-banner" hidden aria-hidden="true" aria-label="Баннер главной страницы" data-aria-ru="Баннер главной страницы" data-aria-kz="Басты беттің баннері">
+            <section id="sbp-home-banner" class="sbp-cover-banner" aria-label="Баннер главной страницы" data-aria-ru="Баннер главной страницы" data-aria-kz="Басты беттің баннері">
                 <img alt="" hidden><button type="button" class="sbp-banner-edit" onclick="openBannerEditor('home')" hidden data-i18n-skip>✎ <span class="sbp-banner-edit-text" data-ru="Изменить баннер" data-kz="Баннерді өзгерту">Изменить баннер</span></button>
             </section>
             <section class="home-ref-group-card">
-                
+                <button type="button" id="group-icon-home" class="home-ref-group-icon" onclick="openGroupSettings()" disabled aria-disabled="true" aria-label="Изменить иконку группы"><i class="fa-solid fa-user-group"></i></button>
                 <div class="home-ref-group-copy">
                     <h1 id="group-name" class="admin-inline-edit" data-group-field="groupName" tabindex="0">ТОЭ-26-9-1</h1>
                     <div class="home-ref-student-line"><span id="group-student-count">19</span> студентов</div>
@@ -710,10 +710,9 @@
                 <i class="fa-regular fa-bell"></i>
             </button>
         </div>
-        <section id="sbp-group-banner" class="sbp-cover-banner sbp-roster-cover" aria-label="Баннер группы" data-aria-ru="Баннер группы" data-aria-kz="Топ баннері">
+        <section id="sbp-group-banner" class="sbp-cover-banner sbp-roster-cover" hidden aria-hidden="true" aria-label="Баннер группы" data-aria-ru="Баннер группы" data-aria-kz="Топ баннері">
             <img alt="" hidden><button type="button" class="sbp-banner-edit" onclick="openBannerEditor('group')" hidden data-i18n-skip>✎ <span class="sbp-banner-edit-text" data-ru="Изменить баннер" data-kz="Баннерді өзгерту">Изменить баннер</span></button>
         </section>
-        <button id="group-icon-roster" type="button" class="sbp-roster-icon" onclick="openGroupSettings()" disabled aria-label="Иконка группы" data-aria-ru="Иконка группы" data-aria-kz="Топ белгішесі"><i class="fa-solid fa-user-group"></i></button>
 
         <div class="section-skeleton section-skeleton-roster" aria-hidden="true">
             <div class="skeleton-grid skeleton-grid-3">
