@@ -47,3 +47,18 @@
 /* Preserve accessible contrast: text accent is deeper in light theme. */
 :root:root body.sbp-redesign ::selection {background:#b6e8ff;color:#07334a;}
 :root:root[data-sbp-theme="dark"] body.sbp-redesign ::selection {background:#155b7f;color:#fff;}
+
+/* Replace legacy purple gradients on navigation and learning controls. */
+:root:root body.sbp-redesign #view-tracker .journal-section-tabs button.active,
+:root:root body.sbp-redesign #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="true"]),
+:root:root body.sbp-redesign #view-schedule .schedule-ref-days button.active,
+:root:root body.sbp-redesign .drawer-install-action:not(.is-installed)>i,
+:root:root body.sbp-redesign .help-navigation-hero>i {
+ background-color:#229ed9!important;
+ background-image:none!important;
+ color:#fff!important;
+ box-shadow:0 5px 15px rgba(34,158,217,.17)!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-progress i {
+ background-image:linear-gradient(90deg,#1784bd,#229ed9)!important;
+}
