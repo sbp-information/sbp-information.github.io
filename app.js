@@ -3972,6 +3972,12 @@ function updateLanguageButtons() {
     document.getElementById('lang-ru')?.classList.toggle('active', lang === 'ru');
     document.getElementById('lang-kz')?.classList.toggle('active', lang === 'kz');
     document.documentElement.lang = lang === 'kz' ? 'kk' : 'ru';
+    const topSwitch = document.getElementById('sbp-lang-switch');
+    if (topSwitch) {
+        topSwitch.textContent = lang === 'kz' ? 'ҚЗ' : 'РУ';
+        topSwitch.setAttribute('aria-label', lang === 'kz' ? 'Қазақша. Орыс тіліне ауысу' : 'Русский. Қазақ тіліне ауысу');
+        topSwitch.title = lang === 'kz' ? 'Русский' : 'Қазақша';
+    }
 }
 startInterfaceTranslations();
 updateLanguageButtons();
@@ -4299,9 +4305,12 @@ function renderHomeLessonCard(entry,nowMinutes,state=''){
         : replacement
             ? `<div class="home-change-route"><small>${translateUI('Было')}</small><s>${originalSubject}</s><span>${translateUI('Замена')}</span></div><small class="home-now-label">${translateUI('Теперь')}</small><strong>${it.subject||'Занятие'}</strong><span>${it.time||''}</span>`
             : `<strong>${it.subject||'Занятие'}</strong><span>${it.time||''}</span>`;
+    const isPhysicalEducation = /физическ|дене шынықтыру/i.test(String(it.subject || ''));
     const meta=cancelled
         ? `<div class="home-cancel-meta"><i class="fa-solid fa-ban"></i><span>${translateUI('Кабинет неактуален')}</span></div>`
-        : `<div class="home-ref-lesson-meta ${replacement?'changed-meta':''}">
+        : isPhysicalEducation
+            ? `<div class="home-ref-lesson-meta ${replacement?'changed-meta':''}"><div><strong>${it.room||'—'}</strong></div></div>`
+                : `<div class="home-ref-lesson-meta ${replacement?'changed-meta':''}">
             <div><span>${translateUI(replacement?'Новый кабинет':'Кабинет')}</span><strong>${it.room||'—'}</strong></div>
             <div><span>${translateUI(replacement?'Новый этаж':'Этаж')}</span><strong>${floor||'—'}</strong></div>
         </div>`;

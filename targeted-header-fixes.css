@@ -1,0 +1,18 @@
+/* Targeted follow-up: clean group heading and one-language switch. */
+:root:root body.sbp-redesign #view-home #group-icon-home{display:none!important}
+:root:root body.sbp-redesign #view-home .home-ref-group-card{gap:0!important}
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language{
+ width:46px!important;min-width:46px!important;height:38px!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ padding:2px!important;border-radius:11px!important;
+}
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch{
+ width:100%!important;min-width:0!important;height:32px!important;min-height:32px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:4px!important;border-radius:8px!important;
+ font-size:12px!important;font-weight:750!important;
+ color:var(--sbp-ink)!important;background:var(--sbp-soft)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch{
+ background:#282537!important;color:#e8dcff!important;
+}

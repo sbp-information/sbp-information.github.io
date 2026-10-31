@@ -160,10 +160,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261031-dark-mode-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261031-header-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261017-admin-tap-v1">
-    <link rel="modulepreload" href="schedule.js?v=20261017-admin-tap-v1">
+    <link rel="modulepreload" href="schedule.js?v=20261031-header-v1">
     <script defer src="performance.js?v=20261017-admin-tap-v1"></script>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
@@ -177,6 +177,7 @@
 <link rel="stylesheet" href="compact-layout.css?v=20261031-compact-v1">
 <link rel="stylesheet" href="home-first-reference.css?v=20261031-first-reference-v1">
 <link rel="stylesheet" href="approved-interface.css?v=20261031-approved-v1">
+<link rel="stylesheet" href="targeted-header-fixes.css?v=20261031-header-v1">
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
     <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
@@ -421,7 +422,7 @@
 
     <header class="sbp-brandbar" data-i18n-skip>
       
-      <div class="sbp-language" aria-label="Язык"><button type="button" data-sbp-lang="ru" aria-pressed="true">РУ</button><button type="button" data-sbp-lang="kz" aria-pressed="false">КЗ</button></div>
+      <div class="sbp-language" aria-label="Язык"><button id="sbp-lang-switch" type="button" onclick="setInterfaceLanguage(currentLang()==='ru'?'kz':'ru')" aria-label="Переключить язык">РУ</button></div>
     </header>
     <div id="view-home" class="home-overview home-reference max-w-md mx-auto min-h-screen flex flex-col pb-20">
         <div class="app-mobile-topbar home-ref-topbar">
@@ -1053,7 +1054,7 @@
     </div>
 
     <script type="module" src="release-notes.js?v=20261031-compact-v1"></script>
-    <script type="module" src="app.js?v=20261031-dark-mode-v1"></script>
+    <script type="module" src="app.js?v=20261031-header-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

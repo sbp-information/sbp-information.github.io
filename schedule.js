@@ -1191,7 +1191,7 @@ export function renderSchedule(dayKey = currentScheduleDay) {
         const metaHtml = cancelled
             ? `<div class="schedule-cancel-meta"><i class="fa-solid fa-ban"></i><span>${translateUI('Кабинет и преподаватель неактуальны')}</span></div>`
             : `<div class="schedule-ref-meta ${isSubjectReplacement ? 'changed-meta' : ''}">
-                <span><small>${translateUI(isSubjectReplacement ? 'Новый кабинет' : 'Кабинет')}</small><b><i class="fa-solid fa-door-open"></i>${scheduleEscape(item.room || '—')}</b></span>
+                ${/физическ|дене шынықтыру/i.test(String(item.subject || '')) ? `<span><b><i class="fa-solid fa-location-dot"></i>${scheduleEscape(item.room || '—')}</b></span>` : `<span><small>${translateUI(isSubjectReplacement ? 'Новый кабинет' : 'Кабинет')}</small><b><i class="fa-solid fa-door-open"></i>${scheduleEscape(item.room || '—')}</b></span>`}
                 ${item.teacher ? `<span data-i18n-skip><small>${translateUI(isSubjectReplacement ? 'Новый преподаватель' : 'Преподаватель')}</small><b><i class="fa-solid fa-user-graduate"></i>${scheduleEscape(item.teacher)}</b></span>` : ''}
             </div>`;
 
