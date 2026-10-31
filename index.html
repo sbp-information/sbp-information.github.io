@@ -421,7 +421,7 @@
 
     <header class="sbp-brandbar" data-i18n-skip>
       
-      <div class="sbp-language" aria-label="Язык"><button type="button" data-sbp-lang="ru" aria-pressed="true">РУ</button><button type="button" data-sbp-lang="kz" aria-pressed="false">КЗ</button></div>
+      <div class="sbp-language" aria-label="Язык"><button id="sbp-lang-switch" type="button" onclick="setInterfaceLanguage(currentLang()==='ru'?'kz':'ru')" aria-label="Переключить язык">РУ</button></div>
     </header>
     <div id="view-home" class="home-overview home-reference max-w-md mx-auto min-h-screen flex flex-col pb-20">
         <div class="app-mobile-topbar home-ref-topbar">
