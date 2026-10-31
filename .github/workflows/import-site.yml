@@ -27,8 +27,6 @@ jobs:
         run: |
           set -eu
           rsync -a --exclude=.git/ --exclude=.github/workflows/ _original_sbp_site/ ./
-          mkdir -p .github/workflows
-          rsync -a _original_sbp_site/.github/workflows/ .github/workflows/
           rm -rf _original_sbp_site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
