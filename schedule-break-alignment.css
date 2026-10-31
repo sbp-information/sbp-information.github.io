@@ -1,0 +1,26 @@
+/* Align break indicators exactly on the schedule timeline axis. */
+:root:root body.sbp-redesign #view-schedule .schedule-ref-break{
+ grid-template-columns:58px minmax(0,1fr)!important;
+}
+:root:root body.sbp-redesign #view-schedule .schedule-ref-break-rail{
+ display:flex!important;align-items:flex-start!important;justify-content:center!important;
+ width:58px!important;min-width:58px!important;
+ position:relative!important;
+}
+:root:root body.sbp-redesign #view-schedule .schedule-ref-break-rail::before{
+ left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+}
+:root:root body.sbp-redesign #view-schedule .schedule-ref-break-rail>span{
+ box-sizing:border-box!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:28px!important;height:28px!important;
+ margin:10px 0 0!important;padding:0!important;
+ border-radius:50%!important;
+ background:var(--sbp-surface)!important;
+ border:1px solid var(--sbp-line)!important;
+ transform:none!important;
+}
+:root:root body.sbp-redesign #view-schedule .schedule-ref-break-rail>span>i{
+ position:static!important;margin:0!important;transform:none!important;
+ font-size:12px!important;line-height:1!important;
+}
