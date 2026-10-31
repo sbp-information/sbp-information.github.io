@@ -1,0 +1,29 @@
+/* Mobile menu hit-target correction: keep visuals and header geometry unchanged. */
+@media (max-width: 899px) {
+  :root:root body.sbp-redesign #view-home .home-ref-topbar > button[onclick="openAppMenu()"],
+  :root:root body.sbp-redesign #view-tracker .journal-ref-topbar > button[onclick="openAppMenu()"],
+  :root:root body.sbp-redesign #view-schedule .schedule-ref-topbar > button[onclick="openAppMenu()"],
+  :root:root body.sbp-redesign #view-roster .roster-ref-topbar > button[onclick="openAppMenu()"],
+  :root:root body.sbp-redesign #view-college .college-topbar > button[onclick="openAppMenu()"] {
+    position: relative !important;
+    z-index: 15 !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    flex: 0 0 44px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  :root:root body.sbp-redesign button[onclick="openAppMenu()"] > i,
+  :root:root body.sbp-redesign button[onclick="openAppMenu()"] > .support-menu-dot {
+    pointer-events: none !important;
+  }
+}
