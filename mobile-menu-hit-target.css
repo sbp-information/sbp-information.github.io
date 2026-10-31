@@ -27,3 +27,21 @@
     pointer-events: none !important;
   }
 }
+
+/* The top-right language header must never capture taps over the left menu.
+   Keep its language button interactive. */
+@media (max-width:899px) {
+ :root:root body.sbp-redesign > .sbp-brandbar { pointer-events:none!important; }
+ :root:root body.sbp-redesign > .sbp-brandbar .sbp-language,
+ :root:root body.sbp-redesign > .sbp-brandbar #sbp-lang-switch {pointer-events:auto!important;}
+ :root:root body.sbp-redesign :is(.home-ref-topbar,.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar,.college-topbar) {
+   isolation:isolate;
+ }
+ :root:root body.sbp-redesign :is(.home-ref-topbar,.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar,.college-topbar)>button[onclick="openAppMenu()"] {
+   grid-column:1!important;
+   grid-row:1!important;
+   justify-self:start!important;
+   align-self:center!important;
+   transform:none!important;
+ }
+}
