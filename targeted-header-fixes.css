@@ -16,3 +16,7 @@
 :root:root[data-sbp-theme="dark"] body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch{
  background:#282537!important;color:#e8dcff!important;
 }
+
+/* Larger, more accessible top language control. */
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language {width:64px!important;min-width:64px!important;height:44px!important;padding:3px!important}
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch {height:38px!important;min-height:38px!important;font-size:14px!important;cursor:pointer!important;touch-action:manipulation!important}
