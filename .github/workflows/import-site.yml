@@ -1,0 +1,39 @@
+name: Import SBP Information website
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    if: github.repository == 'sbp-information/sbp-information.github.io'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Checkout original public website
+        uses: actions/checkout@v4
+        with:
+          repository: sinevbogdan100-jpg/college2026grouponecurs.com
+          ref: main
+          path: _original_sbp_site
+          persist-credentials: false
+      - name: Copy original release without deleting destination
+        run: |
+          set -eu
+          rsync -a --exclude=.git/ --exclude=.github/workflows/ _original_sbp_site/ ./
+          mkdir -p .github/workflows
+          rsync -a _original_sbp_site/.github/workflows/ .github/workflows/
+          rm -rf _original_sbp_site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Import SBP Information 19.10 from original repository"
+            git push origin HEAD:main
+          fi
