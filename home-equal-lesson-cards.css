@@ -1,0 +1,21 @@
+/* Home: consistent subject card heights with variable-length content. */
+:root:root body.sbp-redesign #view-home .home-ref-lesson-card{
+ display:flex!important;
+ flex-direction:column!important;
+ min-height:132px!important;
+ height:auto!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-lesson-row{
+ flex:1 1 auto!important;
+ min-height:132px!important;
+ align-items:center!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-lesson-main,
+:root:root body.sbp-redesign #view-home .home-ref-lesson-meta{
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+}
+@media(max-width:520px){
+ :root:root body.sbp-redesign #view-home .home-ref-lesson-card{min-height:120px!important}
+ :root:root body.sbp-redesign #view-home .home-ref-lesson-row{min-height:120px!important}
+}
