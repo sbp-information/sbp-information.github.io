@@ -74,3 +74,42 @@
 :root:root body.sbp-redesign #view-roster .roster-ref-title>span{
   white-space:nowrap!important;
 }
+
+/* True page center, independent of right-hand notification and language controls. */
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar){
+ position:relative!important;overflow:visible!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title){
+ position:absolute!important;
+ left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;
+ transform:translate(-50%,-50%)!important;
+ width:max-content!important;max-width:calc(100% - 210px)!important;
+ grid-column:1/-1!important;grid-row:1!important;
+ text-align:center!important;align-items:center!important;justify-content:center!important;
+ pointer-events:none!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title) h1{
+ width:max-content!important;max-width:100%!important;
+ margin:0 auto!important;white-space:nowrap!important;
+ text-align:center!important;line-height:1.15!important;
+ font-size:clamp(17px,4.6vw,24px)!important;
+}
+:root:root body.sbp-redesign #view-tracker .journal-ref-title>span{
+ display:block!important;width:max-content!important;max-width:100%!important;
+ margin:1px auto 0!important;font-size:clamp(9px,2.4vw,11px)!important;
+ text-align:center!important;white-space:nowrap!important;line-height:1.1!important;
+}
+:root:root body.sbp-redesign #view-roster .roster-ref-title>span{
+ display:block!important;width:max-content!important;max-width:100%!important;
+ margin:1px auto 0!important;font-size:clamp(9px,2.4vw,11px)!important;
+ white-space:nowrap!important;text-align:center!important;
+}
+@media(min-width:900px){
+ :root:root body.sbp-redesign:not(.layout-phone) :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title){
+ max-width:calc(100% - 240px)!important;
+ }
+}
