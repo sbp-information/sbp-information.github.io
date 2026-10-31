@@ -1,0 +1,84 @@
+/* Approved 2026-10-31 SBP Information UI: dark charcoal/lavender + bright lavender.
+   CSS-only visual layer; academic data and backend are unchanged. */
+:root {
+ --sbp-page:#faf9ff;--sbp-surface:#fff;--sbp-soft:#f4f1fc;--sbp-raised:#eee8ff;
+ --sbp-line:#e5def3;--sbp-ink:#171532;--sbp-muted:#77718f;
+ --sbp-accent:#7546ed;--sbp-tint:#eee5ff;
+}
+:root[data-sbp-theme="dark"] {
+ --sbp-page:#0b0c11;--sbp-surface:#191a22;--sbp-soft:#22232e;
+ --sbp-raised:#292a38;--sbp-sunken:#101117;--sbp-line:#30313e;
+ --sbp-ink:#f5f3ff;--sbp-muted:#aaa7c2;--sbp-accent:#ad7aff;
+ --sbp-accent-ink:#160d29;--sbp-tint:#2c2540;--sbp-green:#8bddb1;
+ --sbp-green-soft:#1e3930;--sbp-shadow:0 12px 35px rgba(0,0,0,.3);
+ color-scheme:dark;
+}
+:root:root body.sbp-redesign {background:var(--sbp-page)!important;color:var(--sbp-ink)!important}
+:root:root body.sbp-redesign #view-home{
+ --home-first-text:var(--sbp-ink);--home-first-edge:var(--sbp-line);
+ --home-first-soft:var(--sbp-soft);--home-first-accent:var(--sbp-accent);
+}
+:root:root body.sbp-redesign #view-home #sbp-home-banner{display:none!important}
+:root:root body.sbp-redesign #view-home .home-ref-shell{gap:12px!important}
+:root:root body.sbp-redesign #view-home .home-ref-topbar{min-height:50px!important;margin-bottom:10px!important}
+:root:root body.sbp-redesign #view-home .home-ref-page-title{font-size:21px!important;font-weight:750!important;letter-spacing:-.025em!important}
+:root:root body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today,.home-ref-notifications){
+ background:var(--sbp-surface)!important;border:1px solid var(--sbp-line)!important;
+ border-radius:19px!important;box-shadow:0 5px 17px rgba(35,20,75,.05)!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-group-card{
+ min-height:74px!important;padding:14px!important;gap:13px!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-group-icon{
+ border-radius:13px!important;background:linear-gradient(130deg,#a566f7,#7041d4)!important;color:white!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-group-copy #group-name{font-weight:760!important;font-size:20px!important}
+:root:root body.sbp-redesign #view-home .home-ref-today{overflow:hidden}
+:root:root body.sbp-redesign #view-home .home-ref-today-head{
+ background:var(--sbp-surface)!important;border-bottom:1px solid var(--sbp-line)!important;
+ padding:12px 14px!important;
+}
+:root:root body.sbp-redesign #view-home #home-reference-title{font-size:19px!important;font-weight:750!important}
+:root:root body.sbp-redesign #view-home #home-day-timeline{background:var(--sbp-surface)!important}
+:root:root body.sbp-redesign #view-home .home-ref-notifications{padding:12px!important}
+:root:root body.sbp-redesign #view-home .home-ref-section-head h2{font-size:18px!important}
+:root:root body.sbp-redesign #view-home #home-schedule-toggle{background:var(--sbp-tint)!important;color:var(--sbp-accent)!important;border-color:var(--sbp-line)!important}
+:root:root body.sbp-redesign #bottom-nav{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:2px!important;align-items:stretch!important;
+}
+:root:root body.sbp-redesign #bottom-nav>button[data-nav]{
+ min-width:0!important;width:100%!important;max-width:none!important;
+ justify-self:stretch!important;margin:0!important;text-align:center!important;
+}
+:root:root body.sbp-redesign #bottom-nav>button[data-nav] span{
+ white-space:nowrap!important;
+}
+:root:root body.sbp-redesign #bottom-nav>.sbp-sidebar-menu{display:none!important}
+:root:root body.sbp-redesign #app-menu-drawer .app-drawer{
+ background:var(--sbp-surface)!important;color:var(--sbp-ink)!important;
+}
+:root:root body.sbp-redesign #app-menu-drawer .drawer-head,
+:root:root body.sbp-redesign #app-menu-drawer .drawer-nav-section{
+ border-color:var(--sbp-line)!important;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today,.home-ref-notifications){
+ background:#191a22!important;border-color:#2c2c38!important;
+ box-shadow:0 8px 24px rgba(0,0,0,.17)!important;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head,
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home #home-day-timeline{
+ background:#191a22!important;border-color:#30313e!important;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-group-icon{background:linear-gradient(135deg,#ac76ff,#753deb)!important}
+:root[data-sbp-theme="dark"] body.sbp-redesign #app-menu-drawer .app-drawer{background:#15151d!important}
+@media(max-width:500px) {
+ :root:root body.sbp-redesign #bottom-nav>button[data-nav]{padding-left:2px!important;padding-right:2px!important}
+ :root:root body.sbp-redesign #bottom-nav>button[data-nav] span{font-size:11px!important}
+ :root:root body.sbp-redesign #view-home .home-ref-shell{gap:9px!important}
+}
+@media(min-width:900px){
+ /* Preserve desktop navigation conventions; only remove the redundant settings/college links from the bottom-nav. */
+ :root:root body.sbp-redesign #bottom-nav {display:flex!important;grid-template-columns:none!important}
+ :root:root body.sbp-redesign #bottom-nav>.sbp-sidebar-menu{display:flex!important}
+}
