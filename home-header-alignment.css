@@ -1,0 +1,65 @@
+/* Home header: viewport-centered title, equal control heights, unchanged language width. */
+:root:root body.sbp-redesign #view-home .home-ref-topbar{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr) 42px 64px!important;
+  column-gap:6px!important;
+  min-height:44px!important;
+  height:44px!important;
+  align-items:center!important;
+  margin-bottom:10px!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-page-title{
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:max-content!important;
+  max-width:calc(100% - 220px)!important;
+  margin:0!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  font-size:clamp(17px,4.8vw,21px)!important;
+  line-height:1.15!important;
+  pointer-events:none;
+  z-index:1;
+}
+:root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-topbtn{
+  width:42px!important;height:42px!important;
+  min-width:42px!important;min-height:42px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  margin:0!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-topbtn:first-child{
+  grid-column:1!important;grid-row:1!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-topbtn.notification-bell{
+  grid-column:3!important;grid-row:1!important;
+}
+:root:root body.sbp-redesign > .sbp-brandbar{
+  top:calc(6px + env(safe-area-inset-top,0px))!important;
+  height:44px!important;min-height:44px!important;
+  align-items:center!important;
+}
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language{
+  width:64px!important;min-width:64px!important;
+  height:42px!important;min-height:42px!important;
+  margin:0!important;
+  padding:2px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+:root:root body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch{
+  width:100%!important;height:38px!important;min-height:38px!important;
+  margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+}
+@media(max-width:380px){
+ :root:root body.sbp-redesign #view-home .home-ref-topbar{
+   grid-template-columns:38px minmax(0,1fr) 38px 64px!important;
+   column-gap:4px!important;
+ }
+ :root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-topbtn{
+   width:38px!important;min-width:38px!important;height:42px!important;min-height:42px!important;
+ }
+ :root:root body.sbp-redesign #view-home .home-ref-topbar>.home-ref-page-title{
+   max-width:calc(100% - 205px)!important;font-size:17px!important;
+ }
+}
