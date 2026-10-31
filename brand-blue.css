@@ -1,0 +1,49 @@
+/* SBP Information brand refresh: purple -> icon blue (#229ED9).
+   Presentation-only. Semantic attendance and progress colors stay unchanged. */
+:root:root {
+ --sbp-accent:#1684ba;
+ --sbp-accent-ink:#ffffff;
+ --sbp-tint:#e8f6fd;
+ --sbp-raised:#e6f5fc;
+ --frame-active:#229ed9;
+ --brand:#229ed9;
+ --home-first-accent:#229ed9;
+}
+:root:root[data-sbp-theme="dark"] {
+ --sbp-accent:#65c7f2;
+ --sbp-accent-ink:#071c2a;
+ --sbp-tint:#13354a;
+ --sbp-raised:#203d50;
+ --frame-active:#229ed9;
+ --brand:#229ed9;
+ --home-first-accent:#65c7f2;
+}
+:root:root body.sbp-redesign {
+ --sbp-accent:#1684ba;
+ --sbp-tint:#e8f6fd;
+ --brand:#229ed9;
+ --frame-active:#229ed9;
+ --home-first-accent:#229ed9;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign {
+ --sbp-accent:#65c7f2;
+ --sbp-tint:#13354a;
+ --brand:#229ed9;
+ --frame-active:#229ed9;
+ --home-first-accent:#65c7f2;
+}
+/* Only branding controls; never recolor journal attendance statuses. */
+:root:root body.sbp-redesign :is(#bottom-nav,.app-drawer,.settings-reference-page) :is(button.active,button[aria-current="page"],a.active) {
+ border-color:#229ed9!important;
+}
+:root:root body.sbp-redesign :is(#bottom-nav,.app-drawer,.settings-reference-page) :is(button.active,button[aria-current="page"],a.active) :is(i,svg) {
+ color:var(--sbp-accent)!important;
+}
+:root:root body.sbp-redesign :is(.home-ref-group-icon,.journal-ref-group-icon) {
+ background:#229ed9!important;
+ color:#fff!important;
+}
+:root:root body.sbp-redesign :is(.home-ref-group-icon,.journal-ref-group-icon) i {color:#fff!important;}
+/* Preserve accessible contrast: text accent is deeper in light theme. */
+:root:root body.sbp-redesign ::selection {background:#b6e8ff;color:#07334a;}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign ::selection {background:#155b7f;color:#fff;}
