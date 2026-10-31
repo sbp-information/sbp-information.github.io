@@ -1,0 +1,101 @@
+/* Home-only refresh inspired by the original SBP Information Canva concept.
+   Does not modify timetable data, Firebase, or other pages. */
+:root body.sbp-redesign #view-home.home-reference {
+  --home-first-accent:#7866bd;
+  --home-first-soft:#f4f0ff;
+  --home-first-edge:#e8e2f3;
+  --home-first-text:#29243a;
+  color:var(--home-first-text);
+}
+:root body.sbp-redesign #view-home .home-ref-topbar {
+  margin-bottom:8px!important;
+}
+:root body.sbp-redesign #view-home .home-ref-page-title {
+  font-size:23px!important;
+  font-weight:750!important;
+  letter-spacing:-.035em!important;
+  text-align:center!important;
+}
+:root body.sbp-redesign #view-home .home-ref-shell {
+  gap:10px!important;
+}
+:root body.sbp-redesign #view-home #sbp-home-banner {
+  height:160px!important;
+  background:linear-gradient(120deg,#f3efff 0%,#e7defd 52%,#f9f3ff 100%)!important;
+}
+:root body.sbp-redesign #view-home .home-ref-group-card {
+  border:1px solid var(--home-first-edge)!important;
+  border-radius:18px!important;
+  box-shadow:0 5px 20px rgba(79,56,128,.07)!important;
+  padding:11px 14px!important;
+  background:rgba(255,255,255,.94)!important;
+}
+:root body.sbp-redesign #view-home .home-ref-group-icon {
+  border-radius:12px!important;
+  background:linear-gradient(145deg,#eee8ff,#dcd2fa)!important;
+  color:#6d55ab!important;
+}
+:root body.sbp-redesign #view-home #group-name {
+  font-size:19px!important;
+  letter-spacing:-.025em!important;
+  font-weight:750!important;
+}
+:root body.sbp-redesign #view-home .home-ref-today {
+  overflow:hidden;
+  border:1px solid var(--home-first-edge)!important;
+  border-radius:19px!important;
+  background:#fff!important;
+  box-shadow:0 5px 22px rgba(69,46,118,.055)!important;
+}
+:root body.sbp-redesign #view-home .home-ref-today-head {
+  padding:12px 14px!important;
+  gap:8px!important;
+  background:linear-gradient(115deg,#fbfaff,#f5f0ff)!important;
+  border-bottom:1px solid var(--home-first-edge)!important;
+}
+:root body.sbp-redesign #view-home #home-reference-title {
+  font-size:19px!important;
+  letter-spacing:-.025em!important;
+  font-weight:750!important;
+}
+:root body.sbp-redesign #view-home .home-ref-date :is(strong,span) {
+  font-size:12px!important;
+}
+:root body.sbp-redesign #view-home #home-day-timeline {
+  padding:3px 8px!important;
+}
+:root body.sbp-redesign #view-home .home-ref-notifications {
+  margin-top:0!important;
+  padding-top:0!important;
+}
+:root body.sbp-redesign #view-home .home-ref-section-head h2 {
+  font-size:18px!important;
+  letter-spacing:-.02em!important;
+}
+:root body.sbp-redesign #view-home #home-schedule-toggle {
+  border-radius:12px;
+  background:var(--home-first-soft);
+  color:var(--home-first-accent);
+}
+@media(max-width:420px){
+  :root body.sbp-redesign #view-home .home-ref-shell{gap:8px!important}
+  :root body.sbp-redesign #view-home .home-ref-group-card{padding:9px 11px!important}
+  :root body.sbp-redesign #view-home .home-ref-today-head{padding:10px 12px!important}
+  :root body.sbp-redesign #view-home .home-ref-page-title{font-size:21px!important}
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home{
+  --home-first-edge:#383147;
+  --home-first-soft:#28243b;
+  --home-first-text:#f1edfb;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today){
+  background:#1b1c2a!important;
+  border-color:var(--home-first-edge)!important;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head{
+  background:linear-gradient(110deg,#242137,#29253d)!important;
+  border-color:var(--home-first-edge)!important;
+}
+:root[data-sbp-theme="dark"] body.sbp-redesign #view-home #sbp-home-banner{
+  background:linear-gradient(110deg,#302747,#403353,#27283c)!important;
+}
