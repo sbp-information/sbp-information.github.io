@@ -113,3 +113,35 @@
  max-width:calc(100% - 240px)!important;
  }
 }
+
+/* Final override: EXACTLY the same full-width centering method as Home.
+   Earlier title rules used max-content and translateX, which can be shifted by grid placement. */
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar) >
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title){
+   position:absolute!important;
+   grid-column:1/-1!important;grid-row:1!important;
+   left:0!important;right:0!important;
+   top:50%!important;bottom:auto!important;
+   transform:translateY(-50%)!important;
+   box-sizing:border-box!important;
+   width:100%!important;max-width:none!important;
+   min-width:0!important;
+   margin:0!important;padding:0!important;
+   text-align:center!important;
+   display:flex!important;flex-direction:column!important;
+   align-items:center!important;justify-content:center!important;
+   pointer-events:none!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title) h1{
+   width:100%!important;max-width:100%!important;
+   text-align:center!important;
+   margin:0!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-roster)
+ :is(.journal-ref-title,.roster-ref-title)>span{
+   width:100%!important;max-width:100%!important;
+   text-align:center!important;
+   margin:1px 0 0!important;
+}
