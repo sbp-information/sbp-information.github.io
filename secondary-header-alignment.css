@@ -1,0 +1,51 @@
+/* Shared header alignment for Journal, Schedule and Group; mirror Home. */
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar){
+ position:relative!important;display:grid!important;
+ grid-template-columns:42px minmax(0,1fr) 42px 64px!important;
+ column-gap:6px!important;align-items:center!important;
+ height:44px!important;min-height:44px!important;
+ padding:0!important;margin-top:0!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title){
+ position:absolute!important;grid-column:1/-1!important;grid-row:1!important;
+ inset:0!important;width:100%!important;max-width:none!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ text-align:center!important;margin:0!important;padding:0!important;
+ pointer-events:none!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-title,.schedule-ref-title,.roster-ref-title) h1{
+ text-align:center!important;margin:0!important;line-height:1.15!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar)>button:first-child{
+ grid-column:1!important;grid-row:1!important;justify-self:start!important;
+}
+:root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar)>button:last-child{
+ grid-column:3!important;grid-row:1!important;justify-self:center!important;
+ width:42px!important;min-width:42px!important;
+ height:42px!important;min-height:42px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ margin:0!important;padding:0!important;
+}
+@media(max-width:380px){
+ :root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar){
+ grid-template-columns:38px minmax(0,1fr) 38px 64px!important;column-gap:4px!important;
+ }
+ :root:root body.sbp-redesign :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar)>button:last-child{
+ width:38px!important;min-width:38px!important;
+ }
+}
+@media(min-width:900px){
+ :root:root body.sbp-redesign:not(.layout-phone) :is(#view-tracker,#view-schedule,#view-roster)
+ :is(.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar){
+ height:44px!important;min-height:44px!important;
+ grid-template-columns:48px minmax(0,1fr) 48px 64px!important;
+ }
+}
