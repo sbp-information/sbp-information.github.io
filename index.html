@@ -177,7 +177,7 @@
 <link rel="stylesheet" href="compact-layout.css?v=20261031-compact-v1">
 <link rel="stylesheet" href="home-first-reference.css?v=20261031-first-reference-v1">
 <link rel="stylesheet" href="approved-interface.css?v=20261031-approved-v1">
-<link rel="stylesheet" href="targeted-header-fixes.css?v=20261031-header-v1">
+<link rel="stylesheet" href="targeted-header-fixes.css?v=20261031-langfix-v2">
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
     <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
@@ -422,7 +422,7 @@
 
     <header class="sbp-brandbar" data-i18n-skip>
       
-      <div class="sbp-language" aria-label="Язык"><button id="sbp-lang-switch" type="button" onclick="setInterfaceLanguage(currentLang()==='ru'?'kz':'ru')" aria-label="Переключить язык">РУ</button></div>
+      <div class="sbp-language" aria-label="Язык"><button id="sbp-lang-switch" type="button" onclick="window.setInterfaceLanguage(document.documentElement.lang==='kk'?'ru':'kz')" aria-label="Переключить язык">РУ</button></div>
     </header>
     <div id="view-home" class="home-overview home-reference max-w-md mx-auto min-h-screen flex flex-col pb-20">
         <div class="app-mobile-topbar home-ref-topbar">
