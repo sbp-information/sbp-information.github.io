@@ -4441,7 +4441,9 @@ function renderHomeDayTimeline(){
             box.innerHTML='<div class="home-ref-empty">На ближайший учебный день действующих занятий нет.</div>';
             return;
         }
-        let html=renderHomeDayStatus({mode:'nearest',nextEntry:nearestActive.entry,nowMinutes:0});
+        // The date heading and first upcoming lesson already identify the next study day.
+        // Do not duplicate them with an extra outlined status strip above the lessons.
+        let html='';
         const overview=selectHomeOverviewEntries(entries.slice(nearestActive.index),homeScheduleExpanded,isHomeEntryCancelled);
         const selected=overview.visible;
         updateHomeScheduleOverviewToggle(overview.hasMore);
