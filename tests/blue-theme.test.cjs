@@ -114,3 +114,22 @@ test('first and other lesson numbers have matching thin outlines, preserving liv
   assert.match(normal[0], /:not\(\.cancelled\)/);
   assert.match(read('style.css'), /#view-home \.home-ref-lesson-card\.current \.home-ref-lesson-number\s*\{\s*background:#dff7e8!important/);
 });
+
+
+test('Home day schedule has an actual rounded container with safe inner spacing', () => {
+  const section=css.slice(css.indexOf('/* 19.24:'));
+  assert.ok(section.startsWith('/* 19.24:'),'latest rounding rule should override old square edges');
+  const block=section.match(/#view-home \.home-ref-today\s*\{([\s\S]*?)\}/);
+  assert.ok(block,'the complete day schedule should be rounded, not just lessons');
+  assert.match(block[1], /border:1px solid var\(--sbp-line\)!important/);
+  assert.match(block[1], /border-radius:18px!important/);
+  assert.match(block[1], /background:var\(--sbp-surface\)!important/);
+  assert.match(block[1], /overflow:hidden!important/);
+  assert.match(block[1], /padding:8px 10px 10px!important/);
+  const head=section.match(/#view-home \.home-ref-today > \.home-ref-today-head\s*\{([\s\S]*?)\}/);
+  const list=section.match(/#view-home \.home-ref-today > #home-day-timeline\s*\{([\s\S]*?)\}/);
+  assert.match(head?.[1]||'',/padding:0 2px 9px!important/);
+  assert.match(list?.[1]||'',/padding:0 2px 2px!important/);
+  assert.match(read('redesign.css'),/#view-home \.home-ref-today \{ border:0!important;border-radius:0!important/);
+  assert.match(read('release-data.js'),/version:'19\.24',date:'2026-11-01'/);
+});
