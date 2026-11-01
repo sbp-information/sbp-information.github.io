@@ -36,7 +36,7 @@ import {
     formatCalendarLabel,
     getStatusName,
     getStatusBadgeClass
-} from "./utils.js?v=20261101-localization-v1";
+} from "./utils.js?v=20261101-single-day-pauses-v1";
 import { dbPut, dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
 import {
     configureSchedule,
