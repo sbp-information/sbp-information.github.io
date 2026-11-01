@@ -148,12 +148,28 @@
         #sbp-launch-animation .sbp-launch-orb{animation-duration:.18s!important}
       }
     
-      /* Paused school dates: one native calendar date, multiple independently editable days. */
-      .schedule-pause-editor-dates{grid-template-columns:minmax(0,1fr)!important}
-      .schedule-pause-dates-list{display:flex;flex-direction:column;align-items:stretch;gap:7px;max-height:176px;overflow-y:auto;padding:10px;border:1px solid var(--sbp-line,#dceaf0);border-radius:13px;background:var(--sbp-surface,#fff);font-size:12px;color:var(--sbp-text,#334155)}
+      /* Multi-date pauses: large touch targets, persistent selection and saved-date markers. */
+      .schedule-pause-editor-dates{display:block!important}
+      .schedule-pause-calendar{border:1px solid var(--sbp-line,#dceaf0);border-radius:18px;padding:12px;background:var(--sbp-surface,#fff);color:var(--sbp-text,#334155);min-width:0}
+      .schedule-pause-calendar-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+      .schedule-pause-calendar-head strong{font-size:14px;text-align:center;min-width:0}
+      .schedule-pause-calendar-nav{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;border:1px solid var(--sbp-line,#dceaf0);background:var(--sbp-surface,#fff);flex-shrink:0}
+      .schedule-pause-calendar-weekdays,.schedule-pause-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+      .schedule-pause-calendar-weekdays>span{text-align:center;color:var(--sbp-muted,#64748b);font-size:11px;font-weight:700;padding:4px 0}
+      .schedule-pause-calendar-day{position:relative;display:grid;place-items:center;min-width:0;min-height:39px;border-radius:11px;border:1px solid transparent;background:transparent;color:inherit;cursor:pointer;font-size:13px;font-weight:600}
+      .schedule-pause-calendar-day:hover,.schedule-pause-calendar-day:focus-visible{border-color:#34a2cc;background:rgba(32,160,218,.12);outline:2px solid transparent}
+      .schedule-pause-calendar-day.is-selected,.schedule-pause-calendar-day.is-selected:hover{border-color:#1688c2;background:#1688c2;color:#fff}
+      .schedule-pause-calendar-day.is-saved>i{position:absolute;bottom:3px;width:5px;height:5px;border-radius:50%;background:#1688c2}
+      .schedule-pause-calendar-day.is-saved.is-selected>i{background:#fff}
+      .schedule-pause-calendar-empty{min-height:39px}
+      .schedule-pause-calendar-help{font-size:11px;color:var(--sbp-muted,#64748b);margin:11px 0 0;line-height:1.5}
+      .schedule-pause-selected-count{font-size:12px;font-weight:700;color:var(--sbp-text,#334155);padding:2px 0}
+      .schedule-pause-dates-list{display:flex;flex-direction:column;align-items:stretch;gap:7px;max-height:155px;overflow-y:auto;padding:10px;border:1px solid var(--sbp-line,#dceaf0);border-radius:13px;background:var(--sbp-surface,#fff);font-size:12px;color:var(--sbp-text,#334155)}
       .schedule-pause-dates-list>strong{font-size:12px;margin-bottom:2px}
       .schedule-pause-date-item{display:block;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--sbp-line,#dceaf0);background:var(--sbp-surface,#fff);color:inherit;text-align:left;font-size:12px;cursor:pointer}
+      .schedule-pause-date-item.is-selected{border-color:#1688c2;background:rgba(32,160,218,.13)}
       .schedule-pause-date-item:hover,.schedule-pause-date-item:focus-visible{border-color:#2d9bcc;outline:2px solid transparent;background:var(--sbp-surface-soft,#eff9fe)}
+      @media(max-width:380px){.schedule-pause-calendar{padding:8px}.schedule-pause-calendar-weekdays,.schedule-pause-calendar-days{gap:3px}.schedule-pause-calendar-day{min-height:37px}}
 </style>
     <link rel="icon" type="image/png" href="sbp-icon-32.png?v=20261031-icons-v1">
     <link rel="apple-touch-icon" href="sbp-icon-180.png?v=20261031-icons-v1">
@@ -885,7 +901,7 @@
                 <button type="button" onclick="closeSchedulePauseEditor()" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
             </header>
             <div class="schedule-pause-editor-body">
-                <p class="schedule-pause-editor-note">На выбранную дату пары, таймеры и текущий урок не отображаются. Само расписание сохраняется.</p>
+                <p class="schedule-pause-editor-note">На выбранные даты пары и таймеры не отображаются. Само расписание сохраняется.</p>
                 <label>Причина
                     <select id="schedule-pause-type">
                         <option value="vacation">Каникулы</option>
@@ -894,14 +910,18 @@
                         <option value="temporary">Временная пауза</option>
                     </select>
                 </label>
-                <div class="schedule-pause-editor-dates">
-                    <label>Дата без занятий<input id="schedule-pause-date" type="date" onchange="onSchedulePauseDateChanged()"></label>
+                <div class="schedule-pause-calendar" aria-label="Календарь неучебных дней">
+                    <div class="schedule-pause-calendar-head"><button class="schedule-pause-calendar-nav" type="button" onclick="changeSchedulePauseMonth(-1)" aria-label="Предыдущий месяц"><i class="fa-solid fa-chevron-left"></i></button><strong id="schedule-pause-calendar-title"></strong><button class="schedule-pause-calendar-nav" type="button" onclick="changeSchedulePauseMonth(1)" aria-label="Следующий месяц"><i class="fa-solid fa-chevron-right"></i></button></div>
+                    <div id="schedule-pause-calendar-weekdays" class="schedule-pause-calendar-weekdays"></div>
+                    <div id="schedule-pause-calendar-days" class="schedule-pause-calendar-days"></div>
+                    <p class="schedule-pause-calendar-help">Нажмите на несколько дат. Повторное нажатие отменяет выбор. Точка отмечает уже сохранённый выходной.</p>
                 </div>
+                <div id="schedule-pause-selected-count" class="schedule-pause-selected-count" aria-live="polite">Выбрано дат: 0</div>
                 <div id="schedule-pause-dates-list" class="schedule-pause-dates-list"></div>
-                <p class="schedule-pause-editor-auto"><i class="fa-solid fa-rotate"></i><span>Расписание автоматически возобновится на следующий день.</span></p>
+                <p class="schedule-pause-editor-auto"><i class="fa-solid fa-rotate"></i><span>В остальные дни расписание работает как обычно.</span></p>
             </div>
             <footer class="schedule-pause-editor-actions">
-                <button id="schedule-pause-disable-btn" type="button" class="danger hidden" onclick="disableSchedulePause()">Убрать выбранную дату</button>
+                <button id="schedule-pause-disable-btn" type="button" class="danger hidden" onclick="disableSchedulePause()">Убрать выбранные даты</button>
                 <span></span>
                 <button type="button" class="secondary" onclick="closeSchedulePauseEditor()">Отмена</button>
                 <button type="button" class="primary" onclick="saveSchedulePause()">Сохранить</button>
