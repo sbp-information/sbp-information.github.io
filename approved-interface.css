@@ -35,7 +35,7 @@
 :root:root body.sbp-redesign #view-home .home-ref-group-copy #group-name{font-weight:760!important;font-size:20px!important}
 :root:root body.sbp-redesign #view-home .home-ref-today{overflow:hidden}
 :root:root body.sbp-redesign #view-home .home-ref-today-head{
- background:var(--sbp-surface)!important;border-bottom:1px solid var(--sbp-line)!important;
+ background:var(--sbp-surface)!important;border-bottom:0!important;
  padding:12px 14px!important;
 }
 :root:root body.sbp-redesign #view-home #home-reference-title{font-size:19px!important;font-weight:750!important}

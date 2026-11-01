@@ -11,10 +11,10 @@ const worker = read('notifications-sw.js');
 const releases = read('release-data.js');
 
 test('the blue brand stylesheet is active in the page and offline PWA', () => {
-  assert.match(html, /brand-blue\.css\?v=20261101-ui-polish-v1/);
-  assert.match(worker, /brand-blue\.css\?v=20261101-ui-polish-v1/);
-  assert.match(html, /step19\.27-no-next-day-strip-2026-11-01-v1/);
-  assert.match(worker, /sbp-shell-20261101-no-next-day-strip-v1/);
+  assert.match(html, /brand-blue\.css\?v=20261101-day-header-clean-v1/);
+  assert.match(worker, /brand-blue\.css\?v=20261101-day-header-clean-v1/);
+  assert.match(html, /step19\.28-day-header-clean-2026-11-01-v1/);
+  assert.match(worker, /sbp-shell-20261101-day-header-clean-v1/);
 });
 test('notification, admin, schedule editor and support styling share blue tokens', () => {
   for (const selector of [
@@ -129,7 +129,7 @@ test('Home day schedule has an actual rounded container with safe inner spacing'
   const head=section.match(/#view-home \.home-ref-today > \.home-ref-today-head\s*\{([\s\S]*?)\}/);
   const list=section.match(/#view-home \.home-ref-today > #home-day-timeline\s*\{([\s\S]*?)\}/);
   assert.match(head?.[1]||'',/padding:0 2px 9px!important/);
-  assert.match(list?.[1]||'',/padding:0 2px 2px!important/);
+  assert.match(list?.[1]||'',/padding:6px 2px 2px!important/);
   assert.match(read('redesign.css'),/#view-home \.home-ref-today \{ border:0!important;border-radius:0!important/);
   assert.match(read('release-data.js'),/version:'19\.24',date:'2026-11-01'/);
 });
