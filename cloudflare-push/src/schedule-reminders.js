@@ -56,6 +56,13 @@ export function parseLessonTime(value) {
 }
 function pausedOn(schedule, date) {
   const pause = schedule?.pause;
+  if (pause?.days && typeof pause.days === 'object') {
+    // New one-day pause entries supersede the previous date-range format.
+    return ['vacation','holiday','maintenance','temporary'].includes(
+      typeof pause.days[date] === 'string' ? pause.days[date] : pause.days[date]?.type
+    );
+  }
+  // Keep honoring existing published ranges until an editor saves migrated dates.
   return pause?.enabled === true && typeof pause.startDate === 'string' &&
     typeof pause.endDate === 'string' && date >= pause.startDate && date <= pause.endDate;
 }
