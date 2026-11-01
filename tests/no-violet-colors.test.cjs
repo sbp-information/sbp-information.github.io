@@ -49,8 +49,8 @@ test('19.20 RU/KZ release and offline PWA expose the same blue revision', () => 
   const sw = fs.readFileSync(path.join(root, 'notifications-sw.js'), 'utf8');
   const releases = fs.readFileSync(path.join(root, 'release-data.js'), 'utf8');
   const redesign = fs.readFileSync(path.join(root, 'redesign.js'), 'utf8');
-  assert.match(html, /step19\.25-group-settings-2026-11-01-v1/);
-  assert.match(sw, /sbp-shell-20261101-group-settings-privacy-v1/);
+  assert.match(html, /step19\.26-ui-polish-2026-11-01-v1/);
+  assert.match(sw, /sbp-shell-20261101-ui-polish-v1/);
   assert.match(redesign, /college-illustration\.svg\?v=20261101-no-violet-v1/);
   assert.match(sw, /college-illustration\.svg\?v=20261101-no-violet-v1/);
   const current = releases.slice(releases.indexOf("version:'19.20'"), releases.indexOf("version:'19.19'"));
