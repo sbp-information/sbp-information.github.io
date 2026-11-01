@@ -5,9 +5,9 @@ async function main(){
  assert.equal(pure.scheduleCalendarLabel(new Date('2026-10-20T12:00:00'),'kk-KZ',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),'Сейсенбі, 20 қазан 2026 ж.');
  const imports=new Set();for(const file of fs.readdirSync(root).filter(name=>name.endsWith('.js')))for(const [,version] of fs.readFileSync(path.join(root,file),'utf8').matchAll(/schedule\.js\?v=([\w-]+)/g))imports.add(version);assert.equal(imports.size,1,'all consumers must share the same stateful schedule module');
  const writes=[],store=new Map(),nodes=new Map();
- const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',checked:false,textContent:'',classList:{add(){},remove(){},toggle(){},contains:()=>true},setAttribute(){},addEventListener(){}});return nodes.get(id);};
+ const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',checked:false,textContent:'',innerHTML:'',dataset:{},children:[],classList:{add(){},remove(){},toggle(){},contains:()=>true},setAttribute(){},addEventListener(){},replaceChildren(){this.children=[];},appendChild(child){this.children.push(child);},querySelectorAll(){return []}});return nodes.get(id);};
  const localStorage={getItem:key=>store.get(key)||null,setItem:(key,value)=>store.set(key,value),removeItem:key=>store.delete(key)};
- const document={getElementById:id=>id==='schedule-container'?null:node(id),addEventListener(){},querySelectorAll:()=>[],body:{classList:{add(){},remove(){}}}};
+ const document={getElementById:id=>id==='schedule-container'?null:node(id),createElement:tag=>({...node('__created_'+nodes.size),tagName:tag.toUpperCase()}),addEventListener(){},querySelectorAll:()=>[],body:{classList:{add(){},remove(){}}}};
  const context={...pure,console,Date,Math,JSON,Object,Array,String,Number,Set,Map,Promise,navigator:{onLine:true},localStorage,sessionStorage:{getItem:()=> '1'},document,
   window:{addEventListener(){},dispatchEvent(){return true;},setInterval:()=>1,__scheduleDebug:{}},CustomEvent:class CustomEvent{constructor(type){this.type=type;}},setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,clearInterval(){},confirm:()=>true,
   interfaceLocale:()=> 'ru-RU',translateUI:v=>v,doc:()=>({}),getDoc:async()=>({exists:()=>true,data:()=>writes.at(-1)}),setDoc:async(ref,data)=>writes.push(JSON.parse(JSON.stringify(data))),onSnapshot:()=>()=>{},
@@ -67,30 +67,69 @@ async function main(){
  assert.equal(api.getSchedulePauseState(new Date('2026-11-05T12:00:00')).active,false);
  const pauseEvents=[];
  api.configureSchedule({getCloudState:()=>({isCloudConnected:true,db:{},auth:{currentUser:{uid:'test-owner'}}}),publishScheduleChange:async event=>{pauseEvents.push(event);return true;}});
- node('schedule-pause-date').value='2026-11-09';node('schedule-pause-type').value='holiday';
+ // A single batch must save 12, 13, 14 November in one Firestore write / Push.
+ context.window.openSchedulePauseEditor();
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 0');
+ context.window.changeSchedulePauseMonth(0);
+ assert.match(node('schedule-pause-calendar-days').innerHTML,/data-pause-day="2026-11-12"/);
+ for(const day of [12,13,14])context.window.toggleSchedulePauseDate('2026-11-'+day);
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 3');
+ assert.match(node('schedule-pause-calendar-days').innerHTML,/data-pause-day="2026-11-12"[^>]*aria-pressed="true"/);
+ context.window.toggleSchedulePauseDate('2026-11-13');
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 2','tap again deselects');
+ context.window.toggleSchedulePauseDate('2026-11-13');
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 3','tap again selects');
+ node('schedule-pause-type').value='holiday';
+ const writesBeforeBatch=writes.length, eventsBeforeBatch=pauseEvents.length;
  await context.window.saveSchedulePause();
- assert.equal(writes.at(-1).pause.days['2026-11-09'],'holiday');
- assert.equal(writes.at(-1).pause.days['2026-11-03'],'vacation','existing paused date remains');
- assert.equal(writes.at(-1).lastChange.date,'2026-11-09');
+ assert.equal(writes.length,writesBeforeBatch+1,'three dates save atomically');
+ assert.equal(pauseEvents.length,eventsBeforeBatch+1,'one Push event for three dates');
+ for(const day of [12,13,14]) {
+    const date='2026-11-'+day;
+    assert.equal(writes.at(-1).pause.days[date],'holiday',date+' stored as a holiday');
+    assert.equal(api.getSchedulePauseState(new Date(date+'T12:00:00')).active,true,date+' is not a study day');
+ }
+ assert.equal(writes.at(-1).pause.days['2026-11-03'],'vacation','pre-existing vacation remains untouched');
+ assert.equal(writes.at(-1).lastChange.date,'2026-11-12');
+ assert.equal(writes.at(-1).lastChange.dates.length,3,'all three dates in one event');
  assert.match(pauseEvents.at(-1).title,/Праздник/);
  assert.match(pauseEvents.at(-1).titleKz,/Мереке/);
- assert.equal(api.getSchedulePauseState(new Date('2026-11-09T12:00:00')).type,'holiday');
- assert.equal(api.getSchedulePauseState(new Date('2026-11-10T12:00:00')).active,false,'only selected day is stopped');
- node('schedule-pause-date').value='2026-11-10';node('schedule-pause-type').value='maintenance';
+ assert.match(pauseEvents.at(-1).text,/12 ноября/);
+ assert.match(pauseEvents.at(-1).text,/13 ноября/);
+ assert.match(pauseEvents.at(-1).text,/14 ноября/);
+ assert.equal(api.getSchedulePauseState(new Date('2026-11-15T12:00:00')).active,false,'other days remain available');
+ context.window.openSchedulePauseEditor();
+ context.window.toggleSchedulePauseDate('2026-11-20');
+ context.window.changeSchedulePauseMonth(1);
+ context.window.toggleSchedulePauseDate('2026-12-01');
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 2','selection persists across months');
+ node('schedule-pause-type').value='maintenance';
  await context.window.saveSchedulePause();
- assert.equal(writes.at(-1).pause.days['2026-11-10'],'maintenance');
- assert.equal(writes.at(-1).pause.days['2026-11-09'],'holiday','adding another date does not erase holiday');
- node('schedule-pause-date').value='2026-11-09';
+ assert.equal(writes.at(-1).pause.days['2026-11-20'],'maintenance');
+ assert.equal(writes.at(-1).pause.days['2026-12-01'],'maintenance');
+ assert.equal(writes.at(-1).pause.days['2026-11-12'],'holiday','later save preserves first holiday');
+ // The editor can remove a subset, preserving all other stored pause dates.
+ context.window.openSchedulePauseEditor();
+ context.window.toggleSchedulePauseDate('2026-11-12');
+ context.window.toggleSchedulePauseDate('2026-11-13');
+ const beforeRemove=writes.length, beforeRemoveEvents=pauseEvents.length;
  await context.window.disableSchedulePause();
- assert.equal(writes.at(-1).pause.days['2026-11-09'],undefined,'only chosen date is removed');
- assert.equal(writes.at(-1).pause.days['2026-11-10'],'maintenance','other pauses are retained');
- assert.equal(api.getSchedulePauseState(new Date('2026-11-09T12:00:00')).active,false);
+ assert.equal(writes.length,beforeRemove+1);
+ assert.equal(pauseEvents.length,beforeRemoveEvents+1,'one resume Push, not two');
+ assert.equal(writes.at(-1).pause.days['2026-11-12'],undefined);
+ assert.equal(writes.at(-1).pause.days['2026-11-13'],undefined);
+ assert.equal(writes.at(-1).pause.days['2026-11-14'],'holiday','unselected day remains paused');
+ assert.equal(writes.at(-1).pause.days['2026-11-20'],'maintenance');
+ assert.equal(writes.at(-1).lastChange.dates.length,2);
  assert.match(pauseEvents.at(-1).title,/отменена/);
- const count=writes.length;
- node('schedule-pause-date').value='2026-02-30';
+ const unchanged=writes.length;
+ context.window.openSchedulePauseEditor();
  await context.window.saveSchedulePause();
- assert.equal(writes.length,count,'invalid date must never reach Firestore');
-
+ assert.equal(writes.length,unchanged,'empty selection must never be sent');
+ context.window.toggleSchedulePauseDate('2026-02-30');
+ assert.equal(node('schedule-pause-selected-count').textContent,'Выбрано дат: 0','invalid date is ignored');
+ await context.window.saveSchedulePause();
+ assert.equal(writes.length,unchanged,'invalid date must never reach Firestore');
  const i18nSource=fs.readFileSync(path.join(root,'i18n.js'),'utf8').replaceAll('export ','');const langStore=new Map([['toe_ui_language','kz']]);const langContext={localStorage:{getItem:key=>langStore.get(key)},window:{},document:{},WeakMap,console};vm.createContext(langContext);vm.runInContext(i18nSource+'\nglobalThis.translate=translateUI;',langContext);
  for(const text of ['Режим изменений','Только на выбранную дату','Постоянное расписание'])assert.notEqual(langContext.translate(text),text);
  console.log('Passed: migration, factual history, teachers, dated edits/cancellations/deletion/reordering, cloud persistence, next recurrence, date exports, permanent editing, RU/KZ');
