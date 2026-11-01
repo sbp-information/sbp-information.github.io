@@ -1,7 +1,7 @@
 /* SBP Information: lighter decorative frames, shared by phone and desktop layouts.
    The base reset removes browser outset borders; these rules soften authored frames.
    Status fills, active buttons, keyboard focus and layout are kept independent. */
-:root { --frame-soft: #ece7f2; --frame-control: #cedfe8; --frame-active: #7bacc3; }
+:root { --frame-soft: #e1eaef; --frame-control: #cedfe8; --frame-active: #7bacc3; }
 
 /* Existing surfaces keep their own border width and radius. */
 html:root body :is(#view-home,#view-tracker,#view-schedule,#view-roster,#admin-settings-modal,#notifications-modal,#support-modal,#help-navigation-modal,#app-menu-drawer) :is(
