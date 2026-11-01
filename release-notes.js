@@ -1,4 +1,4 @@
-import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261101-white-cards-v1';
+import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261101-break-outlines-v1';
 
 const build = document.querySelector('meta[name="app-build"]')?.content;
 const currentRelease = releaseForBuild(build);
