@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.20-no-violet-2026-11-01-v1">
+    <meta name="app-build" content="step19.21-bell-headers-2026-11-01-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -160,7 +160,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261101-no-violet-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261101-bell-headers-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="schedule.js?v=20261101-lesson-reminders-v1">
@@ -180,7 +180,7 @@
 <link rel="stylesheet" href="targeted-header-fixes.css?v=20261101-all-blue-v1">
 <link rel="stylesheet" href="home-header-alignment.css?v=20261031-center-v2">
 <link rel="stylesheet" href="desktop-header-align.css?v=20261031-v1">
-<link rel="stylesheet" href="secondary-header-alignment.css?v=20261031-exact-center-v4">
+<link rel="stylesheet" href="secondary-header-alignment.css?v=20261101-bell-headers-v1">
 <style id="sbp-group-only-cleanup">#view-roster #sbp-group-banner,#view-roster #group-icon-roster{display:none!important}</style>
 <link rel="stylesheet" href="home-equal-lesson-cards.css?v=20261031-v1">
 <link rel="stylesheet" href="journal-flat-status.css?v=20261101-no-violet-v1">
@@ -437,9 +437,9 @@
         <div class="app-mobile-topbar home-ref-topbar">
             <button class="home-ref-topbtn" onclick="openAppMenu()" aria-label="Меню"><i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span></button>
             <div class="home-ref-page-title">Главная</div>
-            <button class="home-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+            <button type="button" class="home-ref-topbtn notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false">
                 <i class="fa-regular fa-bell"></i>
-                <span id="notification-badge" class="notification-badge hidden">0</span>
+                <span id="notification-badge" class="notification-badge hidden" aria-hidden="true">0</span>
             </button>
         </div>
 
@@ -500,7 +500,7 @@
                 <h1>Журнал</h1>
                 <span>Посещаемость студентов</span>
             </div>
-            <button class="journal-ref-topbtn journal-ref-bell" onclick="openNotifications()" aria-label="Уведомления"><i class="fa-regular fa-bell"></i></button>
+            <button type="button" class="journal-ref-topbtn journal-ref-bell notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false"><i class="fa-regular fa-bell"></i><span class="notification-badge hidden" aria-hidden="true">0</span></button>
         </div>
 
         <div class="section-skeleton section-skeleton-tracker" aria-hidden="true">
@@ -631,8 +631,9 @@
         <div class="schedule-ref-topbar">
             <button class="schedule-ref-topbtn" onclick="openAppMenu()" aria-label="Меню"><i class="fa-solid fa-bars"></i><span class="support-menu-dot hidden" aria-hidden="true"></span></button>
             <div class="schedule-ref-title"><h1>Расписание</h1><span id="schedule-group-name" class="hidden">ТОЭ-26-9-1</span></div>
-            <button class="schedule-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+            <button type="button" class="schedule-ref-topbtn notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false">
                 <i class="fa-regular fa-bell"></i>
+                <span class="notification-badge hidden" aria-hidden="true">0</span>
             </button>
         </div>
 
@@ -698,7 +699,7 @@
     </div>
 
     <div id="view-college" class="hidden college-page" data-i18n-skip>
-      <div class="college-topbar"><button type="button" onclick="openAppMenu()" data-sbp-aria="menu" aria-label="Меню"><i class="fa-solid fa-bars"></i></button><h1 data-sbp-text="college">О колледже</h1><button type="button" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления"><i class="fa-regular fa-bell"></i></button></div>
+      <div class="college-topbar"><button type="button" onclick="openAppMenu()" data-sbp-aria="menu" aria-label="Меню"><i class="fa-solid fa-bars"></i></button><h1 data-sbp-text="college">О колледже</h1><button type="button" class="notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false"><i class="fa-regular fa-bell"></i><span class="notification-badge hidden" aria-hidden="true">0</span></button></div>
       <main id="college-content"></main>
     </div>
 
@@ -711,8 +712,9 @@
                 <h1>Группа <span id="roster-group-name" class="hidden">ТОЭ-26-9-1</span></h1>
                 <span><span id="roster-student-count">19</span> студентов</span>
             </div>
-            <button class="roster-ref-topbtn notification-bell" onclick="openNotifications()" aria-label="Уведомления">
+            <button type="button" class="roster-ref-topbtn notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false">
                 <i class="fa-regular fa-bell"></i>
+                <span class="notification-badge hidden" aria-hidden="true">0</span>
             </button>
         </div>
         <section id="sbp-group-banner" class="sbp-cover-banner sbp-roster-cover" hidden aria-hidden="true" aria-label="Баннер группы" data-aria-ru="Баннер группы" data-aria-kz="Топ баннері">
@@ -1061,8 +1063,8 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261101-no-violet-v1"></script>
-    <script type="module" src="app.js?v=20261101-no-violet-v1"></script>
+    <script type="module" src="release-notes.js?v=20261101-bell-headers-v1"></script>
+    <script type="module" src="app.js?v=20261101-bell-headers-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

@@ -4657,7 +4657,16 @@ function notificationVisualMeta(item={}){
 
     return {key:'announcement',label:'Объявление',icon:'fa-bullhorn'};
 }
-function updateNotificationBadge(){const badge=document.getElementById('notification-badge');if(!badge)return;const read=getReadNotificationIds();const unread=notificationsCache.filter(n=>!read.has(n.id)).length;badge.textContent=String(unread);badge.classList.toggle('hidden',unread===0);}
+function updateNotificationBadge(){
+    const badges=document.querySelectorAll('.notification-bell .notification-badge');
+    if(!badges.length)return;
+    const read=getReadNotificationIds();
+    const unread=notificationsCache.filter(n=>!read.has(n.id)).length;
+    for(const badge of badges){
+        badge.textContent=String(unread);
+        badge.classList.toggle('hidden',unread===0);
+    }
+}
 function renderHomeLatestNotification(){
     const box=document.getElementById('home-latest-notification');
     if(!box)return;
@@ -4793,8 +4802,22 @@ function subscribeNotifications(){
         renderNotifications();renderHomeLatestNotification();updateNotificationBadge();
     },e=>{console.warn('notifications realtime',e);notificationsUnsubscribe=null;});
 }
-window.openNotifications=function(){document.getElementById('notifications-modal')?.classList.remove('hidden');document.body.classList.add('modal-open');document.getElementById('notification-admin-composer')?.classList.toggle('hidden',!canPublishNotifications());renderNotifications();setTimeout(markNotificationsRead,250);};
-window.closeNotifications=function(){document.getElementById('notifications-modal')?.classList.add('hidden');document.body.classList.remove('modal-open');};
+window.openNotifications=function(){
+    const modal=document.getElementById('notifications-modal');
+    if(!modal)return;
+    window.closeAppMenu?.();
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    document.querySelectorAll('.notification-bell').forEach(button=>button.setAttribute('aria-expanded','true'));
+    document.getElementById('notification-admin-composer')?.classList.toggle('hidden',!canPublishNotifications());
+    renderNotifications();
+    setTimeout(markNotificationsRead,250);
+};
+window.closeNotifications=function(){
+    document.getElementById('notifications-modal')?.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    document.querySelectorAll('.notification-bell').forEach(button=>button.setAttribute('aria-expanded','false'));
+};
 let publishingNotification=false;
 window.publishNotification=async function(){
     if(publishingNotification)return;
