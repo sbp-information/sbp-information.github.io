@@ -43,6 +43,6 @@ for (const file of moduleFiles) {
 }
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
-  const requiredVersion = ['release-data.js','group-tools.js'].includes(name) ? '20261101-all-blue-v1' : ['schedule.js','action-history.js'].includes(name) ? '20261101-lesson-reminders-v1' : '20261101-lang-v2';
+  const requiredVersion = ['release-data.js','group-tools.js','action-history.js'].includes(name) ? '20261101-all-blue-v1' : name === 'schedule.js' ? '20261101-lesson-reminders-v1' : '20261101-lang-v2';
   assert.ok([...versions][0].endsWith('?v='+requiredVersion),'stale version for '+name);
 }
