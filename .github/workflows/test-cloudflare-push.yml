@@ -1,0 +1,37 @@
+name: Test free Cloudflare push
+on:
+  push:
+    paths:
+      - 'cloudflare-push/**'
+      - 'push-worker-config.js'
+      - 'notification-center.js'
+      - 'notifications-sw.js'
+      - 'tests/pwa-cache-consistency.test.cjs'
+  pull_request:
+    paths:
+      - 'cloudflare-push/**'
+      - 'push-worker-config.js'
+      - 'notification-center.js'
+      - 'notifications-sw.js'
+      - 'tests/pwa-cache-consistency.test.cjs'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify free Worker source and privacy rules
+        run: |
+          npm install --prefix cloudflare-push
+          npm run check --prefix cloudflare-push
+          npm test --prefix cloudflare-push
+          node --check notification-center.js
+          node --check notifications-sw.js
+          node tests/pwa-cache-consistency.test.cjs
