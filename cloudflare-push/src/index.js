@@ -2,6 +2,7 @@
 // Private support messages are never included in the push payload.
 import { buildPushPayload } from '@block65/webcrypto-web-push';
 import { kazakhstanClock, dueReminders, reminderPayload, shouldCheckSchedule } from './schedule-reminders.js';
+import { dueHolidayNotices, holidayNoticePayload } from './holiday-reminders.js';
 
 const PROJECT_ID = 'sbpgroup-toe-26-9-1';
 const COLLECTION_ROOT = 'toe_group/shared';
@@ -254,9 +255,18 @@ async function deliver(env, devices, key, build) {
   }
   return sent;
 }
+function isDeferredHolidayCreation(item) {
+  return item?.type === 'schedule_change' && item.changeType === 'pause' &&
+    item.pauseAction === 'set' && item.pauseType === 'holiday';
+}
+function announcementRecipients(devices, item) {
+  // No role exceptions: owner, admins and students all receive other authors'
+  // updates; exclude only devices belonging to the exact Firebase author UID.
+  return devices.filter(device => !item.authorUid || device.uid !== item.authorUid);
+}
 async function sendAnnouncement(env, item) {
-  if (!item || !recent(item.createdAt)) return 0;
-  const devices = (await deviceRows(env)).filter(device => device.uid !== item.authorUid);
+  if (!item || !recent(item.createdAt) || isDeferredHolidayCreation(item)) return 0;
+  const devices = announcementRecipients(await deviceRows(env), item);
   return deliver(env, devices, 'event:' + item.id,
     device => notificationPayload(device, item, 'event:' + item.id));
 }
@@ -292,13 +302,32 @@ async function sendScheduleReminders(env, clock) {
   return sent;
 }
 
+async function sendHolidayNotices(env, clock) {
+  // One daily Firestore read near 18:00 Asia/Almaty. Retries in this window
+  // are deduplicated per device by the existing D1 deliveries table.
+  if (clock.minute < 18 * 60 || clock.minute >= 18 * 60 + 15) return 0;
+  const schedule = await readOne(env, 'schedule', 'main');
+  const notices = dueHolidayNotices(schedule, clock);
+  if (!notices.length) return 0;
+  const devices = await deviceRows(env);
+  let sent = 0;
+  for (const notice of notices) {
+    sent += await deliver(env, devices, notice.key, device => holidayNoticePayload(device, notice));
+  }
+  return sent;
+}
+
 async function scheduled(env, triggerTime = Date.now()) {
   const clock = kazakhstanClock(new Date(triggerTime));
   const tooLate = Date.now() - triggerTime > 120000;
   // Lesson timings need a one-minute clock. Existing announcement/support
   // polling remains at two-minute intervals to control free-tier usage.
-  if (!tooLate) try { await sendScheduleReminders(env, clock); }
-  catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
+  if (!tooLate) {
+    try { await sendScheduleReminders(env, clock); }
+    catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
+    try { await sendHolidayNotices(env, clock); }
+    catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
+  }
 
   if (clock.minute % 2 === 0) {
     const [notifications, threads] = await Promise.all([
@@ -382,4 +411,4 @@ export default {
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload, announcementRecipients, isDeferredHolidayCreation };
