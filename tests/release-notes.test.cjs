@@ -30,7 +30,7 @@ function app({ build = 'step18.46-release-history-2026-10-05', seen = false, lan
     return nodes.get(id);
   }
   document.activeElement = node('bottom-nav-home');
-  const context = { console, Date, Intl, String, Number, document,
+  const context = { console, Date, Intl, String, Number, URLSearchParams, document,
     location: {search: pushLaunch ? '?notification=support' : ''},
     localStorage: {
       getItem(key) { if (denied) throw new Error('Storage denied'); return storage.get(key) || null; },
