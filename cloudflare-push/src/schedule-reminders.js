@@ -70,7 +70,7 @@ export function activeLessons(schedule, clock) {
     ? override.lessons : schedule[parity]?.[clock.dayKey];
   if (!Array.isArray(rows)) return [];
   return rows.map((row, index) => ({ ...row, originalIndex: index, range: parseLessonTime(row?.time) }))
-    .filter(row => !row.cancelled && row.range && String(row.subject || '').trim())
+    .filter(row => !row.isClassHour && !row.cancelled && row.changeType !== 'cancel' && row.range && String(row.subject || '').trim())
     .sort((a, b) => a.range.start - b.range.start || a.originalIndex - b.originalIndex);
 }
 
