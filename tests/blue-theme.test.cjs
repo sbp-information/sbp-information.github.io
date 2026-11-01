@@ -11,10 +11,10 @@ const worker = read('notifications-sw.js');
 const releases = read('release-data.js');
 
 test('the blue brand stylesheet is active in the page and offline PWA', () => {
-  assert.match(html, /brand-blue\.css\?v=20261101-no-violet-v1/);
-  assert.match(worker, /brand-blue\.css\?v=20261101-no-violet-v1/);
-  assert.match(html, /step19\.21-bell-headers-2026-11-01-v1/);
-  assert.match(worker, /sbp-shell-20261101-bell-headers-v1/);
+  assert.match(html, /brand-blue\.css\?v=20261101-white-cards-v1/);
+  assert.match(worker, /brand-blue\.css\?v=20261101-white-cards-v1/);
+  assert.match(html, /step19\.22-white-cards-2026-11-01-v1/);
+  assert.match(worker, /sbp-shell-20261101-white-cards-v1/);
 });
 test('notification, admin, schedule editor and support styling share blue tokens', () => {
   for (const selector of [
@@ -49,4 +49,38 @@ test('the release notes describe the same fixes in Russian and Kazakh', () => {
   assert.match(top, /kz:\[/);
   assert.match(top, /Көгілдір безендіруді біріздендіру/);
   assert.match(top, /Согласование голубого оформления/);
+});
+
+
+test('upcoming home states are white outlined cards while live lessons keep their green status', () => {
+  const start = css.indexOf('/* 19.22:');
+  assert.ok(start > 0, 'white-card correction is present after older blue rules');
+  const current = css.slice(start);
+  const outline = current.match(/:root:root body\.sbp-redesign #view-home :is\(([\s\S]*?)\)\s*\{([\s\S]*?)\}/);
+  assert.ok(outline, 'shared upcoming-card outline rule exists');
+  for (const selector of [
+    '.home-ref-lesson-card.next:not(.current)',
+    '.home-ref-break-card.nearest',
+    '.home-day-status.nearest',
+    '.home-day-status.before'
+  ]) assert.ok(outline[1].includes(selector), 'missing outlined state: ' + selector);
+  assert.match(outline[2], /background:var\(--sbp-surface\)!important/);
+  assert.match(outline[2], /background-image:none!important/);
+  assert.match(outline[2], /border:1px solid #b9deef!important/);
+  assert.doesNotMatch(outline[1], /\.home-ref-lesson-card\.current\b/);
+  const number = current.match(/\.home-ref-lesson-card\.next:not\(\.current\) \.home-ref-lesson-number\s*\{([\s\S]*?)\}/);
+  assert.ok(number, 'the first upcoming lesson number is also white');
+  assert.match(number[1], /background:var\(--sbp-surface\)!important/);
+  assert.match(number[1], /border:1px solid #b9deef!important/);
+  assert.match(current, /data-sbp-theme="dark"/);
+  assert.match(current, /border-color:#42677c!important/);
+});
+test('language toggle is white in the light theme and keeps dark-theme contrast', () => {
+  const current = css.slice(css.indexOf('/* 19.22:'));
+  const language = current.match(/:root:root body\.sbp-redesign > \.sbp-brandbar \.sbp-language,\s*:root:root body\.sbp-redesign > \.sbp-brandbar \.sbp-language #sbp-lang-switch\s*\{([\s\S]*?)\}/);
+  assert.ok(language, 'language toggle surface rule exists');
+  assert.match(language[1], /background:var\(--sbp-surface\)!important/);
+  assert.match(language[1], /background-image:none!important/);
+  assert.match(language[1], /color:var\(--sbp-ink\)!important/);
+  assert.match(read('redesign.css'), /:root\[data-sbp-theme="dark"\][^\n]*--sbp-surface:#1b1e2a/);
 });
