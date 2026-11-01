@@ -11,8 +11,8 @@ test('compact header replaces logo bar without removing language and navigation'
  assert.doesNotMatch(html,/<a class="sbp-brand"/);
  assert.doesNotMatch(html,/<div class="sbp-sidebar-brand"/);
  assert.match(html, /class="sbp-language"/);
- assert.match(html, /data-sbp-lang="ru"/);
- assert.match(html, /data-sbp-lang="kz"/);
+ assert.match(html, /id="sbp-lang-switch"/);
+ assert.match(html, /window\.setInterfaceLanguage\(document\.documentElement\.lang==='kk'\?'ru':'kz'\)/);
  for(const name of ['home','tracker','schedule','roster','college']) {
   assert.match(html,new RegExp('id="view-'+name+'"'));
  }
@@ -28,15 +28,19 @@ test('covers remain editable, no longer take a grid row, and work in both themes
  assert.match(css, /data-sbp-theme="dark"/);
  assert.match(html,/openBannerEditor\('home'\)/);
  assert.match(html,/openBannerEditor\('group'\)/);
- assert.match(html,/id="group-icon-roster"/);
+ assert.match(html,/id="group-icon-home"/);
+ assert.match(html,/id="settings-group-icon-options"/);
 });
-test('19.10 metadata, styles, translations and PWA cache agree',()=>{
- assert.match(html,/step19\.10-compact-layout-2026-10-31-v1/);
+test('compact styles, release history and active PWA build agree',()=>{
+ const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
+ const build=html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
+ assert.ok(version && build?.startsWith('step'),'active build and app script version exist');
+ assert.ok(sw.includes(`'./app.js?v=${version}'`),'app script matches PWA precache');
+ assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'PWA cache matches app script');
  assert.match(html,/compact-layout\.css\?v=20261031-compact-v1/);
  assert.match(sw,/compact-layout\.css\?v=20261031-compact-v1/);
- assert.match(sw,/sbp-shell-20261031-compact-v1/);
- assert.match(html,/release-notes\.js\?v=20261031-compact-v1/);
- assert.match(sw,/release-data\.js\?v=20261031-compact-v1/);
+ assert.ok(html.includes(`release-notes.js?v=${version}`),'release notes use active version');
+ assert.ok(sw.includes(`'./release-data.js?v=${version}'`),'release data uses active PWA version');
  assert.match(release,/version:'19\.10'/);
  const top=release.slice(release.indexOf("version:'19.10'"),release.indexOf("version:'19.09'"));
  assert.match(top,/ru:\[/);
