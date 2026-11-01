@@ -290,11 +290,12 @@ async function sendScheduleReminders(env, clock) {
   return sent;
 }
 
-async function scheduled(env) {
-  const clock = kazakhstanClock(new Date());
+async function scheduled(env, triggerTime = Date.now()) {
+  const clock = kazakhstanClock(new Date(triggerTime));
+  const tooLate = Date.now() - triggerTime > 120000;
   // Lesson timings need a one-minute clock. Existing announcement/support
   // polling remains at two-minute intervals to control free-tier usage.
-  try { await sendScheduleReminders(env, clock); }
+  if (!tooLate) try { await sendScheduleReminders(env, clock); }
   catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
 
   if (clock.minute % 2 === 0) {
@@ -372,8 +373,9 @@ async function fetchHandler(request, env) {
 }
 export default {
   fetch: fetchHandler,
-  async scheduled(_event, env, ctx) {
-    ctx.waitUntil(scheduled(env).catch(e => console.error('Scheduled push failed:', e?.message || 'unknown')));
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(scheduled(env, event?.scheduledTime || Date.now())
+      .catch(e => console.error('Scheduled push failed:', e?.message || 'unknown')));
   }
 };
 
