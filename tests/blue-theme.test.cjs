@@ -13,8 +13,8 @@ const releases = read('release-data.js');
 test('the blue brand stylesheet is active in the page and offline PWA', () => {
   assert.match(html, /brand-blue\.css\?v=20261101-no-violet-v1/);
   assert.match(worker, /brand-blue\.css\?v=20261101-no-violet-v1/);
-  assert.match(html, /step19\.20-no-violet-2026-11-01-v1/);
-  assert.match(worker, /sbp-shell-20261101-no-violet-v1/);
+  assert.match(html, /step19\.21-bell-headers-2026-11-01-v1/);
+  assert.match(worker, /sbp-shell-20261101-bell-headers-v1/);
 });
 test('notification, admin, schedule editor and support styling share blue tokens', () => {
   for (const selector of [
