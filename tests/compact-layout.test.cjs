@@ -37,8 +37,8 @@ test('compact styles, release history and active PWA build agree',()=>{
  assert.ok(version && build?.startsWith('step'),'active build and app script version exist');
  assert.ok(sw.includes(`'./app.js?v=${version}'`),'app script matches PWA precache');
  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'PWA cache matches app script');
- assert.match(html,/sbp-core\.css\?v=20261101-css-bundle-v1/);
- assert.match(sw,/sbp-core\.css\?v=20261101-css-bundle-v1/);
+ assert.match(html,/sbp-core\.css\?v=20261101-localization-v1/);
+ assert.match(sw,/sbp-core\.css\?v=20261101-localization-v1/);
  assert.ok(html.includes(`release-notes.js?v=${version}`),'release notes use active version');
  assert.ok(sw.includes(`'./release-data.js?v=${version}'`),'release data uses active PWA version');
  assert.match(release,/version:'19\.10'/);
