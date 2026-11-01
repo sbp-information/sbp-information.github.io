@@ -74,3 +74,19 @@ test('CORS preflight is a valid empty response and config exposes no secret', as
   assert.deepEqual(config, { vapidPublicKey: 'test-public' });
   assert.equal(JSON.stringify(config).includes('test-private'), false);
 });
+
+test('notification delivery queries do not stop at 40 registered devices', async () => {
+  const rows = Array.from({ length:65 }, (_, i) => ({ id:'device-' + i, uid:'user-' + i }));
+  const statements = [];
+  const env = { DB: { prepare(sql) {
+    statements.push(sql);
+    return { bind(uid) { this.uid=uid; return this; }, async all() {
+      const matches = this.uid ? rows.filter(row => row.uid === this.uid) : rows;
+      const limit = /LIMIT\\s+(\\d+)/i.exec(sql);
+      return { results: limit ? matches.slice(0, Number(limit[1])) : matches };
+    } };
+  } } };
+  assert.equal((await testing.deviceRows(env)).length, 65);
+  assert.equal((await testing.deviceRows(env, 'user-42'))[0].id, 'device-42');
+  assert.ok(statements.every(sql => !/\\bLIMIT\\s+40\\b/i.test(sql)));
+});
