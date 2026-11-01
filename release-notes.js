@@ -1,6 +1,8 @@
 import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261101-push-coldstart-v1';
 
 const build = document.querySelector('meta[name="app-build"]')?.content;
+// A Push deep link must open its destination first, never be covered by the update dialog.
+const launchedFromPush = typeof location !== 'undefined' && new URLSearchParams(location.search).has('notification');
 const currentRelease = releaseForBuild(build);
 const modal = document.getElementById('release-notes-modal');
 const content = document.getElementById('release-notes-content');
@@ -86,7 +88,7 @@ document.addEventListener('keydown', event => {
 
 function showUnreadRelease() {
   pendingTimer = null;
-  if (!modal || wasSeen() || !modal.classList.contains('hidden')) return;
+  if (launchedFromPush || !modal || wasSeen() || !modal.classList.contains('hidden')) return;
   if (document.visibilityState !== 'visible') return;
   const busy = document.documentElement.classList.contains('sbp-app-launch') || [...document.querySelectorAll('.app-overlay,.bell-editor-overlay,[id$="-modal"]')].some(node => node !== modal && node.getClientRects().length);
   if (busy) { pendingTimer = setTimeout(showUnreadRelease, 1000); return; }
