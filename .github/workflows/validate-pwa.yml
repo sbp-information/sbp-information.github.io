@@ -1,0 +1,19 @@
+name: Validate bilingual PWA
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  localization-and-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test Russian and Kazakh interface, updates, cache
+        run: |
+          node tests/interface-language.test.cjs
+          node tests/release-notes.test.cjs
+          node tests/pwa-cache-consistency.test.cjs
+          node tests/app-update.test.cjs

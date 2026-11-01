@@ -89,7 +89,7 @@ assert.match(kz.node('release-notes-content').innerHTML, /Түзетулер/);
 assert.match(kz.node('release-notes-content').innerHTML, /Жаңарту түймесі және қоңырау кестесі/);
 assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Кнопка обновления/,'Kazakh history must not show Russian release titles');
 assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Среднее обновление/,'Kazakh history must not show Russian update type');
-assert.match(kz.node('release-notes-content').innerHTML,/Нұсқа 18\\.46/,'Kazakh version label');
+assert.match(kz.node('release-notes-content').innerHTML,/Нұсқа 18\.46/,'Kazakh version label');
 vm.runInContext(`for (const release of RELEASES) for (const key of ['fixes', 'updates']) {
   if (!release[key]) continue;
   if (release[key].ru.length !== release[key].kz.length || release[key].kz.some(text => !text)) throw new Error('Missing Kazakh release translation');
@@ -118,3 +118,13 @@ assert.equal(keyboard.storage.get('sbp_release_seen_18.46'), '1');
 assert.equal(first.context.releaseTypeLabel({ type:'update', size:'small' }), 'Мини-обновление');
 assert.equal(first.context.releaseTypeLabel({ type:'update', size:'major' }), 'Крупное обновление');
 console.log('Release notes: once-per-version, history, corrections, installed-version filtering, modal deferral, storage denial, RU/KZ, cross-tab dismissal and keyboard checks passed.');
+
+// Latest update, including mobile PWA, must show only the selected language.
+const latestKz=app({build:'step19.13-language-2026-11-01-v2',language:'kz'});
+latestKz.timers.shift()();
+assert.match(latestKz.node('release-notes-content').innerHTML,/Тілді ауыстыруды түзету/);
+assert.doesNotMatch(latestKz.node('release-notes-content').innerHTML,/Исправление переключения языка/);
+const latestRu=app({build:'step19.13-language-2026-11-01-v2',language:'ru'});
+latestRu.timers.shift()();
+assert.match(latestRu.node('release-notes-content').innerHTML,/Исправление переключения языка/);
+assert.doesNotMatch(latestRu.node('release-notes-content').innerHTML,/Тілді ауыстыруды түзету/);

@@ -51,10 +51,10 @@ import {
     getScheduleAdminSnapshot,
     restoreScheduleSelection,
     syncPendingScheduleData
-} from "./schedule.js?v=20261017-admin-tap-v1";
-import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261017-admin-tap-v1";
-import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261017-admin-tap-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261017-admin-tap-v1';
+} from "./schedule.js?v=20261101-lang-v2";
+import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-lang-v2";
+import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-lang-v2';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-lang-v2';
 
         
 let homeScheduleExpanded=false;

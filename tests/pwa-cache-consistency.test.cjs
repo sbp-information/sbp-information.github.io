@@ -8,10 +8,10 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.12-language-2026-11-01-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-language-v1'/);
-assert.match(release, /version:'19\.12',date:'2026-11-01'/);
-assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-language-v1/);
+assert.match(build, /^step19\.13-language-2026-11-01-v2$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-lang-v2'/);
+assert.match(release, /version:'19\.13',date:'2026-11-01'/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-lang-v2/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
 assert.ok(core, 'worker has a precache list');
 const assets = [...core.matchAll(/'([^']+)'/g)].map(m => m[1]);
@@ -25,3 +25,22 @@ for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
   assert.ok(fs.existsSync(path.join(root, asset.split('?')[0])), 'asset must exist: ' + asset);
 }
 console.log('PWA cache consistency: build, icon files, page assets, and cache versions passed.');
+
+// Check that shared ES modules are consistently versioned and cached in the installed PWA.
+const moduleFiles = ['app.js','schedule.js','group-tools.js','action-history.js','release-notes.js'];
+const moduleVersions = new Map();
+for (const file of moduleFiles) {
+  for (const match of read(file).matchAll(/from\s*['"](\.\/[^'"]+)['"]/g)) {
+    const url = match[1];
+    const name = url.split('?')[0].replace(/^\.\//,'');
+    if (!['i18n.js','schedule.js','group-tools.js','action-history.js','release-data.js'].includes(name)) continue;
+    const versions = moduleVersions.get(name) || new Set();
+    versions.add(url);
+    moduleVersions.set(name,versions);
+    assert.ok(assets.includes('./'+url.replace(/^\.\//,'')),file+' dependency missing from PWA: '+url);
+  }
+}
+for (const [name,versions] of moduleVersions) {
+  assert.equal(versions.size,1,'duplicate module instances for '+name);
+  assert.ok([...versions][0].endsWith('?v=20261101-lang-v2'),'stale version for '+name);
+}

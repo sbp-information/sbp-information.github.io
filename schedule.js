@@ -1,5 +1,5 @@
 import { SCHEDULE_SCHEMA_VERSION, scheduleCalendarLabel, scheduleDateKey, scheduleForDate, ensureDateSchedule, migrateLegacySchedule } from './schedule-dates.js?v=20261017-admin-tap-v1';
-import { interfaceLocale, translateUI } from "./i18n.js?v=20261017-admin-tap-v1";
+import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-lang-v2";
 import { doc, setDoc, getDoc, onSnapshot } from "./firebase.js?v=20261017-admin-tap-v1";
 import { getWeekTypeForDate } from "./utils.js?v=20261017-admin-tap-v1";
 import { dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
