@@ -2,8 +2,8 @@
    Does not modify timetable data, Firebase, or other pages. */
 :root body.sbp-redesign #view-home.home-reference {
   --home-first-accent:#407a94;
-  --home-first-soft:#f4f0ff;
-  --home-first-edge:#e8e2f3;
+  --home-first-soft:#dff6ff;
+  --home-first-edge:#d7e8ef;
   --home-first-text:#1d292e;
   color:var(--home-first-text);
 }
@@ -21,7 +21,7 @@
 }
 :root body.sbp-redesign #view-home #sbp-home-banner {
   height:160px!important;
-  background:linear-gradient(120deg,#f3efff 0%,#c0e9fb 52%,#f9f3ff 100%)!important;
+  background:linear-gradient(120deg,#ddf5ff 0%,#c0e9fb 52%,#e8f8ff 100%)!important;
 }
 :root body.sbp-redesign #view-home .home-ref-group-card {
   border:1px solid var(--home-first-edge)!important;
@@ -50,7 +50,7 @@
 :root body.sbp-redesign #view-home .home-ref-today-head {
   padding:12px 14px!important;
   gap:8px!important;
-  background:linear-gradient(115deg,#fbfaff,#f5f0ff)!important;
+  background:linear-gradient(115deg,#f4fcff,#e0f6ff)!important;
   border-bottom:1px solid var(--home-first-edge)!important;
 }
 :root body.sbp-redesign #view-home #home-reference-title {
@@ -86,10 +86,10 @@
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home{
   --home-first-edge:#2a373c;
   --home-first-soft:#1c282e;
-  --home-first-text:#f1edfb;
+  --home-first-text:#e1f2f8;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today){
-  background:#1b1c2a!important;
+  background:#161e22!important;
   border-color:var(--home-first-edge)!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head{
