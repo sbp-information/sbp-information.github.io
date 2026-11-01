@@ -101,3 +101,47 @@ test('malformed push payload falls back safely to a generic notice', async () =>
   assert.equal(worker.displayed.length, 1);
   assert.equal(worker.displayed[0].title, 'SBP Information');
 });
+
+test('hidden Android PWA receives durable navigation instead of an unsafe early message', async () => {
+  let focused = 0;
+  const navigated = [];
+  const posted = [];
+  const client = {
+    url: scope,
+    visibilityState: 'hidden',
+    async navigate(url) {
+      navigated.push(url);
+      return { async focus() { focused++; } };
+    },
+    async focus() { throw new Error('old hidden window must not be focused'); },
+    postMessage(data) { posted.push(data); }
+  };
+  const worker = fixture([client]);
+  await worker.send('notificationclick', {
+    notification: { data: { kind: 'support', threadId: 'thread-34' }, close() {} }
+  });
+  assert.equal(focused, 1);
+  assert.equal(navigated.length, 1);
+  assert.equal(new URL(navigated[0]).searchParams.get('notification'), 'support');
+  assert.equal(new URL(navigated[0]).searchParams.get('thread'), 'thread-34');
+  assert.equal(posted.length, 0, 'early postMessage is unreliable during cold startup');
+  assert.equal(worker.opened.length, 0);
+});
+
+test('hidden client without navigation support still receives the message fallback', async () => {
+  let focused = 0;
+  const posted = [];
+  const client = {
+    url: scope,
+    visibilityState: 'hidden',
+    async focus() { focused++; },
+    postMessage(data) { posted.push(data); }
+  };
+  const worker = fixture([client]);
+  await worker.send('notificationclick', {
+    notification: { data: { kind: 'support' }, close() {} }
+  });
+  assert.equal(focused, 1);
+  assert.equal(posted.length, 1);
+  assert.equal(posted[0].type, 'notification-open');
+});
