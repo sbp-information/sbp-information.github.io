@@ -80,7 +80,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   async function refreshAccount() {
     registeredContext = '';
     configuration = null;
-    if (deviceEnabled() && Notification.permission === 'granted') {
+    if (supported() && deviceEnabled() && Notification.permission === 'granted') {
       statusOverride = 'Включены, пока сайт открыт. Доставка при закрытом сайте ещё не подключена';
     } else {
       statusOverride = '';
@@ -145,7 +145,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
           const sw = await worker();
           await sw.showNotification(title, {
             body,
-            icon: './sbp-information-icon.svg',
+            icon: './sbp-icon-192.png',
             tag: key,
             silent: false,
             renotify: true,

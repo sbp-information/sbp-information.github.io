@@ -17,3 +17,6 @@ jobs:
           node tests/release-notes.test.cjs
           node tests/pwa-cache-consistency.test.cjs
           node tests/app-update.test.cjs
+          node tests/notification-icon.test.cjs
+          node --check notification-center.js
+          node --check notifications-sw.js
