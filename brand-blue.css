@@ -119,3 +119,62 @@
 :root:root[data-sbp-theme="dark"] body.sbp-redesign .notification-setting-button:not(.primary) {
  border-color:var(--sbp-line)!important;
 }
+
+/* 19.20: explicit single-colour blue treatment for the remaining purple-looking
+   controls, including hover and future update prompts in installed PWA.
+   Preserve live/current lesson's semantic green indicator. */
+:root:root body.sbp-redesign :is(
+  #app-update-now,
+  #menu-update-button:not(:disabled) > i,
+  .native-app-update-actions .update-primary,
+  .drawer-beta-head span
+) {
+  background:#1684ba!important;
+  background-image:none!important;
+  border-color:#1684ba!important;
+  color:#fff!important;
+}
+:root:root body.sbp-redesign :is(
+  #app-update-bar,
+  .native-app-update,
+  .drawer-beta-card
+) {
+  background:var(--sbp-tint)!important;
+  background-image:none!important;
+  border-color:var(--sbp-line)!important;
+}
+:root:root body.sbp-redesign .drawer-nav-section > button:is(:hover,:focus-visible,.active,[aria-current="page"]) {
+  background:var(--sbp-tint)!important;
+  background-image:none!important;
+  color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign .drawer-nav-section > button:is(:hover,:focus-visible,.active,[aria-current="page"]) > i {
+  background:var(--sbp-raised)!important;
+  background-image:none!important;
+  color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-lesson-card.next:not(.current) {
+  background:var(--sbp-tint)!important;
+  background-image:none!important;
+  border-color:var(--sbp-line)!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-lesson-card:not(.current) .home-ref-lesson-number {
+  background:var(--sbp-tint)!important;
+  background-image:none!important;
+  color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-break-card.nearest {
+  background:var(--sbp-tint)!important;
+  background-image:none!important;
+  border-color:var(--sbp-line)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+  #app-update-now,
+  #menu-update-button:not(:disabled) > i,
+  .native-app-update-actions .update-primary,
+  .drawer-beta-head span
+) {
+  background:var(--sbp-accent-solid)!important;
+  border-color:var(--sbp-accent-solid)!important;
+  color:var(--sbp-accent-ink)!important;
+}
