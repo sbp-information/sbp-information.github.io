@@ -823,7 +823,11 @@ function scheduleOriginalValue(item, field) {
 }
 
 function scheduleChangeEvent(oldItem, newItem, index) {
-    if (!newItem || newItem.changeType === 'normal') return null;
+    if (!newItem) return null;
+    // Ordinary edits and newly added lessons are real schedule changes too.
+    if (newItem.changeType === 'normal' && oldItem &&
+        ['subject','room','time','teacher','cancelled'].every(field =>
+          String(oldItem[field] ?? '') === String(newItem[field] ?? ''))) return null;
     const entries = buildScheduleEntries(getCurrentScheduleList());
     const pairNumber = entries.find(entry => entry.index === index)?.number || String(index + 1);
     const date = scheduleDateForDay(currentScheduleDay);
@@ -853,6 +857,12 @@ function scheduleChangeEvent(oldItem, newItem, index) {
     } else if (newItem.changeType === 'time') {
         textRu = `${ruDate}, ${pairRu}: время изменено — ${newItem.subject}: ${oldTime || '—'} → ${newItem.time || '—'}.`;
         textKz = `${kzDate}, ${pairKz}: уақыт өзгерді — ${newItem.subject}: ${oldTime || '—'} → ${newItem.time || '—'}.`;
+    } else if (!oldItem) {
+        textRu = `${ruDate}, ${pairRu}: добавлена пара — ${newItem.subject}, ${newItem.time}, ${newItem.room || 'кабинет не указан'}.`;
+        textKz = `${kzDate}, ${pairKz}: сабақ қосылды — ${newItem.subject}, ${newItem.time}, ${newItem.room || 'кабинет көрсетілмеген'}.`;
+    } else if (newItem.changeType === 'normal') {
+        textRu = `${ruDate}, ${pairRu}: данные изменены — ${newItem.subject}, ${newItem.time}, ${newItem.room || 'кабинет не указан'}.`;
+        textKz = `${kzDate}, ${pairKz}: мәліметтер өзгерді — ${newItem.subject}, ${newItem.time}, ${newItem.room || 'кабинет көрсетілмеген'}.`;
     } else {
         textRu = `${ruDate}, ${pairRu}: расписание изменено — ${newItem.subject}.`;
         textKz = `${kzDate}, ${pairKz}: сабақ кестесі өзгерді — ${newItem.subject}.`;
@@ -871,6 +881,17 @@ function scheduleChangeEvent(oldItem, newItem, index) {
         text: textRu,
         textKz,
         createdAt: new Date().toISOString()
+    };
+}
+
+function scheduleGeneralChangeEvent(changeType, textRu, textKz) {
+    const date = scheduleDateForDay(currentScheduleDay);
+    return {
+        id: `sch_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+        type:'schedule_change', changeType,
+        date:scheduleDateKey(date), dayKey:currentScheduleDay, weekType:currentScheduleWeekType,
+        title:'Изменение расписания', titleKz:'Сабақ кестесі өзгерді',
+        text:textRu, textKz, createdAt:new Date().toISOString()
     };
 }
 
