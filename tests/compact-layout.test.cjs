@@ -11,8 +11,8 @@ test('compact header replaces logo bar without removing language and navigation'
  assert.doesNotMatch(html,/<a class="sbp-brand"/);
  assert.doesNotMatch(html,/<div class="sbp-sidebar-brand"/);
  assert.match(html, /class="sbp-language"/);
- assert.match(html, /data-sbp-lang="ru"/);
- assert.match(html, /data-sbp-lang="kz"/);
+ assert.match(html, /id="sbp-lang-switch"/);
+ assert.match(html, /window\.setInterfaceLanguage\(document\.documentElement\.lang==='kk'\?'ru':'kz'\)/);
  for(const name of ['home','tracker','schedule','roster','college']) {
   assert.match(html,new RegExp('id="view-'+name+'"'));
  }
@@ -28,7 +28,8 @@ test('covers remain editable, no longer take a grid row, and work in both themes
  assert.match(css, /data-sbp-theme="dark"/);
  assert.match(html,/openBannerEditor\('home'\)/);
  assert.match(html,/openBannerEditor\('group'\)/);
- assert.match(html,/id="group-icon-roster"/);
+ assert.match(html,/id="group-icon-home"/);
+ assert.match(html,/id="settings-group-icon-options"/);
 });
 test('compact styles, release history and active PWA build agree',()=>{
  const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
