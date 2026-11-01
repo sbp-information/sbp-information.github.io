@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-no-violet-v1';
+const CACHE_NAME = 'sbp-shell-20261101-bell-headers-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -21,9 +21,9 @@ const CORE_ASSETS = [
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261101-all-blue-v1',
   './soft-frames.css?v=20261101-no-violet-v1',
-  './release-notes.js?v=20261101-no-violet-v1',
-  './release-data.js?v=20261101-no-violet-v1',
-  './app.js?v=20261101-no-violet-v1',
+  './release-notes.js?v=20261101-bell-headers-v1',
+  './release-data.js?v=20261101-bell-headers-v1',
+  './app.js?v=20261101-bell-headers-v1',
   './style.css?v=20261101-no-violet-v1',
   './desktop.css?v=20261101-no-violet-v1',
   './gradients.css?v=20261101-no-violet-v1',
@@ -47,7 +47,7 @@ const CORE_ASSETS = [
   './targeted-header-fixes.css?v=20261101-all-blue-v1',
   './home-header-alignment.css?v=20261031-center-v2',
   './desktop-header-align.css?v=20261031-v1',
-  './secondary-header-alignment.css?v=20261031-exact-center-v4',
+  './secondary-header-alignment.css?v=20261101-bell-headers-v1',
   './home-equal-lesson-cards.css?v=20261031-v1',
   './journal-flat-status.css?v=20261101-no-violet-v1',
   './schedule-break-alignment.css?v=20261031-v1',
