@@ -1,0 +1,27 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const root = path.join(__dirname, '..');
+const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+const html = read('index.html');
+const worker = read('notifications-sw.js');
+const manifest = JSON.parse(read('manifest.webmanifest'));
+const release = read('release-data.js');
+const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
+assert.match(build, /^step19\.11-pwa-cache-2026-11-01-v1$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-pwa-v1'/);
+assert.match(release, /version:'19\.11',date:'2026-11-01'/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-pwa-v1/);
+const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
+assert.ok(core, 'worker has a precache list');
+const assets = [...core.matchAll(/'([^']+)'/g)].map(m => m[1]);
+const paths = assets.filter(url => url.startsWith('./') && url !== './').map(url => url.slice(2).split('?')[0]);
+assert.equal(new Set(paths).size, paths.length, 'no duplicate asset paths with conflicting versions');
+const linked = [...html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)="([^"]+)"/g)]
+  .map(m => m[1]).filter(url => !url.startsWith('http') && /\.(?:css|js|png|webmanifest)(?:\?|$)/.test(url));
+for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
+  const normalized = './' + asset.replace(/^\.\//, '');
+  assert.ok(assets.includes(normalized), 'precache must match page: ' + asset);
+  assert.ok(fs.existsSync(path.join(root, asset.split('?')[0])), 'asset must exist: ' + asset);
+}
+console.log('PWA cache consistency: build, icon files, page assets, and cache versions passed.');
