@@ -1,4 +1,4 @@
-import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-holiday-eve-v1";
+import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-i18n-audit-v1";
 // Общие независимые функции проекта.
 // Здесь нет доступа к Firebase и состоянию журнала.
 
