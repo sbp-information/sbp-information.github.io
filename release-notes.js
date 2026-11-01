@@ -1,4 +1,4 @@
-import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261101-pwa-v1';
+import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261101-language-v1';
 
 const build = document.querySelector('meta[name="app-build"]')?.content;
 const currentRelease = releaseForBuild(build);
@@ -26,13 +26,14 @@ function releaseCard(release) {
   const language = lang();
   const date = new Intl.DateTimeFormat(language === 'kz' ? 'kk-KZ' : 'ru-RU', { day:'numeric', month:'long', year:'numeric' }).format(new Date(release.date + 'T12:00:00'));
   const groups = [
-    ['updates', 'Обновления', 'Жаңартулар'],
-    ['fixes', 'Исправления', 'Түзетулер']
-  ].filter(([key]) => release[key]?.ru?.length).map(([key, ruLabel, kzLabel]) => {
-    const items = release[key].ru.map((change, index) => `<li><span lang="ru">${escape(change)}</span><span class="release-translation" lang="kk">${escape(release[key].kz[index])}</span></li>`).join('');
-    return `<section class="release-change-group"><h4><span lang="ru">${ruLabel}</span><span class="release-translation" lang="kk">${kzLabel}</span></h4><ul>${items}</ul></section>`;
+    ['updates','Обновления','Жаңартулар'],
+    ['fixes','Исправления','Түзетулер']
+  ].map(([key,ruLabel,kzLabel]) => {
+    const items = release[key]?.[language] || [];
+    if (!items.length) return '';
+    return `<section class="release-change-group"><h4>${escape(language === 'kz' ? kzLabel : ruLabel)}</h4><ul>${items.map(item => `<li>${escape(item)}</li>`).join('')}</ul></section>`;
   }).join('');
-  return `<article class="release-card"><div class="release-card-meta"><span class="release-version">Версия / Нұсқа ${escape(release.version)}</span><time datetime="${escape(release.date)}">${escape(date)}</time></div><span class="release-type ${release.type === 'fix' ? 'is-fix' : 'is-update'}"><span lang="ru">${escape(releaseTypeLabel(release, 'ru'))}</span><span lang="kk">${escape(releaseTypeLabel(release, 'kz'))}</span></span><h3><span lang="ru">${escape(release.title.ru)}</span><span class="release-translation" lang="kk">${escape(release.title.kz)}</span></h3>${groups}</article>`;
+  return `<article class="release-card"><div class="release-card-meta"><span class="release-version">${escape(t('Версия','Нұсқа'))} ${escape(release.version)}</span><time datetime="${escape(release.date)}">${escape(date)}</time></div><span class="release-type ${release.type === 'fix' ? 'is-fix' : 'is-update'}">${escape(releaseTypeLabel(release,language))}</span><h3>${escape(release.title[language] || '')}</h3>${groups}</article>`;
 }
 
 window.refreshReleaseNotes = function() {

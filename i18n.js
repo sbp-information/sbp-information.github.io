@@ -4,6 +4,15 @@ export function currentLang() { return localStorage.getItem(UI_LANG_KEY) === 'kz
 export function interfaceLocale() { return currentLang() === 'kz' ? 'kk-KZ' : 'ru-RU'; }
 
 export const KZ_EXACT = Object.freeze({
+  'Идёт занятие':'Сабақ өтіп жатыр',
+  'Сейчас перемена':'Қазір үзіліс',
+  'Перерыв':'Үзіліс',
+  'Скоро занятие':'Сабақ жақында басталады',
+  'Это последняя пара на сегодня':'Бұл бүгінгі соңғы сабақ',
+  'До конца':'Аяқталуына дейін',
+  'До пары':'Сабаққа дейін',
+  'До начала':'Басталуына дейін',
+  'Занятие':'Сабақ',
   'Русский язык':'Орыс тілі',
   'Всемирная история':'Дүниежүзі тарихы',
   'Графика и проектирование':'Графика және жобалау',
@@ -175,6 +184,11 @@ export const KZ_EXACT = Object.freeze({
 
 const MONTHS = {'января':'қаңтар','февраля':'ақпан','марта':'наурыз','апреля':'сәуір','мая':'мамыр','июня':'маусым','июля':'шілде','августа':'тамыз','сентября':'қыркүйек','октября':'қазан','ноября':'қараша','декабря':'желтоқсан'};
 const translationPatterns = language => [
+  [/^Сейчас: (.+)$/,(_,subject)=>`Қазір: ${translateUI(subject, language)}`],
+  [/^Следующая: (.+?)( · .+)?$/,(_,subject,detail)=>`Келесі сабақ: ${translateUI(subject, language)}${detail ? translateUI(detail, language) : ''}`],
+  [/^Начало в (.+)$/,(_,time)=>`Басталуы: ${time}`],
+  [/^ · перемена (.+)$/,(_,duration)=>` · үзіліс ${translateUI(duration, language)}`],
+  [/^(.+) · перемена (.+)$/,(_,status,duration)=>`${translateUI(status, language)} · үзіліс ${translateUI(duration, language)}`],
   [/^Ближайший урок: (.+)$/,(_,subject)=>`Ең жақын сабақ: ${translateUI(subject, language)}`],
   [/^(\d+) из (\d+)$/,(_,a,b)=>`${a} / ${b}`],
   [/^(\d+) студентов$/,(_,n)=>`${n} студент`],

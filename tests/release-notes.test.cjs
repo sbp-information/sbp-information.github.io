@@ -87,15 +87,9 @@ kz.context.window.openReleaseHistory();
 assert.equal(kz.node('release-notes-heading').textContent, 'Жаңартулар тарихы');
 assert.match(kz.node('release-notes-content').innerHTML, /Түзетулер/);
 assert.match(kz.node('release-notes-content').innerHTML, /Жаңарту түймесі және қоңырау кестесі/);
-assert.match(kz.node('release-notes-content').innerHTML, /Кнопка обновления/);
-assert.match(kz.node('release-notes-content').innerHTML, /Среднее обновление/);
-for (const [ru, kk] of [
-  ['Кнопка обновления и расписание звонков', 'Жаңарту түймесі және қоңырау кестесі'],
-  ['В меню вернулась постоянная кнопка', 'Мәзірге тұрақты']
-]) {
-  const rendered = kz.node('release-notes-content').innerHTML;
-  assert.ok(rendered.indexOf(ru) < rendered.indexOf(kk), 'Russian text precedes Kazakh text');
-}
+assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Кнопка обновления/,'Kazakh history must not show Russian release titles');
+assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Среднее обновление/,'Kazakh history must not show Russian update type');
+assert.match(kz.node('release-notes-content').innerHTML,/Нұсқа 18\\.46/,'Kazakh version label');
 vm.runInContext(`for (const release of RELEASES) for (const key of ['fixes', 'updates']) {
   if (!release[key]) continue;
   if (release[key].ru.length !== release[key].kz.length || release[key].kz.some(text => !text)) throw new Error('Missing Kazakh release translation');
@@ -103,6 +97,11 @@ vm.runInContext(`for (const release of RELEASES) for (const key of ['fixes', 'up
 kz.storage.set('toe_ui_language', 'ru'); kz.context.window.refreshReleaseNotes();
 assert.equal(kz.node('release-notes-heading').textContent, 'История обновлений');
 assert.match(kz.node('release-notes-content').innerHTML, /Исправления/);
+assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Түзетулер/,'Russian history must not show Kazakh');
+kz.storage.set('toe_ui_language','kz');kz.context.window.refreshReleaseNotes();
+assert.match(kz.node('release-notes-content').innerHTML,/Түзетулер/,'open release dialog switches to Kazakh');
+assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Исправления/);
+
 
 const crossTab = app(); crossTab.timers.shift()();
 crossTab.events.get('storage')({ key: 'sbp_release_seen_18.46', newValue: '1' });
