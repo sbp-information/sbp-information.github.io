@@ -47,12 +47,12 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261101-localization-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261101-localization-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261101-localization-v1'));
+  assert.ok(assets.includes('./app.js?v=20261101-push-coldstart-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261101-push-coldstart-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261101-push-coldstart-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
-  assert.match(worker,/sbp-shell-20261101-localization-v1/);
-  assert.match(html,/step19\.31-localization-2026-11-01-v1/);
+  assert.match(worker,/sbp-shell-20261101-push-coldstart-v1/);
+  assert.match(html,/step19\.32-push-coldstart-2026-11-01-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');
