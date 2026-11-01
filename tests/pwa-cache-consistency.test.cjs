@@ -43,7 +43,7 @@ for (const file of moduleFiles) {
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
   if (['i18n.js','schedule.js','group-tools.js','action-history.js','release-data.js','utils.js'].includes(name)) {
-    const version = ['release-data.js','i18n.js','schedule.js','group-tools.js','action-history.js'].includes(name) ? '?v=20261101-single-day-pauses-v1' : '?v=20261101-localization-v1';
+    const version = ['release-data.js','i18n.js','schedule.js','group-tools.js','action-history.js','utils.js'].includes(name) ? '?v=20261101-single-day-pauses-v1' : '?v=20261101-localization-v1';
     assert.ok([...versions][0].endsWith(version),'stale version for '+name);
   }
 }
