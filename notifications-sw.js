@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-push-registration-v2';
+const CACHE_NAME = 'sbp-shell-20261101-cloudflare-push-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -23,7 +23,7 @@ const CORE_ASSETS = [
   './soft-frames.css?v=20261017-admin-tap-v1',
   './release-notes.js?v=20261101-push-registration-v2',
   './release-data.js?v=20261101-push-registration-v2',
-  './app.js?v=20261101-push-registration-v2',
+  './app.js?v=20261101-cloudflare-push-v1',
   './style.css?v=20261017-admin-tap-v1',
   './desktop.css?v=20261017-admin-tap-v1',
   './gradients.css?v=20261017-admin-tap-v1',
@@ -34,7 +34,8 @@ const CORE_ASSETS = [
   './schedule.js?v=20261101-lang-v2',
   './i18n.js?v=20261101-lang-v2',
   './performance.js?v=20261101-pwa-v1',
-  './notification-center.js?v=20261101-push-registration-v2',
+  './notification-center.js?v=20261101-cloudflare-push-v1',
+  './push-worker-config.js?v=20261101-cloudflare-push-v1',
   './notification-state.js?v=20261017-admin-tap-v1',
   './support-state.js?v=20261017-admin-tap-v1',
   './tailwind-local.css?v=20261017-admin-tap-v1',
