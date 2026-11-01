@@ -19,7 +19,7 @@
         const resolved=choice==='dark'||(choice==='system'&&systemDark)?'dark':'light';
         document.documentElement.dataset.sbpTheme=resolved;
         document.documentElement.style.colorScheme=resolved;
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content',resolved==='dark'?'#0b0f18':'#fafafe');
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content',resolved==='dark'?'#0b0f18':'#f6fbfd');
       })();
     </script>
     <script>
@@ -676,9 +676,9 @@
         <div id="home-week-banner-text" class="hidden">—</div>
         <span id="home-week-dates" class="hidden">—</span>
 
-        <div id="schedule-edit-scope-box" class="hidden" style="margin:12px 16px;padding:12px;background:#f5f3ff;border-radius:14px">
+        <div id="schedule-edit-scope-box" class="hidden" style="margin:12px 16px;padding:12px;background:#e6f7ff;border-radius:14px">
             <label for="schedule-edit-scope">Режим изменений</label>
-            <select id="schedule-edit-scope" onchange="setScheduleEditScope(this.value)" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #e9e5f3;border-radius:10px;background:white">
+            <select id="schedule-edit-scope" onchange="setScheduleEditScope(this.value)" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid #dceaef;border-radius:10px;background:white">
                 <option value="date">Только на выбранную дату</option>
                 <option value="template">Постоянное расписание</option>
             </select>
