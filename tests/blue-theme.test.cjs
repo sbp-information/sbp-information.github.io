@@ -111,6 +111,6 @@ test('first and other lesson numbers have matching thin outlines, preserving liv
   assert.match(normal[1], /background:var\(--sbp-surface\)!important/);
   assert.match(normal[1], /border:1px solid #b9deef!important/);
   assert.match(current[1], /border:1px solid var\(--sbp-green-line\)!important/);
-  assert.doesNotMatch(normal[0], /\.cancelled\)\s*\.home-ref-lesson-number/);
+  assert.match(normal[0], /:not\(\.cancelled\)/);
   assert.match(read('style.css'), /#view-home \.home-ref-lesson-card\.current \.home-ref-lesson-number\s*\{\s*background:#dff7e8!important/);
 });
