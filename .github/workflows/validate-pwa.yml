@@ -14,6 +14,7 @@ jobs:
       - name: Test Russian and Kazakh interface, updates, cache
         run: |
           node tests/interface-language.test.cjs
+          node tests/translation-updates.test.cjs
           node tests/release-notes.test.cjs
           node scripts/build-css.cjs --check
           node tests/pwa-cache-consistency.test.cjs
