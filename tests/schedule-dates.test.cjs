@@ -16,7 +16,7 @@ async function main(){
  };
  vm.createContext(context);
  const source=fs.readFileSync(path.join(root,'schedule.js'),'utf8').replace(/^import .*;\n/gm,'').replaceAll('export ','');
- vm.runInContext(source+`\nglobalThis.api={schedulePayload,installSchedulePayload,getScheduleDataForWeek,getCurrentScheduleList,loadScheduleData,applyCloudScheduleData,syncPendingScheduleData,getScheduleShareData,configureSchedule,defaults:scheduleDefaults,setSelection(date,type,day){scheduleReferenceDate=new Date(date);currentScheduleWeekType=type;currentScheduleDay=day;},setEditing(index){editingScheduleIndex=index;scheduleEditorOriginal=cloneScheduleItem(getCurrentScheduleList()[index]);}};`,context);
+ vm.runInContext(source+`\nglobalThis.api={schedulePayload,installSchedulePayload,getSchedulePauseState,getScheduleDataForWeek,getCurrentScheduleList,loadScheduleData,applyCloudScheduleData,syncPendingScheduleData,getScheduleShareData,configureSchedule,defaults:scheduleDefaults,setSelection(date,type,day){scheduleReferenceDate=new Date(date);currentScheduleWeekType=type;currentScheduleDay=day;},setEditing(index){editingScheduleIndex=index;scheduleEditorOriginal=cloneScheduleItem(getCurrentScheduleList()[index]);}};`,context);
  const api=context.api,defaults=JSON.parse(JSON.stringify(api.defaults)),legacy=JSON.parse(JSON.stringify(defaults));
  legacy.denominator.mon[0]={...legacy.denominator.mon[0],subject:'Русская литература',teacher:'Магауина А.Т.',room:'Каб. 509',changeType:'subject',originalSubject:'Физика ЗАМЕНА!!! Русская Литература 509каб',originalTeacher:'Урунбаева Б.Т.',originalRoom:'Каб. 301'};
  legacy.denominator.mon[3]={...legacy.denominator.mon[3],cancelled:true,changeType:'cancel'};
@@ -60,6 +60,37 @@ async function main(){
  assert.equal(JSON.parse(store.get('toe_pending_schedule_v1')).dateOverrides['2026-11-16'].lessons[0].room,'Каб. 304','offline queue includes overrides');
  context.navigator.onLine=true;await api.syncPendingScheduleData();assert.equal(writes.at(-1).dateOverrides['2026-11-16'].lessons[0].room,'Каб. 304');assert.equal(store.has('toe_pending_schedule_v1'),false);
  const cloud=JSON.parse(JSON.stringify(writes.at(-1)));cloud.updatedAt='2099-01-01T00:00:00.000Z';cloud.dateOverrides['2026-11-16'].lessons[0].room='Каб. 305';assert.equal(api.applyCloudScheduleData(cloud),true);assert.equal(api.getScheduleDataForWeek('denominator',new Date('2026-11-16T12:00:00')).mon[0].room,'Каб. 305','remote changes to overrides are applied');
+
+ // Legacy date ranges migrate to separate days without changing real lesson/teacher data.
+ api.installSchedulePayload({...api.schedulePayload(),pause:{enabled:true,type:'vacation',startDate:'2026-11-02',endDate:'2026-11-04'}});
+ for(const date of ['2026-11-02','2026-11-03','2026-11-04'])assert.equal(api.getSchedulePauseState(new Date(date+'T12:00:00')).active,true,'legacy holiday preserved: '+date);
+ assert.equal(api.getSchedulePauseState(new Date('2026-11-05T12:00:00')).active,false);
+ const pauseEvents=[];
+ api.configureSchedule({getCloudState:()=>({isCloudConnected:true,db:{},auth:{currentUser:{uid:'test-owner'}}}),publishScheduleChange:async event=>{pauseEvents.push(event);return true;}});
+ node('schedule-pause-date').value='2026-11-09';node('schedule-pause-type').value='holiday';
+ await context.window.saveSchedulePause();
+ assert.equal(writes.at(-1).pause.days['2026-11-09'],'holiday');
+ assert.equal(writes.at(-1).pause.days['2026-11-03'],'vacation','existing paused date remains');
+ assert.equal(writes.at(-1).lastChange.date,'2026-11-09');
+ assert.match(pauseEvents.at(-1).title,/Праздник/);
+ assert.match(pauseEvents.at(-1).titleKz,/Мереке/);
+ assert.equal(api.getSchedulePauseState(new Date('2026-11-09T12:00:00')).type,'holiday');
+ assert.equal(api.getSchedulePauseState(new Date('2026-11-10T12:00:00')).active,false,'only selected day is stopped');
+ node('schedule-pause-date').value='2026-11-10';node('schedule-pause-type').value='maintenance';
+ await context.window.saveSchedulePause();
+ assert.equal(writes.at(-1).pause.days['2026-11-10'],'maintenance');
+ assert.equal(writes.at(-1).pause.days['2026-11-09'],'holiday','adding another date does not erase holiday');
+ node('schedule-pause-date').value='2026-11-09';
+ await context.window.disableSchedulePause();
+ assert.equal(writes.at(-1).pause.days['2026-11-09'],undefined,'only chosen date is removed');
+ assert.equal(writes.at(-1).pause.days['2026-11-10'],'maintenance','other pauses are retained');
+ assert.equal(api.getSchedulePauseState(new Date('2026-11-09T12:00:00')).active,false);
+ assert.match(pauseEvents.at(-1).title,/отменена/);
+ const count=writes.length;
+ node('schedule-pause-date').value='2026-02-30';
+ await context.window.saveSchedulePause();
+ assert.equal(writes.length,count,'invalid date must never reach Firestore');
+
  const i18nSource=fs.readFileSync(path.join(root,'i18n.js'),'utf8').replaceAll('export ','');const langStore=new Map([['toe_ui_language','kz']]);const langContext={localStorage:{getItem:key=>langStore.get(key)},window:{},document:{},WeakMap,console};vm.createContext(langContext);vm.runInContext(i18nSource+'\nglobalThis.translate=translateUI;',langContext);
  for(const text of ['Режим изменений','Только на выбранную дату','Постоянное расписание'])assert.notEqual(langContext.translate(text),text);
  console.log('Passed: migration, factual history, teachers, dated edits/cancellations/deletion/reordering, cloud persistence, next recurrence, date exports, permanent editing, RU/KZ');
