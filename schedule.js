@@ -1025,7 +1025,7 @@ function renderSchedulePauseStatus(selectedDate, pauseState, adminCanEdit) {
 }
 function schedulePausePlaceholder(pauseState) {
     const meta = schedulePauseMeta(pauseState);
-    return '<div class="schedule-pause-placeholder"><span><i class="fa-solid '+meta.icon+'"></i></span><strong>'+meta.label+'</strong><p>'+translateUI('Расписание временно не работает')+'</p><small>'+schedulePausePeriodLabel(pauseState)+'</small><em>'+translateUI('Расписание автоматически возобновится на следующий день.')+'</em></div>';
+    return '<div class="schedule-pause-placeholder"><span><i class="fa-solid '+meta.icon+'"></i></span><strong>'+meta.label+'</strong><p>'+translateUI('Расписание временно не работает')+'</p><small>'+schedulePausePeriodLabel(pauseState)+'</small><em>'+translateUI('В остальные дни расписание работает как обычно.')+'</em></div>';
 }
 // Multi-selection belongs to the editor only. Saved pauses remain stored by exact date.
 const selectedSchedulePauseDates = new Set();
@@ -1111,6 +1111,9 @@ window.toggleSchedulePauseDate = function(date) {
 window.changeSchedulePauseMonth = function(offset) {
     schedulePauseCalendarMonth=new Date(schedulePauseCalendarMonth.getFullYear(),schedulePauseCalendarMonth.getMonth()+Number(offset||0),1,12);
     renderSchedulePauseCalendar();
+};
+window.refreshSchedulePauseCalendar = function() {
+    if (!document.getElementById('schedule-pause-modal')?.classList.contains('hidden')) updateSchedulePauseSelection();
 };
 window.openSchedulePauseEditor = function() {
     if (sessionStorage.getItem('toe_can_schedule') !== '1') {showToast('Нет права на редактирование расписания');return;}
