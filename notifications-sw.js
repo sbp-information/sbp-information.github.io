@@ -205,7 +205,7 @@ self.addEventListener('notificationclick', event => {
       return;
     }
     const url = new URL('./', self.registration.scope);
-    url.searchParams.set('notification', data.kind === 'support' ? 'support' : 'events');
+    url.searchParams.set('notification', data.kind === 'support' ? 'support' : data.kind === 'schedule' ? 'schedule' : 'events');
     if (data.threadId) url.searchParams.set('thread', data.threadId);
     await self.clients.openWindow(url.href);
   })());
