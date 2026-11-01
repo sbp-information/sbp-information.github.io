@@ -1,0 +1,86 @@
+name: Deploy SBP push Firebase Functions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbp-push-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish push functions only
+    if: github.repository == 'sbp-information/sbp-information.github.io' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - name: Check out website repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install and test server functions
+        run: |
+          npm ci --prefix functions
+          npm test --prefix functions
+
+      - name: Check Firebase credentials and VAPID key pair
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+        run: |
+          node <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const vars = ['FIREBASE_SERVICE_ACCOUNT_JSON','VAPID_PUBLIC_KEY','VAPID_PRIVATE_KEY','VAPID_SUBJECT'];
+          const missing = vars.filter(name => !process.env[name]);
+          if (missing.length) throw new Error('Missing GitHub Actions secrets: ' + missing.join(', '));
+          const credentials = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+          if (credentials.type !== 'service_account' || credentials.project_id !== 'sbpgroup-toe-26-9-1') {
+            throw new Error('Service account JSON must belong to Firebase project sbpgroup-toe-26-9-1');
+          }
+          const publicKey = process.env.VAPID_PUBLIC_KEY;
+          const privateKey = process.env.VAPID_PRIVATE_KEY;
+          const subject = process.env.VAPID_SUBJECT;
+          if (!/^(mailto:|https:\/\/)/.test(subject)) throw new Error('VAPID_SUBJECT must start with mailto: or https://');
+          const ecdh = crypto.createECDH('prime256v1');
+          ecdh.setPrivateKey(Buffer.from(privateKey, 'base64url'));
+          const computed = ecdh.getPublicKey().toString('base64url');
+          if (computed !== publicKey) throw new Error('VAPID public and private keys do not form a pair');
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/firebase-service-account.json', process.env.FIREBASE_SERVICE_ACCOUNT_JSON, {mode:0o600});
+          fs.writeFileSync('functions/vapid-private.txt', privateKey, {mode:0o600});
+          fs.writeFileSync('functions/.env.sbpgroup-toe-26-9-1',
+            'VAPID_PUBLIC_KEY=' + publicKey + '\nVAPID_SUBJECT=' + subject + '\n', {mode:0o600});
+          console.log('Firebase credentials and VAPID key pair are configured.');
+          NODE
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Upload VAPID private key to Firebase Secret Manager
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+        run: |
+          firebase functions:secrets:set VAPID_PRIVATE_KEY --data-file functions/vapid-private.txt --project sbpgroup-toe-26-9-1
+
+      - name: Deploy SBP push functions only
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+        run: |
+          firebase deploy --only functions:sbp-group-push --project sbpgroup-toe-26-9-1 --non-interactive
+
+      - name: Delete temporary credentials and private key
+        if: always()
+        run: |
+          rm -f "${RUNNER_TEMP}/firebase-service-account.json" functions/vapid-private.txt functions/.env.sbpgroup-toe-26-9-1
