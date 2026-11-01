@@ -236,3 +236,21 @@
 :root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-lesson-card:not(.current):not(.cancelled) .home-ref-lesson-number {
   border-color:#42677c!important;
 }
+
+/* 19.24: Round the complete Home "day schedule" section.
+   Earlier redesign rules forced border-radius:0 and transparent backgrounds. */
+:root:root body.sbp-redesign #view-home .home-ref-today {
+  border:1px solid var(--sbp-line)!important;
+  border-radius:18px!important;
+  background:var(--sbp-surface)!important;
+  background-image:none!important;
+  overflow:hidden!important;
+  padding:8px 10px 10px!important;
+  box-shadow:none!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-today > .home-ref-today-head {
+  padding:0 2px 9px!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-today > #home-day-timeline {
+  padding:0 2px 2px!important;
+}
