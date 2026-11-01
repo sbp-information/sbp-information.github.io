@@ -29,8 +29,8 @@ test('all headers use the Home bell slot and allow taps without covering languag
   assert.match(css, /pointer-events:auto!important/);
   assert.match(css, /\.notification-badge\.hidden\s*\{\s*display:none!important/);
   assert.match(css, /#view-college \.college-topbar > h1/);
-  assert.match(html, /sbp-ui\.css\?v=20261101-css-bundle-v1/);
-  assert.match(worker, /sbp-ui\.css\?v=20261101-css-bundle-v1/);
+  assert.match(html, /sbp-ui\.css\?v=20261101-localization-v1/);
+  assert.match(worker, /sbp-ui\.css\?v=20261101-localization-v1/);
 });
 test('unread counts update and clear simultaneously on every page',()=>{
   const start=app.indexOf('function updateNotificationBadge(){');

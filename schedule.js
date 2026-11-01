@@ -1,7 +1,7 @@
 import { SCHEDULE_SCHEMA_VERSION, scheduleCalendarLabel, scheduleDateKey, scheduleForDate, ensureDateSchedule, migrateLegacySchedule } from './schedule-dates.js?v=20261017-admin-tap-v1';
-import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-incremental-ui-v1";
+import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-localization-v1";
 import { doc, setDoc, getDoc, onSnapshot } from "./firebase.js?v=20261017-admin-tap-v1";
-import { getWeekTypeForDate } from "./utils.js?v=20261017-admin-tap-v1";
+import { getWeekTypeForDate } from "./utils.js?v=20261101-localization-v1";
 import { dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
 import { scheduleShareSnapshot } from './group-tools-data.js?v=20261017-admin-tap-v1';
 
@@ -1304,6 +1304,13 @@ window.closeScheduleEditor = function() {
     const modal=document.getElementById('schedule-editor-modal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+};
+
+// Refresh suggestions and labels without replacing the user's unsaved fields.
+window.refreshScheduleEditorLanguage = function() {
+    const modal = document.getElementById('schedule-editor-modal');
+    if (modal && !modal.classList.contains('hidden')) fillScheduleEditorDatalists();
+    updateScheduleReferenceControls();
 };
 
 window.saveScheduleLesson = async function() {

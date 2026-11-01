@@ -42,7 +42,8 @@ async function main(){
   for(const [key,pair] of Object.entries(api.WORDS)){assert(pair[0]&&pair[1],key);assert.equal(api.gt(key,'ru'),pair[0]);assert.equal(api.gt(key,'kz'),pair[1]);}
   const kzRows=api.scheduleImageRows(week,'kz');assert(kzRows.some(x=>x.text.includes('Физика')));assert(kzRows.some(x=>x.note?.includes('Тоқтатылды')));assert(kzRows.some(x=>x.meta?.includes(teacher)));
   assert.equal(context.api.scheduleImageRows(week,'kz').find(x=>x.meta?.includes(teacher)).meta.includes(teacher),true);
-  assert.equal(vm.runInContext("translateUI('Поделиться расписанием','kz')",context),'Поделиться расписанием','unknown custom text stays intact');
+  assert.equal(vm.runInContext("translateUI('Мой собственный текст','kz')",context),'Мой собственный текст','unknown custom text stays intact');
+  assert.equal(vm.runInContext("translateUI('Поделиться расписанием','kz')",context),'Сабақ кестесімен бөлісу','share control has a Kazakh accessibility label');
   assert.equal(vm.runInContext("translateUI('Замена предмета: вместо История Казахстана — Иностранный язык','kz')",context),'Пәнді ауыстыру: Қазақстан тарихы орнына Шет тілі','export language translates nested labels independently from UI language');
   for(const language of ['ru','kz']){
     api.setup(week,language);await api.generateShare();assert(api.blob(),'PNG created');assert.equal(api.blob().type,'image/png');

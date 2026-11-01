@@ -1,7 +1,7 @@
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
 import { doc, writeBatch } from './firebase.js?v=20261017-admin-tap-v1';
-import { currentLang, translateUI } from './i18n.js?v=20261101-incremental-ui-v1';
-import { getScheduleShareData } from './schedule.js?v=20261101-incremental-ui-v1';
+import { currentLang, translateUI } from './i18n.js?v=20261101-localization-v1';
+import { getScheduleShareData } from './schedule.js?v=20261101-localization-v1';
 import { pinnedAnnouncement, wrapCanvasText } from './group-tools-data.js?v=20261017-admin-tap-v1';
 
 export const WORDS = {

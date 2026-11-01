@@ -8,10 +8,10 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.30-incremental-ui-2026-11-01-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-incremental-ui-v1'/);
-assert.match(release, /version:'19\.29',date:'2026-11-01'/);
-assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-incremental-ui-v1/);
+assert.match(build, /^step19\.31-localization-2026-11-01-v1$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-localization-v1'/);
+assert.match(release, /version:'19\.31',date:'2026-11-01'/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-localization-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
 assert.ok(core, 'worker has a precache list');
 assert.ok(worker.includes('push-worker-config.js?v=20261101-cloudflare-live-v2'), 'Cloudflare configuration must be cached for installed Android PWA');
@@ -28,13 +28,12 @@ for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
 console.log('PWA cache consistency: build, icon files, page assets, and cache versions passed.');
 
 // Check that shared ES modules are consistently versioned and cached in the installed PWA.
-const moduleFiles = ['app.js','schedule.js','group-tools.js','action-history.js','release-notes.js'];
+const moduleFiles = fs.readdirSync(root).filter(name => name.endsWith('.js'));
 const moduleVersions = new Map();
 for (const file of moduleFiles) {
   for (const match of read(file).matchAll(/from\s*['"](\.\/[^'"]+)['"]/g)) {
     const url = match[1];
     const name = url.split('?')[0].replace(/^\.\//,'');
-    if (!['i18n.js','schedule.js','group-tools.js','action-history.js','release-data.js'].includes(name)) continue;
     const versions = moduleVersions.get(name) || new Set();
     versions.add(url);
     moduleVersions.set(name,versions);
@@ -43,6 +42,7 @@ for (const file of moduleFiles) {
 }
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
-  const requiredVersion = '20261101-incremental-ui-v1';
-  assert.ok([...versions][0].endsWith('?v='+requiredVersion),'stale version for '+name);
+  if (['i18n.js','schedule.js','group-tools.js','action-history.js','release-data.js','utils.js'].includes(name)) {
+    assert.ok([...versions][0].endsWith('?v=20261101-localization-v1'),'stale version for '+name);
+  }
 }

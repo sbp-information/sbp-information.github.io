@@ -8,7 +8,7 @@ const root = path.join(__dirname, '..');
 const read = name => fs.readFileSync(path.join(root,name),'utf8');
 const html = read('index.html'), worker = read('notifications-sw.js');
 const core = read('sbp-core.css'), ui = read('sbp-ui.css');
-const version = '20261101-css-bundle-v1';
+const version = '20261101-localization-v1';
 
 test('both generated CSS bundles exactly match the editable source sheets',()=>{
   const result = spawnSync(process.execPath, ['scripts/build-css.cjs','--check'], {cwd:root,encoding:'utf8'});
@@ -47,12 +47,12 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261101-incremental-ui-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261101-incremental-ui-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261101-incremental-ui-v1'));
+  assert.ok(assets.includes('./app.js?v=20261101-localization-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261101-localization-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261101-localization-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
-  assert.match(worker,/sbp-shell-20261101-incremental-ui-v1/);
-  assert.match(html,/step19\.30-incremental-ui-2026-11-01-v1/);
+  assert.match(worker,/sbp-shell-20261101-localization-v1/);
+  assert.match(html,/step19\.31-localization-2026-11-01-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');

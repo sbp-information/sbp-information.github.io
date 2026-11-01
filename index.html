@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.30-incremental-ui-2026-11-01-v1">
+    <meta name="app-build" content="step19.31-localization-2026-11-01-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -153,16 +153,16 @@
     <link rel="stylesheet" href="tailwind-local.css?v=20261101-no-violet-v1">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="sbp-core.css?v=20261101-css-bundle-v1">
-    <link rel="stylesheet" href="sbp-ui.css?v=20261101-css-bundle-v1">
+    <link rel="stylesheet" href="sbp-core.css?v=20261101-localization-v1">
+    <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261101-incremental-ui-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261101-localization-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
-    <link rel="modulepreload" href="utils.js?v=20261017-admin-tap-v1">
-    <link rel="modulepreload" href="schedule.js?v=20261101-incremental-ui-v1">
-    <script defer src="performance.js?v=20261101-css-bundle-v1"></script>
+    <link rel="modulepreload" href="utils.js?v=20261101-localization-v1">
+    <link rel="modulepreload" href="schedule.js?v=20261101-localization-v1">
+    <script defer src="performance.js?v=20261101-localization-v1"></script>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
@@ -852,7 +852,7 @@
                 </select>
             </label>
             <div id="schedule-change-hint" class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-[10px] text-slate-600">Можно изменить любые данные пары.</div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="schedule-editor-time-fields grid grid-cols-2 gap-2">
                 <label class="text-[11px] text-slate-600">Время<input id="edit-time" list="schedule-time-list" onchange="onScheduleTimeChanged();onScheduleEditorFieldChanged()" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="08:00 - 09:30"></label>
                 <label class="text-[11px] text-slate-600">Перемена<input id="edit-break" list="schedule-break-list" oninput="onScheduleEditorFieldChanged()" class="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" placeholder="Перемена: 10 мин"></label>
             </div>
@@ -1043,8 +1043,8 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261101-incremental-ui-v1"></script>
-    <script type="module" src="app.js?v=20261101-incremental-ui-v1"></script>
+    <script type="module" src="release-notes.js?v=20261101-localization-v1"></script>
+    <script type="module" src="app.js?v=20261101-localization-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

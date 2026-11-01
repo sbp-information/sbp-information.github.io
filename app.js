@@ -36,7 +36,7 @@ import {
     formatCalendarLabel,
     getStatusName,
     getStatusBadgeClass
-} from "./utils.js?v=20261017-admin-tap-v1";
+} from "./utils.js?v=20261101-localization-v1";
 import { dbPut, dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
 import {
     configureSchedule,
@@ -52,10 +52,10 @@ import {
     getScheduleAdminSnapshot,
     restoreScheduleSelection,
     syncPendingScheduleData
-} from "./schedule.js?v=20261101-incremental-ui-v1";
-import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-incremental-ui-v1";
-import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-incremental-ui-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-incremental-ui-v1';
+} from "./schedule.js?v=20261101-localization-v1";
+import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-localization-v1";
+import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-localization-v1';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-localization-v1';
 
         
 let homeScheduleExpanded=false;
@@ -211,8 +211,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             banner.dataset.kind = kind || 'info';
             banner.dataset.statusKey = String(options.key || kind || 'info');
             icon.className = `fa-solid ${statusIcon(kind)}`;
-            titleEl.textContent = translateUI(title);
-            textEl.textContent = translateUI(text);
+            titleEl.textContent = title;
+            textEl.textContent = text;
+            applyKzTranslations(banner);
             close.classList.toggle('hidden', options.dismissible !== true);
             banner.classList.remove('hidden');
 
@@ -3864,7 +3865,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 info:'fa-circle-info'
             })[resolvedType] || 'fa-circle-info';
 
-            msgEl.innerText = translateUI(msg);
+            msgEl.innerText = msg;
+            applyKzTranslations(msgEl);
             icon.className = `fa-solid ${iconName} text-sm`;
             toast.dataset.type = resolvedType;
             toast.classList.remove('-translate-y-20', 'opacity-0');
@@ -3900,16 +3902,18 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             clearTimeout(undoActionTimer);
             undoActionHandler = undoHandler;
             undoActionBusy = false;
-            messageEl.textContent = translateUI(message);
+            messageEl.textContent = message;
             button.disabled = false;
-            button.textContent = translateUI('Отменить');
+            button.textContent = 'Отменить';
+            applyKzTranslations(bar);
             bar.classList.remove('hidden');
 
             button.onclick = async () => {
                 if (undoActionBusy || typeof undoActionHandler !== 'function') return;
                 undoActionBusy = true;
                 button.disabled = true;
-                button.textContent = translateUI('Восстановление…');
+                button.textContent = 'Восстановление…';
+                applyKzTranslations(button);
                 const handler = undoActionHandler;
                 try {
                     await handler();
@@ -3918,7 +3922,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 } catch (error) {
                     undoActionBusy = false;
                     button.disabled = false;
-                    button.textContent = translateUI('Отменить');
+                    button.textContent = 'Отменить';
+                    applyKzTranslations(button);
                     reportAppError('undo-action', error, { localSaved:true });
                 }
             };
@@ -3968,6 +3973,8 @@ window.setInterfaceLanguage = function(lang) {
     renderHomeDayTimeline();
     renderSchedule(getCurrentScheduleDay());
     renderMiniCalendar();
+    updateHomeWeekBanner();
+    updateSelectedDateUI(document.getElementById('date-picker')?.value || getCurrentDateStr());
     renderApp();
     if (activeJournalTab === 'stats') renderAttendanceAssessmentList();
     updateAdminUI();
@@ -3976,9 +3983,12 @@ window.setInterfaceLanguage = function(lang) {
     window.refreshNotificationSettings?.();
     window.updateInstallButton?.();
     window.refreshReleaseNotes?.();
+    window.refreshScheduleEditorLanguage?.();
     window.refreshRedesign?.();
     refreshGroupTools();
     renderNotifications();
+    renderSupportInbox();
+    if (isSupportOpen()) renderSupportMessages(displayedSupportMessages);
     applyKzTranslations();
 };
 function updateLanguageButtons() {
@@ -3989,7 +3999,7 @@ function updateLanguageButtons() {
     const topSwitch = document.getElementById('sbp-lang-switch');
     if (topSwitch) {
         topSwitch.textContent = lang === 'kz' ? 'ҚЗ' : 'РУ';
-        topSwitch.setAttribute('aria-label', lang === 'kz' ? 'Қазақша. Орыс тіліне ауысу' : 'Русский. Қазақ тіліне ауысу');
+        topSwitch.setAttribute('aria-label', lang === 'kz' ? 'Қазақша. Орыс тіліне ауысу' : 'Русский. Переключить на казахский');
         topSwitch.title = lang === 'kz' ? 'Русский' : 'Қазақша';
     }
 }
@@ -4733,7 +4743,7 @@ function renderNotifications(){
                     <div class="notification-item-actions"><span>${notificationTimeLabel(n.createdAt)}</span>${pinControl(n,isOwnerRole())}${deleteButton}</div>
                 </div>
                 <p>${escapeNotificationText(notificationTextForLocale(n))}</p>
-                ${n.author?`<small class="notification-author"><i class="fa-regular fa-user"></i>${escapeNotificationText(n.author)}</small>`:''}
+                ${n.author?`<small class="notification-author" data-i18n-skip><i class="fa-regular fa-user"></i>${escapeNotificationText(n.author)}</small>`:''}
             </div>
         </article>`;
     }).join('');
@@ -4908,7 +4918,7 @@ function renderSupportInbox(){
     const inbox=document.getElementById('support-staff-inbox');if(!inbox||!isSupportStaff())return;
     inbox.innerHTML=supportThreadsCache.length?'<div class="support-inbox-title">Обращения</div>'+supportThreadsCache.map(thread=>{
         const unread=threadUnread(thread),id=escapeNotificationText(thread.id);
-        return `<button data-support-thread="${id}" class="support-thread-btn ${thread.id===activeSupportThreadId?'active':''}"><strong>${escapeNotificationText(thread.displayName||'Пользователь')}${unread?`<span class="support-unread-badge" data-i18n-skip>${unread>99?'99+':unread}</span>`:''}</strong><span>${thread.updatedAt?new Date(thread.updatedAt).toLocaleString(interfaceLocale()):''}</span><p>${escapeNotificationText((thread.messages?.at(-1)?.text||'').slice(0,80))}</p><span class="support-reply-label">${translateUI('Ответить')}</span></button>`;
+        return `<button data-support-thread="${id}" class="support-thread-btn ${thread.id===activeSupportThreadId?'active':''}"><strong ${thread.displayName?'data-i18n-skip':''}>${escapeNotificationText(thread.displayName||'Пользователь')}${unread?`<span class="support-unread-badge" data-i18n-skip>${unread>99?'99+':unread}</span>`:''}</strong><span>${thread.updatedAt?new Date(thread.updatedAt).toLocaleString(interfaceLocale()):''}</span><p data-i18n-skip>${escapeNotificationText((thread.messages?.at(-1)?.text||'').slice(0,80))}</p><span class="support-reply-label">${translateUI('Ответить')}</span></button>`;
     }).join(''):'<div class="empty-state">Обращений пока нет.</div>';
     inbox.querySelectorAll('[data-support-thread]').forEach(button=>button.addEventListener('click',()=>window.openSupportThread(button.dataset.supportThread)));
     applyKzTranslations(inbox);
@@ -4977,7 +4987,7 @@ function subscribeSupportThread(id,readOnOpen=false){
         if(readOnOpen && !snap.metadata?.fromCache){markSupportThreadRead(id,displayedSupportMessages);readOnOpen=false;}
     },e=>console.warn('support',e));
 }
-function renderSupportMessages(msgs){const box=document.getElementById('support-messages');if(!box)return;box.innerHTML=msgs.length?msgs.map(m=>`<div class="support-msg ${m.role==='staff'?'staff':'visitor'}"><strong>${escapeNotificationText(m.author|| (m.role==='staff'?'Поддержка':'Пользователь'))}</strong><p>${escapeNotificationText(m.text||'')}</p><span>${m.at?new Date(m.at).toLocaleString(interfaceLocale()):''}</span></div>`).join(''):'<div class="empty-state">Диалог пока пуст. Напишите первое сообщение.</div>';box.scrollTop=box.scrollHeight;}
+function renderSupportMessages(msgs){const box=document.getElementById('support-messages');if(!box)return;box.innerHTML=msgs.length?msgs.map(m=>`<div class="support-msg ${m.role==='staff'?'staff':'visitor'}"><strong ${m.author?'data-i18n-skip':''}>${escapeNotificationText(m.author|| (m.role==='staff'?'Поддержка':'Пользователь'))}</strong><p data-i18n-skip>${escapeNotificationText(m.text||'')}</p><span>${m.at?new Date(m.at).toLocaleString(interfaceLocale()):''}</span></div>`).join(''):'<div class="empty-state">Диалог пока пуст. Напишите первое сообщение.</div>';box.scrollTop=box.scrollHeight;}
 window.sendSupportMessage=async function(){
     if(sendingSupportMessage)return;
     const field=document.getElementById('support-text'),text=field?.value.trim()||'';if(!text)return;
