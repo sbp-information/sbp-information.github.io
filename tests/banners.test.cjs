@@ -15,7 +15,8 @@ const css = file('group-banners.css');
 test('banner controls, styles, release metadata and PWA cache are aligned', () => {
   assert.match(html, /id="sbp-home-banner"/);
   assert.match(html, /id="sbp-group-banner"/);
-  assert.match(html, /id="group-icon-roster"/);
+  assert.match(html, /id="group-icon-home"/);
+  assert.match(html, /id="settings-group-icon-options"/);
   assert.match(html, /openBannerEditor\('home'\)/);
   assert.match(html, /openBannerEditor\('group'\)/);
   const version = html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
