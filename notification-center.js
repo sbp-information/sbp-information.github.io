@@ -1,4 +1,4 @@
-import { PUSH_WORKER_URL } from './push-worker-config.js?v=20261101-cloudflare-push-v1';
+import { PUSH_WORKER_URL } from './push-worker-config.js?v=20261101-cloudflare-live-v2';
 
 const SOUND_KEY = 'toe_notification_sound_v1';
 const DEVICE_KEY = 'toe_device_notifications_v1';
