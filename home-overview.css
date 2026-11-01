@@ -54,12 +54,12 @@ html:root body #view-home.home-overview .home-ref-notification-copy > span {
 }
 #home-schedule-toggle {
   display:block;width:calc(100% - 24px);min-height:44px;margin:10px 12px 12px;
-  padding:10px 14px;border:1px solid #e2d9ed;border-radius:12px;
-  background:#f4eefb;color:#70548a;font-size:14px!important;font-weight:650;
+  padding:10px 14px;border:1px solid #cedfe8;border-radius:12px;
+  background:#f4eefb;color:#466472;font-size:14px!important;font-weight:650;
 }
 #home-schedule-toggle[hidden] { display:none!important; }
-#home-schedule-toggle:hover { background:#ede2f8; }
-#home-schedule-toggle:focus-visible { outline:2px solid #9572bd;outline-offset:3px; }
+#home-schedule-toggle:hover { background:#d2eaf4; }
+#home-schedule-toggle:focus-visible { outline:2px solid #4d88a4;outline-offset:3px; }
 @media(min-width:900px) {
   html:root body:not(.layout-phone) #view-home.home-overview .home-ref-shell {
     grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr)!important;align-items:start;

@@ -21,6 +21,7 @@ jobs:
           node tests/compact-layout.test.cjs
           node tests/dark-mode.test.cjs
           node tests/blue-theme.test.cjs
+          node tests/no-violet-colors.test.cjs
           node tests/banners.test.cjs
           node --check notification-center.js
           node --check notifications-sw.js

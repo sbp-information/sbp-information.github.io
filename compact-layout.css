@@ -35,7 +35,7 @@
   border-radius:10px;
   border:1px solid var(--sbp-line);
   background:var(--sbp-surface);
-  box-shadow:0 2px 10px rgba(30,25,64,.05);
+  box-shadow:0 2px 10px rgba(16,32,40,.05);
 }
 :root:root body.sbp-redesign > .sbp-brandbar .sbp-language button {
   min-height:32px;
@@ -135,7 +135,7 @@
   padding:0!important;
   border:0!important;
   border-radius:0 0 20px 20px!important;
-  background:linear-gradient(115deg,#ede6ff 0%,#dcd5fa 55%,#f8efff 100%)!important;
+  background:linear-gradient(115deg,#ccefff 0%,#b2e0f6 55%,#f8efff 100%)!important;
   overflow:hidden!important;
   box-shadow:none!important;
   z-index:0!important;
@@ -183,7 +183,7 @@
   min-height:58px!important;
   padding:10px 12px!important;
   background:var(--sbp-surface)!important;
-  box-shadow:0 2px 12px rgba(38,28,90,.06)!important;
+  box-shadow:0 2px 12px rgba(17,42,53,.06)!important;
 }
 :root:root body.sbp-redesign #view-roster #group-icon-roster {
   position:relative!important;
@@ -197,7 +197,7 @@
 }
 :root:root[data-sbp-theme="dark"] body.sbp-redesign
   :is(#sbp-home-banner,#sbp-group-banner) {
-  background:linear-gradient(115deg,#352e52,#292b47,#38314c)!important;
+  background:linear-gradient(115deg,#23363e,#203037,#28373f)!important;
 }
 :root:root[data-sbp-theme="dark"] body.sbp-redesign
   :is(#sbp-home-banner,#sbp-group-banner)::after {

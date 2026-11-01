@@ -1,7 +1,7 @@
 /* SBP Information: lighter decorative frames, shared by phone and desktop layouts.
    The base reset removes browser outset borders; these rules soften authored frames.
    Status fills, active buttons, keyboard focus and layout are kept independent. */
-:root { --frame-soft: #ece7f2; --frame-control: #e2d9ed; --frame-active: #b39bd1; }
+:root { --frame-soft: #ece7f2; --frame-control: #cedfe8; --frame-active: #7bacc3; }
 
 /* Existing surfaces keep their own border width and radius. */
 html:root body :is(#view-home,#view-tracker,#view-schedule,#view-roster,#admin-settings-modal,#notifications-modal,#support-modal,#help-navigation-modal,#app-menu-drawer) :is(
@@ -28,7 +28,7 @@ html:root body :is(#view-home,#view-schedule) :is(
 
 html:root body :is(#view-home,#view-tracker,#view-schedule,#view-roster) :is(
   .home-ref-topbar,.journal-ref-topbar,.schedule-ref-topbar,.roster-ref-topbar
-) { border-color:var(--frame-soft)!important; box-shadow:0 5px 18px rgba(86,65,124,.045)!important; }
+) { border-color:var(--frame-soft)!important; box-shadow:0 5px 18px rgba(49,80,94,.045)!important; }
 
 html:root body :is(.sheet-head,.modal-sticky-header,.bell-editor-header,.release-notes-header,
   .group-tools-sheet>header,.student-profile-modal-head,.report-preview-head,
@@ -65,12 +65,12 @@ html:root body :is(.student-gender-switch button.active,.support-thread-btn.acti
 html:root body .notification-item,
 html:root body #view-home .home-ref-notification-card { border-left-width:2px!important; }
 html:root body #view-tracker .journal-ref-row:hover {
-  box-shadow:inset 1px 0 0 rgba(102,78,220,.13)!important;
+  box-shadow:inset 1px 0 0 rgba(29,109,147,.13)!important;
 }
 
 /* A deliberate keyboard indicator is not a permanent decorative frame. */
 html:root body :is(button,input,select,textarea,summary,a[href],[tabindex]):focus-visible {
-  outline:2px solid #9572bd!important;
+  outline:2px solid #4d88a4!important;
   outline-offset:3px!important;
 }
 @media (forced-colors: active) {

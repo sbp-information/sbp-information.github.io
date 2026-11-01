@@ -14,7 +14,7 @@
  color:var(--sbp-ink)!important;background:var(--sbp-soft)!important;
 }
 :root:root[data-sbp-theme="dark"] body.sbp-redesign > .sbp-brandbar .sbp-language #sbp-lang-switch{
- background:#282537!important;color:#e8dcff!important;
+ background:#1e282d!important;color:#b8e8ff!important;
 }
 
 /* Larger, more accessible top language control. */
