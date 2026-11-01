@@ -8,6 +8,7 @@ on:
       - 'notifications-sw.js'
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
+      - 'tests/notification-coldstart.test.cjs'
   pull_request:
     paths:
       - 'cloudflare-push/**'
@@ -16,6 +17,7 @@ on:
       - 'notifications-sw.js'
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
+      - 'tests/notification-coldstart.test.cjs'
 
 permissions:
   contents: read
@@ -37,4 +39,5 @@ jobs:
           node --check notification-center.js
           node --check notifications-sw.js
           node tests/service-worker-push.test.cjs
+          node tests/notification-coldstart.test.cjs
           node tests/pwa-cache-consistency.test.cjs
