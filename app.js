@@ -2194,7 +2194,19 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             });
         }
 
+        function syncGroupSettingsVisibility() {
+            const allowed = canEditGroupInfo();
+            const section = document.getElementById('settings-group-section');
+            if (section) {
+                section.hidden = !allowed;
+                section.classList.toggle('hidden', !allowed);
+                if (!allowed) section.open = false;
+            }
+            return allowed;
+        }
+
         function loadGroupInfoToAdminForm() {
+            const allowed = syncGroupSettingsVisibility();
             const info = getGroupInfo();
             if (!groupSettingsDirty) {
                 ['groupName', 'curator', 'headman', 'deputy'].forEach(field => {
@@ -2207,7 +2219,6 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             }
             const count = document.getElementById('settings-student-count');
             if (count) count.textContent = students.length;
-            const allowed = canEditGroupInfo();
             const fields = document.getElementById('settings-group-fields');
             if (fields) fields.disabled = !allowed || groupSettingsSaving;
             document.getElementById('settings-group-icon-tools')?.classList.toggle('hidden', !allowed);
@@ -2306,6 +2317,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             }
         };
         window.openGroupSettings = function() {
+            if (!canEditGroupInfo()) return;
             if (isEditorRole() && window.openAdminDrawer) { window.openAdminDrawer('group'); loadGroupInfoToAdminForm(); return; }
             openAdminSettings();
             const section = document.getElementById('settings-group-section');
