@@ -22,6 +22,7 @@ jobs:
           node tests/group-settings-visibility.test.cjs
           node tests/college-settings-help-polish.test.cjs
           node tests/home-next-day-layout.test.cjs
+          node tests/home-header-divider.test.cjs
           node tests/compact-layout.test.cjs
           node tests/dark-mode.test.cjs
           node tests/blue-theme.test.cjs
