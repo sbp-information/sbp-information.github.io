@@ -10,7 +10,7 @@ const link=(url,label)=>`<a href="${esc(url)}" target="_blank" rel="noopener nor
 export function collegeMarkup(lang='ru'){
  const w=COLLEGE[lang==='kz'?'kz':'ru'];
  const head=(icon,title)=>`<div class="college-card-head"><span class="college-icon"><i class="fa-solid ${icon}" aria-hidden="true"></i></span><h2>${esc(title)}</h2></div>`;
- return `<header class="college-hero"><div><p class="sbp-eyebrow">${esc(w.eyebrow)}</p><h1>${esc(w.title)}</h1><p class="college-intro">${esc(w.intro)}</p><span class="college-city"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${esc(w.city)}</span></div><img src="college-illustration.svg" alt="" width="320" height="240"></header>
+ return `<header class="college-hero"><div><p class="sbp-eyebrow">${esc(w.eyebrow)}</p><h1>${esc(w.title)}</h1><p class="college-intro">${esc(w.intro)}</p><span class="college-city"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${esc(w.city)}</span></div><img src="college-illustration.svg?v=20261101-all-blue-v1" alt="" width="320" height="240"></header>
  <nav class="college-quick" aria-label="${esc(w.eyebrow)}">${w.quick.map((name,i)=>`<a href="#college-${['history','programs','team','life','admission','contacts'][i]}">${esc(name)}</a>`).join('')}</nav>
  <div class="college-grid">
  <section class="college-card" id="college-history">${head('fa-book-open',w.history)}<p>${esc(w.historyIntro)}</p><ol class="college-timeline">${w.milestones.map(([year,text])=>`<li><strong>${esc(year)}</strong><span>${esc(text)}</span></li>`).join('')}</ol><p>${esc(w.mission)}</p><div class="college-links">${link(COLLEGE_SOURCES.history,w.source)}${link(COLLEGE_SOURCES.mission,w.history)}</div></section>
