@@ -177,16 +177,24 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil((async () => {
     const data = event.notification.data || {};
+    const url = new URL('./', self.registration.scope);
+    url.searchParams.set('notification', data.kind === 'support' ? 'support' : data.kind === 'schedule' ? 'schedule' : 'events');
+    if (data.threadId) url.searchParams.set('thread', data.threadId);
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     const client = windows.find(item => item.url.startsWith(self.registration.scope));
     if (client) {
+      // Android can keep a hidden PWA window alive after it looks closed.
+      // A durable navigation survives suspended scripts and lost postMessage events.
+      if (client.visibilityState === 'hidden' && typeof client.navigate === 'function') {
+        try {
+          const navigated = await client.navigate(url.href);
+          if (navigated) { await navigated.focus(); return; }
+        } catch (error) { console.warn('Notification navigation retrying via message', error); }
+      }
       await client.focus();
       client.postMessage({ type: 'notification-open', ...data });
       return;
     }
-    const url = new URL('./', self.registration.scope);
-    url.searchParams.set('notification', data.kind === 'support' ? 'support' : data.kind === 'schedule' ? 'schedule' : 'events');
-    if (data.threadId) url.searchParams.set('thread', data.threadId);
     await self.clients.openWindow(url.href);
   })());
 });
