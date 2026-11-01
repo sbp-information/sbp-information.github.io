@@ -22,8 +22,9 @@ test('new dark theme is only enabled by resolved dark setting',()=>{
  assert.ok((dark.match(/:root:root\[data-sbp-theme="dark"\]/g)||[]).length>30);
  assert.match(html,/dark-mode\.css\?v=20261031-dark-mode-v1/);
  assert.match(sw,/dark-mode\.css\?v=20261031-dark-mode-v1/);
- assert.match(html,/step19\.10-compact-layout-2026-10-31-v1/);
- assert.match(sw,/sbp-shell-20261031-compact-v1/);
+ const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
+ assert.ok(version,'active app script version exists');
+ assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'dark theme is cached in current PWA build');
  assert.match(html,/redesign\.css\?v=20261031-dark-mode-v1/);
  assert.match(sw,/redesign\.css\?v=20261031-dark-mode-v1/);
  assert.match(app,/redesign\.js\?v=20261031-dark-mode-v1/);
