@@ -249,6 +249,15 @@ const ATTRIBUTES = ['title','aria-label','placeholder'];
 let observer;
 let translating = false;
 let scheduled = false;
+const pendingRoots = new Set();
+let translatedLanguage;
+function collectChanges(records) {
+  for (const record of records) {
+    if (record.type === 'childList') {
+      for (const node of record.addedNodes) pendingRoots.add(node);
+    } else pendingRoots.add(record.target);
+  }
+}
 function observe() { observer?.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTRIBUTES}); }
 function translateText(node) {
   if (!node.parentElement || node.parentElement.closest(SKIP)) return;
@@ -260,41 +269,60 @@ function translateText(node) {
 }
 export function applyKzTranslations(root = document.body) {
   if (!root || translating) return;
-  // A partial render must not discard queued translations in another section.
-  if (observer && root !== document.body) root = document.body;
+  // Drain queued changes before disconnecting so partial renders in other
+  // sections are never lost. Only a language change needs a full-page pass.
+  collectChanges(observer?.takeRecords() || []);
+  pendingRoots.add(root);
+  const language = currentLang();
+  if (translatedLanguage !== language) pendingRoots.add(document.body);
+  const roots = [...pendingRoots].filter(node => {
+    if (![1, 3].includes(node.nodeType) || !document.body.contains(node)) return false;
+    for (let parent = node.parentNode; parent; parent = parent.parentNode) {
+      if (pendingRoots.has(parent)) return false;
+    }
+    return true;
+  });
+  pendingRoots.clear();
   translating = true;
   observer?.disconnect();
   try {
-    if (root.nodeType === 3) translateText(root);
-    else {
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      while (walker.nextNode()) translateText(walker.currentNode);
-      const elements = root.nodeType === 1 ? [root,...root.querySelectorAll('*')] : [];
-      for (const element of elements) {
-        if (element.closest('[data-i18n-skip],script,style')) continue;
-        const saved = attributeSources.get(element) || {};
-        for (const attribute of ATTRIBUTES) {
-          if (!element.hasAttribute(attribute)) continue;
-          const value = element.getAttribute(attribute);
-          const old = saved[attribute];
-          const source = old && value === old.output ? old.source : value;
-          const output = translateUI(source);
-          saved[attribute] = {source,output};
-          if (value !== output) element.setAttribute(attribute,output);
+    for (const root of roots) {
+      if (root.nodeType === 3) translateText(root);
+      else {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) translateText(walker.currentNode);
+        const elements = root.nodeType === 1 ? [root,...root.querySelectorAll('[title],[aria-label],[placeholder]')] : [];
+        for (const element of elements) {
+          if (element.closest('[data-i18n-skip],script,style')) continue;
+          const saved = attributeSources.get(element) || {};
+          for (const attribute of ATTRIBUTES) {
+            if (!element.hasAttribute(attribute)) continue;
+            const value = element.getAttribute(attribute);
+            const old = saved[attribute];
+            const source = old && value === old.output ? old.source : value;
+            const output = translateUI(source);
+            saved[attribute] = {source,output};
+            if (value !== output) element.setAttribute(attribute,output);
+          }
+          attributeSources.set(element,saved);
         }
-        attributeSources.set(element,saved);
       }
     }
-    document.documentElement.lang = currentLang() === 'kz' ? 'kk' : 'ru';
+    translatedLanguage = language;
+    document.documentElement.lang = language === 'kz' ? 'kk' : 'ru';
   } finally { translating = false; observe(); }
 }
 export function startInterfaceTranslations() {
   if (observer) return;
-  observer = new MutationObserver(() => {
+  observer = new MutationObserver(records => {
+    collectChanges(records);
     if (scheduled || translating) return;
     scheduled = true;
-    queueMicrotask(() => { scheduled = false; applyKzTranslations(); });
+    queueMicrotask(() => {
+      scheduled = false;
+      const root = pendingRoots.values().next().value;
+      if (root) applyKzTranslations(root);
+    });
   });
   applyKzTranslations();
 }
-
