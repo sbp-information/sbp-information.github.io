@@ -31,14 +31,14 @@ test('first lesson has a small gap below the clean heading and keeps its outline
   assert.match(html,/id="home-reference-date"/);
 });
 test('build 19.28 refreshes the exact changed styles in the installed PWA',()=>{
-  assert.match(html,/step19\.35-holiday-eve-2026-11-01-v1/);
+  assert.match(html,/step19\.36-i18n-audit-2026-11-01-v1/);
   assert.ok(html.includes('sbp-ui.css?v=20261101-localization-v1'),'latest UI CSS is linked');
   assert.ok(worker.includes('sbp-ui.css?v=20261101-localization-v1'),'latest UI CSS is cached');
   const output=read('sbp-ui.css');
   for(const name of ['approved-interface.css','brand-blue.css']) {
     assert.ok(output.includes('/* === '+name+' === */'),'source CSS preserved in deployed UI bundle: '+name);
   }
-  assert.match(worker,/sbp-shell-20261101-holiday-eve-v1/);
+  assert.match(worker,/sbp-shell-20261101-i18n-audit-v1/);
   const releases=read('release-data.js');
   const latest=releases.slice(releases.indexOf("version:'19.28'"),releases.indexOf("version:'19.27'"));
   assert.match(latest,/ru:\[/);
