@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-break-outlines-v1';
+const CACHE_NAME = 'sbp-shell-20261101-round-day-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -21,9 +21,9 @@ const CORE_ASSETS = [
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261101-all-blue-v1',
   './soft-frames.css?v=20261101-no-violet-v1',
-  './release-notes.js?v=20261101-break-outlines-v1',
-  './release-data.js?v=20261101-break-outlines-v1',
-  './app.js?v=20261101-break-outlines-v1',
+  './release-notes.js?v=20261101-round-day-v1',
+  './release-data.js?v=20261101-round-day-v1',
+  './app.js?v=20261101-round-day-v1',
   './style.css?v=20261101-no-violet-v1',
   './desktop.css?v=20261101-no-violet-v1',
   './gradients.css?v=20261101-no-violet-v1',
@@ -52,7 +52,7 @@ const CORE_ASSETS = [
   './journal-flat-status.css?v=20261101-no-violet-v1',
   './schedule-break-alignment.css?v=20261031-v1',
   './mobile-menu-hit-target.css?v=20261031-v1',
-  './brand-blue.css?v=20261101-break-outlines-v1',
+  './brand-blue.css?v=20261101-round-day-v1',
   './sbp-icon-192.png',
   './sbp-icon-512.png',
   './sbp-icon-maskable-512.png',
