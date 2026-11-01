@@ -9,6 +9,7 @@ on:
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
+      - 'tests/holiday-push-policy.test.cjs'
   pull_request:
     paths:
       - 'cloudflare-push/**'
@@ -18,6 +19,7 @@ on:
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
+      - 'tests/holiday-push-policy.test.cjs'
 
 permissions:
   contents: read
@@ -40,4 +42,5 @@ jobs:
           node --check notifications-sw.js
           node tests/service-worker-push.test.cjs
           node tests/notification-coldstart.test.cjs
+          node tests/holiday-push-policy.test.cjs
           node tests/pwa-cache-consistency.test.cjs

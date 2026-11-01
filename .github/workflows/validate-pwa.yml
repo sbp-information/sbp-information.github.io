@@ -17,6 +17,7 @@ jobs:
           node tests/translation-updates.test.cjs
           node tests/localization-coverage.test.cjs
           node tests/schedule-dates.test.cjs
+          node tests/holiday-push-policy.test.cjs
           node tests/release-notes.test.cjs
           node scripts/build-css.cjs --check
           node tests/pwa-cache-consistency.test.cjs

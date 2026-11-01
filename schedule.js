@@ -1,7 +1,7 @@
 import { SCHEDULE_SCHEMA_VERSION, scheduleCalendarLabel, scheduleDateKey, scheduleForDate, ensureDateSchedule, migrateLegacySchedule } from './schedule-dates.js?v=20261017-admin-tap-v1';
-import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-multi-pauses-v1";
+import { interfaceLocale, translateUI } from "./i18n.js?v=20261101-holiday-eve-v1";
 import { doc, setDoc, getDoc, onSnapshot } from "./firebase.js?v=20261017-admin-tap-v1";
-import { getWeekTypeForDate } from "./utils.js?v=20261101-multi-pauses-v1";
+import { getWeekTypeForDate } from "./utils.js?v=20261101-holiday-eve-v1";
 import { dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
 import { scheduleShareSnapshot } from './group-tools-data.js?v=20261017-admin-tap-v1';
 
@@ -1144,7 +1144,7 @@ window.saveSchedulePause = async function() {
     const kzMeta=schedulePauseMeta({type},'kk-KZ');
     const changeEvent={
         id:'pause_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
-        changeType:'pause',date:changed[0],
+        changeType:'pause',pauseAction:'set',pauseType:type,date:changed[0],
         dates:changed,
         title:'Расписание: '+ruMeta.label,
         titleKz:'Сабақ кестесі: '+kzMeta.label,
@@ -1176,7 +1176,7 @@ window.disableSchedulePause = async function() {
     schedulePause=normalizeSchedulePause({days});
     const changeEvent={
         id:'pause_resume_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
-        changeType:'pause',date:dates[0],
+        changeType:'pause',pauseAction:'remove',pauseType:'mixed',date:dates[0],
         dates,
         title:'Пауза на даты отменена',titleKz:'Таңдалған күндердегі үзіліс тоқтатылды',
         text:'Пауза отменена: '+schedulePauseDatesSummary(dates,'ru-RU')+'. Занятия снова отображаются по расписанию.',
