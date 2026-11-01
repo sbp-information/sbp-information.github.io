@@ -1,6 +1,7 @@
 // SBP Information: Cloudflare Workers Free + D1 + Firebase Spark Web Push.
 // Private support messages are never included in the push payload.
 import { buildPushPayload } from '@block65/webcrypto-web-push';
+import { kazakhstanClock, dueReminders, reminderPayload, shouldCheckSchedule } from './schedule-reminders.js';
 
 const PROJECT_ID = 'sbpgroup-toe-26-9-1';
 const COLLECTION_ROOT = 'toe_group/shared';
@@ -273,15 +274,39 @@ async function sendSupport(env, item) {
   }
   return sent;
 }
+async function sendScheduleReminders(env, clock) {
+  // Read the one authoritative Firestore schedule immediately before sending.
+  // This includes current bell times, cancellations, per-date changes and pauses.
+  if (!shouldCheckSchedule(clock)) return 0;
+  const schedule = await readOne(env, 'schedule', 'main');
+  if (!schedule) return 0;
+  const reminders = dueReminders(schedule, clock);
+  if (!reminders.length) return 0;
+  const devices = await deviceRows(env);
+  let sent = 0;
+  for (const reminder of reminders) {
+    sent += await deliver(env, devices, reminder.key, device => reminderPayload(device, reminder));
+  }
+  return sent;
+}
+
 async function scheduled(env) {
-  const [notifications, threads] = await Promise.all([
-    readRecent(env, 'notifications', 'createdAt'),
-    readRecent(env, 'support', 'updatedAt')
-  ]);
-  for (const notification of notifications.slice(0, 12)) await sendAnnouncement(env, notification);
-  for (const thread of threads.slice(0, 12)) await sendSupport(env, thread);
-  await env.DB.prepare('DELETE FROM deliveries WHERE created_at < ?')
-    .bind(Date.now() - 30 * 86400000).run();
+  const clock = kazakhstanClock(new Date());
+  // Lesson timings need a one-minute clock. Existing announcement/support
+  // polling remains at two-minute intervals to control free-tier usage.
+  try { await sendScheduleReminders(env, clock); }
+  catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
+
+  if (clock.minute % 2 === 0) {
+    const [notifications, threads] = await Promise.all([
+      readRecent(env, 'notifications', 'createdAt'),
+      readRecent(env, 'support', 'updatedAt')
+    ]);
+    for (const notification of notifications.slice(0, 12)) await sendAnnouncement(env, notification);
+    for (const thread of threads.slice(0, 12)) await sendSupport(env, thread);
+    await env.DB.prepare('DELETE FROM deliveries WHERE created_at < ?')
+      .bind(Date.now() - 30 * 86400000).run();
+  }
 }
 async function requestJson(request) {
   if (Number(request.headers.get('content-length') || 0) > 12000) throw error('Request is too large', 413);
