@@ -92,6 +92,8 @@ async function main(){
  assert.equal(writes.at(-1).pause.days['2026-11-03'],'vacation','pre-existing vacation remains untouched');
  assert.equal(writes.at(-1).lastChange.date,'2026-11-12');
  assert.equal(writes.at(-1).lastChange.dates.length,3,'all three dates in one event');
+ assert.equal(writes.at(-1).lastChange.pauseAction,'set');
+ assert.equal(writes.at(-1).lastChange.pauseType,'holiday','creation must be deferred until holiday eve');
  assert.match(pauseEvents.at(-1).title,/Праздник/);
  assert.match(pauseEvents.at(-1).titleKz,/Мереке/);
  assert.match(pauseEvents.at(-1).text,/12 ноября/);
@@ -120,6 +122,7 @@ async function main(){
  assert.equal(writes.at(-1).pause.days['2026-11-13'],undefined);
  assert.equal(writes.at(-1).pause.days['2026-11-14'],'holiday','unselected day remains paused');
  assert.equal(writes.at(-1).pause.days['2026-11-20'],'maintenance');
+ assert.equal(writes.at(-1).lastChange.pauseAction,'remove','resumption can notify immediately');
  assert.equal(writes.at(-1).lastChange.dates.length,2);
  assert.match(pauseEvents.at(-1).title,/отменена/);
  const unchanged=writes.length;
