@@ -4967,7 +4967,7 @@ window.sendSupportMessage=async function(){
 
 const notificationCenter=createNotificationCenter({
     getCloud:()=>({auth,db,callFunction:callCloudFunction,language:currentLang}),translate:translateUI,toast:showToast,
-    open:async data=>{if(data.kind==='support'){await window.openSupport();if(data.threadId&&isSupportStaff())window.openSupportThread(data.threadId);}else window.openNotifications();}
+    open:async data=>{if(data.kind==='schedule'){window.switchView('schedule');}else if(data.kind==='support'){await window.openSupport();if(data.threadId&&isSupportStaff())window.openSupportThread(data.threadId);}else window.openNotifications();}
 });
 window.refreshNotificationSettings=()=>notificationCenter.render();
 window.notificationAccountChanged=()=>notificationCenter.refreshAccount();
@@ -4989,7 +4989,7 @@ function syncRealtimeModules(){
     if(identity!==notificationIdentity){notificationIdentity=identity;notificationCenter.refreshAccount();}
     if(pendingNotificationLink&&identity&&(pendingNotificationLink!=='support'||!isSupportStaff()||supportThreadsCache.length)){
         const kind=pendingNotificationLink;pendingNotificationLink='';
-        if(kind==='support'){window.openSupport().then(()=>{const thread=notificationDeepLink.get('thread');if(thread&&isSupportStaff())window.openSupportThread(thread);});}else if(kind==='events')window.openNotifications();
+        if(kind==='support'){window.openSupport().then(()=>{const thread=notificationDeepLink.get('thread');if(thread&&isSupportStaff())window.openSupportThread(thread);});}else if(kind==='schedule')window.switchView('schedule');else if(kind==='events')window.openNotifications();
         const url=new URL(location.href);url.searchParams.delete('notification');url.searchParams.delete('thread');history.replaceState(null,'',url);
     }
 }
