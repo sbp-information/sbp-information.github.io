@@ -84,3 +84,33 @@ test('language toggle is white in the light theme and keeps dark-theme contrast'
   assert.match(language[1], /color:var\(--sbp-ink\)!important/);
   assert.match(read('redesign.css'), /:root\[data-sbp-theme="dark"\][^\n]*--sbp-surface:#1b1e2a/);
 });
+
+
+test('all non-current breaks share the nearest break white and blue outline', () => {
+  const section=css.slice(css.indexOf('/* 19.23:'));
+  assert.ok(section.startsWith('/* 19.23:'),'latest border correction must be last');
+  const rule=section.match(/#view-home \.home-ref-break-card:not\(\.current\)\s*\{([\s\S]*?)\}/);
+  assert.ok(rule,'generic break rule must include nearest and normal breaks');
+  assert.match(rule[1], /background:var\(--sbp-surface\)!important/);
+  assert.match(rule[1], /background-image:none!important/);
+  assert.match(rule[1], /border:1px solid #b9deef!important/);
+  assert.match(rule[1], /border-radius:12px!important/);
+  const oldNearest=css.match(/#view-home :is\(([\s\S]*?)\)\s*\{[\s\S]*?border:1px solid #b9deef!important/);
+  assert.ok(oldNearest?.[1]?.includes('.home-ref-break-card.nearest'));
+  const responsive=read('responsive-fit.css');
+  assert.match(responsive, /#view-home \.home-ref-break-card\.current\s*\{[\s\S]*?border:1px solid #efd7a2!important/);
+  assert.match(section, /data-sbp-theme="dark"/);
+  assert.match(section, /border-color:#42677c!important/);
+});
+test('first and other lesson numbers have matching thin outlines, preserving live green', () => {
+  const section=css.slice(css.indexOf('/* 19.23:'));
+  const normal=section.match(/#view-home \.home-ref-lesson-card:not\(\.current\):not\(\.cancelled\) \.home-ref-lesson-number\s*\{([\s\S]*?)\}/);
+  const current=section.match(/#view-home \.home-ref-lesson-card\.current \.home-ref-lesson-number\s*\{([\s\S]*?)\}/);
+  assert.ok(normal,'all ordinary lesson numbers, including the first, share an outline');
+  assert.ok(current,'live first lesson also needs an outline');
+  assert.match(normal[1], /background:var\(--sbp-surface\)!important/);
+  assert.match(normal[1], /border:1px solid #b9deef!important/);
+  assert.match(current[1], /border:1px solid var\(--sbp-green-line\)!important/);
+  assert.doesNotMatch(normal[0], /\.cancelled\)\s*\.home-ref-lesson-number/);
+  assert.match(read('style.css'), /#view-home \.home-ref-lesson-card\.current \.home-ref-lesson-number\s*\{\s*background:#dff7e8!important/);
+});
