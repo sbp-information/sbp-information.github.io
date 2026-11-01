@@ -1366,7 +1366,11 @@ window.moveScheduleLesson = async function(index, delta) {
     [list[index], list[target]] = [list[target], list[index]];
     renderSchedule(currentScheduleDay);
     try {
-        const cloudSaved = await saveScheduleData();
+        const moved = list[target] || {};
+        const event = scheduleGeneralChangeEvent('reorder',
+            `Изменён порядок пар: ${moved.subject || 'Пара'} (${moved.time || 'время уточняется'}).`,
+            `Сабақтардың реті өзгерді: ${moved.subject || 'Сабақ'} (${moved.time || 'уақыты нақтыланады'}).`);
+        const cloudSaved = await saveScheduleData(event);
         showToast(cloudSaved ? 'Порядок пар сохранён в облако' : 'Порядок пар сохранён на устройстве');
     } catch (e) {
         [list[index], list[target]] = [list[target], list[index]];
@@ -1387,7 +1391,10 @@ window.deleteScheduleLesson = async function() {
     const targetList=list;
 
     try {
-        const cloudSaved = await saveScheduleData();
+        const event = scheduleGeneralChangeEvent('delete',
+            `Удалена пара: ${removed?.subject || 'Пара'} (${removed?.time || 'время уточняется'}).`,
+            `Сабақ өшірілді: ${removed?.subject || 'Сабақ'} (${removed?.time || 'уақыты нақтыланады'}).`);
+        const cloudSaved = await saveScheduleData(event);
         window.closeScheduleEditor();
         renderSchedule(currentScheduleDay);
 
@@ -1399,7 +1406,10 @@ window.deleteScheduleLesson = async function() {
                 targetList.splice(Math.min(removedIndex,targetList.length),0,removed);
                 lastScheduleRenderKey='';
                 renderSchedule(currentScheduleDay);
-                await saveScheduleData();
+                const event = scheduleGeneralChangeEvent('restore',
+                    `Восстановлена пара: ${removed.subject || 'Пара'} (${removed.time || 'время уточняется'}).`,
+                    `Сабақ қалпына келтірілді: ${removed.subject || 'Сабақ'} (${removed.time || 'уақыты нақтыланады'}).`);
+                await saveScheduleData(event);
             },
             6500
         );
