@@ -2,20 +2,20 @@
   body {
     background-image:
       radial-gradient(ellipse at 8% 12%, rgba(188, 219, 255, .72), transparent 46%),
-      radial-gradient(ellipse at 92% 30%, rgba(217, 198, 255, .55), transparent 48%),
+      radial-gradient(ellipse at 92% 30%, rgba(137,217,255, .55), transparent 48%),
       radial-gradient(ellipse at 60% 95%, rgba(184, 235, 225, .45), transparent 44%),
       linear-gradient(135deg, #e5edf8, #f4f0fb 55%, #e5f3f5) !important;
   }
   body #view-home .home-ref-group-card {
-    background-image: linear-gradient(120deg, #e8f2ff, #f0e8ff 48%, #e7f6f5) !important;
+    background-image: linear-gradient(120deg, #e8f2ff, #d1f1ff 48%, #e7f6f5) !important;
     background-size: 240% 240%;
     border-color: #dce2f8;
-    box-shadow: 0 12px 36px rgba(91, 72, 166, .08);
+    box-shadow: 0 12px 36px rgba(49,92,113, .08);
     animation: app-soft-shift 22s ease-in-out infinite;
   }
   body #view-home .home-ref-group-icon {
-    background-image: linear-gradient(135deg, #e1e7ff, #eedfff) !important;
-    box-shadow: 0 6px 20px rgba(94, 62, 206, .1);
+    background-image: linear-gradient(135deg, #c8eeff, #c1ecff) !important;
+    box-shadow: 0 6px 20px rgba(32,97,126, .1);
   }
   body #view-home .home-ref-role-card,
   body #view-roster .leadership-card {
@@ -25,7 +25,7 @@
   }
   body #view-home .home-ref-role-card:nth-child(2),
   body #view-roster .leadership-card:nth-child(2) {
-    background-image: linear-gradient(135deg, #f2edff, #fff 70%) !important;
+    background-image: linear-gradient(135deg, #dbf3ff, #fff 70%) !important;
   }
   body #view-home .home-ref-role-card:nth-child(3),
   body #view-roster .leadership-card:nth-child(3) {
@@ -46,17 +46,17 @@
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   body #view-roster .roster-person-card:hover {
-    border-color: #c7c3ef;
-    box-shadow: 0 10px 28px rgba(93, 73, 163, .1);
+    border-color: #9ecfe5;
+    box-shadow: 0 10px 28px rgba(51,93,113, .1);
   }
   body #bottom-nav {
-    background-image: linear-gradient(115deg, rgba(255, 255, 255, .96), rgba(242, 237, 255, .94)) !important;
+    background-image: linear-gradient(115deg, rgba(255, 255, 255, .96), rgba(219,243,255, .94)) !important;
     border-color: #dce2f2;
   }
   body #bottom-nav button.active {
-    background-image: linear-gradient(115deg, #2563eb, #6335d8) !important;
+    background-image: linear-gradient(115deg, #2563eb, #196081) !important;
     color: #fff !important;
-    box-shadow: 0 4px 14px rgba(76, 66, 190, .18);
+    box-shadow: 0 4px 14px rgba(39,91,115, .18);
   }
   body #bottom-nav button.active i { color: #fff !important; }
   body #admin-settings-modal .settings-reference-card {
@@ -64,7 +64,7 @@
     border-color: #e0e5f4;
   }
   body #view-home .home-ref-progress i {
-    background-image: linear-gradient(90deg, #4d68f5, #7544e8, #a24acb);
+    background-image: linear-gradient(90deg, #0a7eb3, #136f99, #2d799d);
   }
   @keyframes app-soft-shift {
     0%, 100% { background-position: 0% 50%; }
@@ -77,28 +77,28 @@
 
 /* ===== GRADIENT EXPANSION — step18.20 ===== */
 body :is(.home-ref-topbar,#view-tracker .journal-ref-topbar,#view-schedule .schedule-ref-topbar,.roster-ref-topbar){
-  background-image:linear-gradient(120deg,rgba(237,245,255,.98),rgba(244,237,255,.97) 52%,rgba(235,249,247,.96))!important;
+  background-image:linear-gradient(120deg,rgba(237,245,255,.98),rgba(220,244,255,.97) 52%,rgba(235,249,247,.96))!important;
   border-color:#dce2f3!important;
-  box-shadow:0 9px 28px rgba(68,65,139,.07)!important;
+  box-shadow:0 9px 28px rgba(44,79,94,.07)!important;
 }
 body #view-home :is(.home-ref-today,.home-ref-notifications){
   background-image:linear-gradient(125deg,#ffffff 30%,#f2f5ff 66%,#f4efff)!important;
   border-color:#e1e5f2!important;
-  box-shadow:0 8px 25px rgba(65,74,143,.055);
+  box-shadow:0 8px 25px rgba(46,85,102,.055);
 }
 body #view-home .home-ref-role-card:nth-child(1){
-  background-image:linear-gradient(135deg,#edf6ff,#f8fbff 62%,#eeeaff)!important;
+  background-image:linear-gradient(135deg,#edf6ff,#f8fbff 62%,#d4f2ff)!important;
 }
 body #view-home .home-ref-role-card:nth-child(2){
-  background-image:linear-gradient(135deg,#f1edff,#fbf9ff 62%,#eaf7ff)!important;
+  background-image:linear-gradient(135deg,#dbf3ff,#fbf9ff 62%,#eaf7ff)!important;
 }
 body #view-home .home-ref-role-card:nth-child(3){
-  background-image:linear-gradient(135deg,#eaf9f5,#fafffe 62%,#f2edff)!important;
+  background-image:linear-gradient(135deg,#eaf9f5,#fafffe 62%,#dbf3ff)!important;
 }
 body :is(.home-ref-group-icon,.journal-ref-avatar,.roster-avatar,#view-schedule .schedule-ref-number,#admin-settings-modal .settings-reference-icon){
-  background-image:linear-gradient(135deg,#dfe9ff,#eadfff 55%,#dff6f1)!important;
-  color:#5c4ed0!important;
-  box-shadow:0 5px 15px rgba(84,70,177,.10);
+  background-image:linear-gradient(135deg,#dfe9ff,#beebff 55%,#dff6f1)!important;
+  color:#246989!important;
+  box-shadow:0 5px 15px rgba(45,93,114,.10);
 }
 body #view-tracker .journal-ref-datebar{
   background-image:linear-gradient(115deg,#f1f6ff,#f8f4ff 55%,#eef9f7)!important;
@@ -108,9 +108,9 @@ body #view-tracker .journal-section-tabs{
   background-image:linear-gradient(115deg,#eef3fb,#f3effc)!important;
 }
 body #view-tracker .journal-section-tabs button.active{
-  background-image:linear-gradient(115deg,#496ff0,#7049df 58%,#8b5fd8)!important;
+  background-image:linear-gradient(115deg,#496ff0,#1a6e94 58%,#297fa8)!important;
   color:#fff!important;
-  box-shadow:0 5px 16px rgba(81,68,183,.18);
+  box-shadow:0 5px 16px rgba(42,92,114,.18);
 }
 body #view-tracker .journal-ref-row:nth-child(odd){
   background-image:linear-gradient(90deg,#fff 35%,#f8f9ff)!important;
@@ -123,21 +123,21 @@ body #view-tracker .journal-inline-actions{
   border-color:#e1e4f2!important;
 }
 body #view-tracker .journal-inline-actions button{
-  background-image:linear-gradient(120deg,#edf3ff,#f1ebff)!important;
+  background-image:linear-gradient(120deg,#edf3ff,#d8f2ff)!important;
   border-color:#dadff2!important;
-  color:#5547c8!important;
+  color:#25627d!important;
 }
 body #view-tracker .journal-inline-actions button:hover{
-  background-image:linear-gradient(120deg,#e4edff,#e9e0ff)!important;
+  background-image:linear-gradient(120deg,#e4edff,#c0ebff)!important;
 }
 body #view-schedule .schedule-ref-week-switch{
   background-image:linear-gradient(115deg,#eef3fb,#f3effc)!important;
   border-color:#dfe4f1!important;
 }
 body #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="true"]){
-  background-image:linear-gradient(120deg,#4a70ef,#7249df 58%,#8a5bd5)!important;
+  background-image:linear-gradient(120deg,#4a70ef,#1a6e96 58%,#2a7ca3)!important;
   color:#fff!important;
-  box-shadow:0 5px 16px rgba(84,69,184,.18);
+  box-shadow:0 5px 16px rgba(43,93,115,.18);
 }
 body #view-schedule .schedule-ref-datebar,
 body #view-schedule .schedule-live-card{
@@ -161,15 +161,15 @@ body #view-schedule .schedule-ref-break-card{
   background-image:linear-gradient(110deg,#f8faff,#f3f1ff)!important;
 }
 body #view-schedule .schedule-ref-days button.active{
-  background-image:linear-gradient(135deg,#526ff0,#734cdb)!important;
+  background-image:linear-gradient(135deg,#1082b6,#1e6f95)!important;
   color:#fff!important;
-  box-shadow:0 5px 14px rgba(80,69,172,.16);
+  box-shadow:0 5px 14px rgba(44,89,110,.16);
 }
 body .roster-ref-topbar{
   background-image:linear-gradient(115deg,#f0f6ff,#f5efff 58%,#edf9f6)!important;
 }
 body #view-roster .leadership-card{
-  box-shadow:0 7px 22px rgba(74,77,142,.055);
+  box-shadow:0 7px 22px rgba(54,88,103,.055);
 }
 body #view-roster .roster-person-card:nth-child(3n+1){
   background-image:linear-gradient(110deg,#fff 45%,#f3f0ff)!important;
@@ -193,7 +193,7 @@ body #admin-settings-modal .settings-reference-summary{
 body .app-drawer{
   background-image:
     radial-gradient(circle at 10% 0%,rgba(126,153,255,.16),transparent 34%),
-    radial-gradient(circle at 92% 18%,rgba(173,111,232,.14),transparent 30%),
+    radial-gradient(circle at 92% 18%,rgba(32,149,202,.14),transparent 30%),
     linear-gradient(155deg,#fff 0%,#f7f5ff 58%,#f1f8ff 100%)!important;
 }
 body .drawer-head{
@@ -201,41 +201,41 @@ body .drawer-head{
   padding:12px!important;
   border:1px solid #e3e4f3;
   border-radius:16px;
-  background-image:linear-gradient(120deg,#edf4ff,#f2ebff 55%,#e9f8f5)!important;
+  background-image:linear-gradient(120deg,#edf4ff,#d8f2ff 55%,#e9f8f5)!important;
 }
 body .drawer-nav-section>button>i{
-  background-image:linear-gradient(135deg,#e7efff,#eadfff 58%,#e3f6f3)!important;
-  color:#5c4dce;
+  background-image:linear-gradient(135deg,#e7efff,#beebff 58%,#e3f6f3)!important;
+  color:#256886;
 }
 body .drawer-nav-section>button:hover{
-  background-image:linear-gradient(110deg,#eef4ff,#f1ebff)!important;
+  background-image:linear-gradient(110deg,#eef4ff,#d8f2ff)!important;
 }
 body .drawer-install-action{
-  background-image:linear-gradient(120deg,#edf4ff,#eee6ff 60%,#e9f8f5)!important;
-  border:1px solid #dedff2!important;
+  background-image:linear-gradient(120deg,#edf4ff,#ceefff 60%,#e9f8f5)!important;
+  border:1px solid #d0e3ed!important;
 }
 body .drawer-install-action:not(.is-installed)>i{
-  background-image:linear-gradient(135deg,#5c78f4,#7548df)!important;
+  background-image:linear-gradient(135deg,#0d8ac3,#1a6e96)!important;
   color:#fff!important;
-  box-shadow:0 5px 15px rgba(84,63,185,.18);
+  box-shadow:0 5px 15px rgba(39,90,114,.18);
 }
 body .drawer-beta-card{
   background-image:linear-gradient(125deg,#fff8ed,#f7efff 58%,#eef7ff)!important;
-  box-shadow:0 8px 22px rgba(90,72,158,.055);
+  box-shadow:0 8px 22px rgba(50,91,109,.055);
 }
 body .drawer-beta-head span{
-  background-image:linear-gradient(110deg,#6c54db,#8960dc)!important;
+  background-image:linear-gradient(110deg,#207399,#2680ab)!important;
   color:#fff;
 }
-body .drawer-beta-head i{color:#7652d6}
+body .drawer-beta-head i{color:#247297}
 body .help-navigation-panel{
   background-image:linear-gradient(160deg,#fff 0%,#faf8ff 55%,#f3f8ff 100%)!important;
 }
 body .help-navigation-hero{
-  background-image:linear-gradient(120deg,#edf4ff,#f3ecff 58%,#eaf8f5)!important;
+  background-image:linear-gradient(120deg,#edf4ff,#daf3ff 58%,#eaf8f5)!important;
 }
 body .help-navigation-hero>i{
-  background-image:linear-gradient(135deg,#5575f1,#754bdf)!important;
+  background-image:linear-gradient(135deg,#5575f1,#1b7098)!important;
   color:#fff;
 }
 body .help-navigation-grid article:nth-child(3n+1){
@@ -248,8 +248,8 @@ body .help-navigation-grid article:nth-child(3n){
   background-image:linear-gradient(120deg,#fff,#edf9f6)!important;
 }
 body .help-navigation-grid article>i{
-  background-image:linear-gradient(135deg,#e6eeff,#eadfff)!important;
-  color:#6050cb;
+  background-image:linear-gradient(135deg,#e6eeff,#beebff)!important;
+  color:#286988;
 }
 body .help-navigation-tip{
   background-image:linear-gradient(110deg,#f7f9ff,#f6f2ff)!important;
@@ -263,7 +263,7 @@ body .help-beta-note{
 /* Journal: richer status badges + softly layered student rows */
 body #view-tracker .status-head{
   border:1px solid rgba(255,255,255,.72);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 12px rgba(79,76,145,.08);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 12px rgba(55,88,104,.08);
 }
 body #view-tracker .status-head.present{
   background-image:linear-gradient(135deg,#dff8ec,#c8f0e3)!important;
@@ -282,8 +282,8 @@ body #view-tracker .status-head.unexcused{
   color:#c87508!important;
 }
 body #view-tracker .status-head.late{
-  background-image:linear-gradient(135deg,#efe8ff,#dfd2ff)!important;
-  color:#6940dc!important;
+  background-image:linear-gradient(135deg,#d1f1ff,#a2e2ff)!important;
+  color:#1a688c!important;
 }
 body #view-tracker .journal-ref-row{
   background-image:linear-gradient(112deg,#ffffff 0%,#f8f9ff 52%,#f3f0ff 100%)!important;
@@ -293,8 +293,8 @@ body #view-tracker .journal-ref-row:nth-child(even){
   background-image:linear-gradient(112deg,#ffffff 0%,#f4f9ff 52%,#edf8f5 100%)!important;
 }
 body #view-tracker .journal-ref-row:hover{
-  background-image:linear-gradient(112deg,#f9fbff 0%,#f0ecff 55%,#edf9f6 100%)!important;
-  box-shadow:inset 3px 0 0 rgba(102,78,220,.16);
+  background-image:linear-gradient(112deg,#f9fbff 0%,#d8f2ff 55%,#edf9f6 100%)!important;
+  box-shadow:inset 3px 0 0 rgba(29,109,147,.16);
 }
 body #view-tracker .journal-status-btn.present{
   background-image:linear-gradient(135deg,#ecfaf4,#dff5ea)!important;
@@ -309,7 +309,7 @@ body #view-tracker .journal-status-btn.unexcused{
   background-image:linear-gradient(135deg,#fff6e8,#ffe9c9)!important;
 }
 body #view-tracker .journal-status-btn.late{
-  background-image:linear-gradient(135deg,#f4efff,#e8deff)!important;
+  background-image:linear-gradient(135deg,#f4efff,#bbe9ff)!important;
 }
 body #view-tracker .journal-status-btn.selected.present{
   background-image:linear-gradient(135deg,#35c982,#18aa69)!important;
@@ -324,7 +324,7 @@ body #view-tracker .journal-status-btn.selected.unexcused{
   background-image:linear-gradient(135deg,#f7b457,#e18a22)!important;
 }
 body #view-tracker .journal-status-btn.selected.late{
-  background-image:linear-gradient(135deg,#8d69f3,#7049dc)!important;
+  background-image:linear-gradient(135deg,#108ac3,#1c6e93)!important;
 }
 
 /* Home: make the study-day schedule and latest notification feel part of the same gradient system */
@@ -338,13 +338,13 @@ body #view-home .home-ref-lesson-card:nth-child(even){
   background-image:linear-gradient(110deg,#ffffff 0%,#f2f8ff 58%,#edf9f6 100%)!important;
 }
 body #view-home .home-ref-lesson-card.current{
-  background-image:linear-gradient(110deg,#f7f2ff 0%,#eee6ff 54%,#edf6ff 100%)!important;
-  box-shadow:0 8px 20px rgba(91,67,177,.07);
+  background-image:linear-gradient(110deg,#f7f2ff 0%,#ceefff 54%,#edf6ff 100%)!important;
+  box-shadow:0 8px 20px rgba(44,92,115,.07);
 }
 body #view-home .home-ref-lesson-number{
-  background-image:linear-gradient(135deg,#e9efff,#eadfff 58%,#e5f6f3)!important;
-  color:#5848c8!important;
-  box-shadow:0 5px 14px rgba(77,69,161,.08);
+  background-image:linear-gradient(135deg,#e9efff,#beebff 58%,#e5f6f3)!important;
+  color:#266380!important;
+  box-shadow:0 5px 14px rgba(45,87,106,.08);
 }
 body #view-home .home-ref-break-card{
   background-image:linear-gradient(110deg,#fbfcff,#f5f3ff 58%,#eff9f7)!important;
@@ -353,20 +353,20 @@ body #view-home .home-ref-break-card.current{
   background-image:linear-gradient(110deg,#fff8ec,#fff0df 55%,#f7efff)!important;
 }
 body #view-home .home-ref-break-icon{
-  background-image:linear-gradient(135deg,#e7efff,#eadfff 58%,#e5f6f3)!important;
-  color:#6250ce!important;
+  background-image:linear-gradient(135deg,#e7efff,#beebff 58%,#e5f6f3)!important;
+  color:#276b8a!important;
 }
 body #view-home .home-ref-notification-card{
-  background-image:linear-gradient(115deg,#ffffff 0%,#f3f6ff 52%,#f3edff 100%)!important;
+  background-image:linear-gradient(115deg,#ffffff 0%,#f3f6ff 52%,#dbf3ff 100%)!important;
   border-color:#e1e4f2!important;
-  box-shadow:0 7px 20px rgba(77,73,148,.055)!important;
+  box-shadow:0 7px 20px rgba(51,86,103,.055)!important;
 }
 body #view-home .home-ref-notification-card:hover{
-  background-image:linear-gradient(115deg,#f9fbff 0%,#edf2ff 52%,#eee7ff 100%)!important;
+  background-image:linear-gradient(115deg,#f9fbff 0%,#edf2ff 52%,#ceefff 100%)!important;
 }
 body #view-home .home-ref-notification-icon{
-  background-image:linear-gradient(135deg,#e6edff,#dfd4ff 58%,#e5f7f3)!important;
-  color:#5b45d3!important;
+  background-image:linear-gradient(135deg,#e6edff,#a5e2ff 58%,#e5f7f3)!important;
+  color:#1f6485!important;
 }
 body #view-home .home-ref-notification-empty{
   background-image:linear-gradient(115deg,#ffffff,#f5f3ff 60%,#eff8f6)!important;
@@ -383,7 +383,7 @@ body #view-schedule .schedule-ref-row.current .schedule-ref-card{
   background-image:linear-gradient(112deg,#f0fff5,#e9f8f0 56%,#eef5ff 100%)!important;
 }
 body #view-schedule .schedule-ref-number{
-  background-image:linear-gradient(135deg,#e7eeff,#e8ddff 58%,#e2f5f1)!important;
+  background-image:linear-gradient(135deg,#e7eeff,#bbe9ff 58%,#e2f5f1)!important;
 }
 body #view-schedule .schedule-ref-row.current .schedule-ref-number{
   background-image:linear-gradient(135deg,#52cf87,#2ebd70)!important;
