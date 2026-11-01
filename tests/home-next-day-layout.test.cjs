@@ -29,10 +29,10 @@ test('day heading with correct date and live current-day statuses are retained',
   assert.match(app,/if\(pauseState\.active\)/,'vacation/maintenance logic retained');
 });
 test('the 19.27 release and offline PWA ship the updated app',()=>{
-  assert.match(html,/step19\.27-no-next-day-strip-2026-11-01-v1/);
-  assert.match(html,/app\.js\?v=20261101-no-next-day-strip-v1/);
-  assert.match(worker,/app\.js\?v=20261101-no-next-day-strip-v1/);
-  assert.match(worker,/sbp-shell-20261101-no-next-day-strip-v1/);
+  assert.match(html,/step19\.28-day-header-clean-2026-11-01-v1/);
+  assert.match(html,/app\.js\?v=20261101-day-header-clean-v1/);
+  assert.match(worker,/app\.js\?v=20261101-day-header-clean-v1/);
+  assert.match(worker,/sbp-shell-20261101-day-header-clean-v1/);
   const releases=read('release-data.js');
   const latest=releases.slice(releases.indexOf("version:'19.27'"),releases.indexOf("version:'19.26'"));
   assert.match(latest,/ru:\[/);assert.match(latest,/kz:\[/);
