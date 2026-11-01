@@ -148,27 +148,43 @@ const scheduleDataDenominator = {
 };
 
 const scheduleDefaults = JSON.parse(JSON.stringify({numerator:scheduleDataNumerator,denominator:scheduleDataDenominator}));
-const SCHEDULE_PAUSE_TYPES = new Set(['vacation','maintenance','temporary']);
+const SCHEDULE_PAUSE_TYPES = new Set(['vacation','maintenance','temporary','holiday']);
 const SCHEDULE_PAUSE_META = Object.freeze({
     vacation:{ru:'Каникулы',kz:'Демалыс',icon:'fa-umbrella-beach'},
     maintenance:{ru:'Технические работы',kz:'Техникалық жұмыстар',icon:'fa-screwdriver-wrench'},
-    temporary:{ru:'Временная пауза',kz:'Уақытша үзіліс',icon:'fa-pause'}
+    temporary:{ru:'Временная пауза',kz:'Уақытша үзіліс',icon:'fa-pause'},
+    holiday:{ru:'Праздник',kz:'Мереке',icon:'fa-gift'}
 });
 let scheduleDateOverrides = {};
-let schedulePause = {enabled:false,type:'vacation',startDate:'',endDate:''};
+let schedulePause = {days:{}};
 let scheduleLegacyArchive = null;
 let scheduleMigrationNeeded = false;
 let scheduleEditScope = 'date';
 
+function validPauseDate(value) {
+    const key=String(value || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return false;
+    const date=new Date(key+'T12:00:00Z');
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0,10)===key;
+}
 function normalizeSchedulePause(input = {}) {
-    const type = SCHEDULE_PAUSE_TYPES.has(String(input?.type || '')) ? String(input.type) : 'vacation';
-    const cleanDate = value => /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? String(value) : '';
-    return {
-        enabled: input?.enabled === true,
-        type,
-        startDate: cleanDate(input?.startDate),
-        endDate: cleanDate(input?.endDate)
-    };
+    const days={};
+    if (input?.days && typeof input.days === 'object' && !Array.isArray(input.days)) {
+        for (const [date,value] of Object.entries(input.days)) {
+            const type=typeof value === 'string' ? value : value?.type;
+            if (validPauseDate(date) && SCHEDULE_PAUSE_TYPES.has(type)) days[date]=type;
+        }
+    } else if (input?.enabled === true && validPauseDate(input.startDate) &&
+               validPauseDate(input.endDate) && input.startDate <= input.endDate) {
+        // Old range data remains honored as individual dates; never discard old vacations.
+        const type=SCHEDULE_PAUSE_TYPES.has(input.type) ? input.type : 'vacation';
+        const first=new Date(input.startDate+'T12:00:00Z');
+        const end=new Date(input.endDate+'T12:00:00Z');
+        for (let date=first, count=0; date<=end && count<3660; date.setUTCDate(date.getUTCDate()+1),count++) {
+            days[date.toISOString().slice(0,10)]=type;
+        }
+    }
+    return {days};
 }
 function schedulePauseLocaleIsKz(locale = interfaceLocale()) {
     return String(locale || '').toLowerCase().startsWith('kk');
@@ -178,22 +194,14 @@ function schedulePauseMeta(pause = schedulePause, locale = interfaceLocale()) {
     return {label:schedulePauseLocaleIsKz(locale) ? meta.kz : meta.ru,icon:meta.icon};
 }
 function schedulePausePeriodLabel(pause = schedulePause, locale = interfaceLocale()) {
-    const format = value => {
-        if (!value) return '';
-        const date = new Date(value + 'T12:00:00');
-        return Number.isNaN(date.getTime()) ? value : scheduleCalendarLabel(date, locale, {day:'numeric',month:'long',year:'numeric'});
-    };
-    const start = format(pause?.startDate), end = format(pause?.endDate);
-    return start && end ? `${start} – ${end}` : (start || end || '');
-}
-function schedulePauseIncludesDate(pause, date = new Date()) {
-    if (!pause?.enabled || !pause.startDate || !pause.endDate) return false;
-    const key = scheduleDateKey(date);
-    return key >= pause.startDate && key <= pause.endDate;
+    const key = pause?.date || pause?.startDate || '';
+    if (!validPauseDate(key)) return '';
+    return scheduleCalendarLabel(new Date(key+'T12:00:00'),locale,{day:'numeric',month:'long',year:'numeric'});
 }
 export function getSchedulePauseState(date = new Date()) {
-    const pause = normalizeSchedulePause(schedulePause);
-    return {...pause,active:schedulePauseIncludesDate(pause,date),dateKey:scheduleDateKey(date)};
+    const key=scheduleDateKey(date);
+    const type=schedulePause.days[key] || '';
+    return {active:!!type,type,date:key,dateKey:key,startDate:type?key:'',endDate:type?key:''};
 }
 function schedulePayload() {
     return { numerator:scheduleDataNumerator,denominator:scheduleDataDenominator,dateOverrides:scheduleDateOverrides,pause:schedulePause,scheduleSchemaVersion:SCHEDULE_SCHEMA_VERSION,legacyScheduleArchive:scheduleLegacyArchive };
