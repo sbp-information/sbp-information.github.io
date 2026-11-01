@@ -4,7 +4,7 @@
       radial-gradient(ellipse at 8% 12%, rgba(188, 219, 255, .72), transparent 46%),
       radial-gradient(ellipse at 92% 30%, rgba(137,217,255, .55), transparent 48%),
       radial-gradient(ellipse at 60% 95%, rgba(184, 235, 225, .45), transparent 44%),
-      linear-gradient(135deg, #e5edf8, #f4f0fb 55%, #e5f3f5) !important;
+      linear-gradient(135deg, #e5edf8, #e7f3f9 55%, #e5f3f5) !important;
   }
   body #view-home .home-ref-group-card {
     background-image: linear-gradient(120deg, #e8f2ff, #d1f1ff 48%, #e7f6f5) !important;
@@ -37,10 +37,10 @@
     box-shadow: 0 8px 28px rgba(66, 83, 144, .055);
   }
   body #view-tracker .journal-ref-head {
-    background-image: linear-gradient(110deg, #f0f5ff, #f6f1ff) !important;
+    background-image: linear-gradient(110deg, #f0f5ff, #e3f7ff) !important;
   }
   body #view-tracker .journal-ref-row:hover {
-    background-image: linear-gradient(110deg, #f8fbff, #faf7ff) !important;
+    background-image: linear-gradient(110deg, #f8fbff, #f0faff) !important;
   }
   body #view-roster .roster-person-card {
     transition: border-color .2s ease, box-shadow .2s ease;
@@ -60,7 +60,7 @@
   }
   body #bottom-nav button.active i { color: #fff !important; }
   body #admin-settings-modal .settings-reference-card {
-    background-image: linear-gradient(115deg, #eef4ff, #f5f0ff 65%, #f7fbff);
+    background-image: linear-gradient(115deg, #eef4ff, #e0f6ff 65%, #f7fbff);
     border-color: #e0e5f4;
   }
   body #view-home .home-ref-progress i {
@@ -82,7 +82,7 @@ body :is(.home-ref-topbar,#view-tracker .journal-ref-topbar,#view-schedule .sche
   box-shadow:0 9px 28px rgba(44,79,94,.07)!important;
 }
 body #view-home :is(.home-ref-today,.home-ref-notifications){
-  background-image:linear-gradient(125deg,#ffffff 30%,#f2f5ff 66%,#f4efff)!important;
+  background-image:linear-gradient(125deg,#ffffff 30%,#f2f5ff 66%,#def5ff)!important;
   border-color:#e1e5f2!important;
   box-shadow:0 8px 25px rgba(46,85,102,.055);
 }
@@ -90,7 +90,7 @@ body #view-home .home-ref-role-card:nth-child(1){
   background-image:linear-gradient(135deg,#edf6ff,#f8fbff 62%,#d4f2ff)!important;
 }
 body #view-home .home-ref-role-card:nth-child(2){
-  background-image:linear-gradient(135deg,#dbf3ff,#fbf9ff 62%,#eaf7ff)!important;
+  background-image:linear-gradient(135deg,#dbf3ff,#f3fbff 62%,#eaf7ff)!important;
 }
 body #view-home .home-ref-role-card:nth-child(3){
   background-image:linear-gradient(135deg,#eaf9f5,#fafffe 62%,#dbf3ff)!important;
@@ -101,11 +101,11 @@ body :is(.home-ref-group-icon,.journal-ref-avatar,.roster-avatar,#view-schedule 
   box-shadow:0 5px 15px rgba(45,93,114,.10);
 }
 body #view-tracker .journal-ref-datebar{
-  background-image:linear-gradient(115deg,#f1f6ff,#f8f4ff 55%,#eef9f7)!important;
+  background-image:linear-gradient(115deg,#f1f6ff,#e9f8ff 55%,#eef9f7)!important;
   border-color:#dde5f4!important;
 }
 body #view-tracker .journal-section-tabs{
-  background-image:linear-gradient(115deg,#eef3fb,#f3effc)!important;
+  background-image:linear-gradient(115deg,#eef3fb,#e4f4fa)!important;
 }
 body #view-tracker .journal-section-tabs button.active{
   background-image:linear-gradient(115deg,#496ff0,#1a6e94 58%,#297fa8)!important;
@@ -119,7 +119,7 @@ body #view-tracker .journal-ref-row:nth-child(even){
   background-image:linear-gradient(90deg,#fff 35%,#f6fbff)!important;
 }
 body #view-tracker .journal-inline-actions{
-  background-image:linear-gradient(125deg,#f6f9ff,#f6f1ff 58%,#effaf8)!important;
+  background-image:linear-gradient(125deg,#f6f9ff,#e3f7ff 58%,#effaf8)!important;
   border-color:#e1e4f2!important;
 }
 body #view-tracker .journal-inline-actions button{
@@ -131,7 +131,7 @@ body #view-tracker .journal-inline-actions button:hover{
   background-image:linear-gradient(120deg,#e4edff,#c0ebff)!important;
 }
 body #view-schedule .schedule-ref-week-switch{
-  background-image:linear-gradient(115deg,#eef3fb,#f3effc)!important;
+  background-image:linear-gradient(115deg,#eef3fb,#e4f4fa)!important;
   border-color:#dfe4f1!important;
 }
 body #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="true"]){
@@ -141,7 +141,7 @@ body #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="
 }
 body #view-schedule .schedule-ref-datebar,
 body #view-schedule .schedule-live-card{
-  background-image:linear-gradient(120deg,#f4f8ff,#f7f2ff 58%,#effaf7)!important;
+  background-image:linear-gradient(120deg,#f4f8ff,#e5f7ff 58%,#effaf7)!important;
   border-color:#dfe5f2!important;
 }
 body #view-schedule .schedule-ref-row:not(.current) .schedule-ref-card{
@@ -152,13 +152,13 @@ body #view-schedule .schedule-ref-row:not(.current) .schedule-ref-card{
   background-image:linear-gradient(110deg,#fff 40%,#f7f8ff)!important;
 }
 body #view-schedule .schedule-ref-row:nth-child(4n+1):not(.current) .schedule-ref-card{
-  background-image:linear-gradient(110deg,#fff 35%,#f4f0ff)!important;
+  background-image:linear-gradient(110deg,#fff 35%,#dff6ff)!important;
 }
 body #view-schedule .schedule-ref-row:nth-child(4n+3):not(.current) .schedule-ref-card{
   background-image:linear-gradient(110deg,#fff 35%,#eef8ff)!important;
 }
 body #view-schedule .schedule-ref-break-card{
-  background-image:linear-gradient(110deg,#f8faff,#f3f1ff)!important;
+  background-image:linear-gradient(110deg,#f8faff,#e2f6ff)!important;
 }
 body #view-schedule .schedule-ref-days button.active{
   background-image:linear-gradient(135deg,#1082b6,#1e6f95)!important;
@@ -166,13 +166,13 @@ body #view-schedule .schedule-ref-days button.active{
   box-shadow:0 5px 14px rgba(44,89,110,.16);
 }
 body .roster-ref-topbar{
-  background-image:linear-gradient(115deg,#f0f6ff,#f5efff 58%,#edf9f6)!important;
+  background-image:linear-gradient(115deg,#f0f6ff,#dff6ff 58%,#edf9f6)!important;
 }
 body #view-roster .leadership-card{
   box-shadow:0 7px 22px rgba(54,88,103,.055);
 }
 body #view-roster .roster-person-card:nth-child(3n+1){
-  background-image:linear-gradient(110deg,#fff 45%,#f3f0ff)!important;
+  background-image:linear-gradient(110deg,#fff 45%,#dff6ff)!important;
 }
 body #view-roster .roster-person-card:nth-child(3n+2){
   background-image:linear-gradient(110deg,#fff 45%,#eef7ff)!important;
@@ -181,25 +181,25 @@ body #view-roster .roster-person-card:nth-child(3n){
   background-image:linear-gradient(110deg,#fff 45%,#eef9f6)!important;
 }
 body #view-roster .roster-profile-tools{
-  background-image:linear-gradient(120deg,#eef5ff,#f4efff 58%,#edf9f6)!important;
+  background-image:linear-gradient(120deg,#eef5ff,#def5ff 58%,#edf9f6)!important;
   border-color:#dde4f2!important;
 }
 body #admin-settings-modal>div{
-  background-image:linear-gradient(145deg,#ffffff 0%,#f8f7ff 50%,#f1f7ff 100%)!important;
+  background-image:linear-gradient(145deg,#ffffff 0%,#edfaff 50%,#f1f7ff 100%)!important;
 }
 body #admin-settings-modal .settings-reference-summary{
-  background-image:linear-gradient(110deg,rgba(255,255,255,.72),rgba(244,240,255,.72))!important;
+  background-image:linear-gradient(110deg,rgba(255,255,255,.72),rgba(223,246,255,.72))!important;
 }
 body .app-drawer{
   background-image:
     radial-gradient(circle at 10% 0%,rgba(126,153,255,.16),transparent 34%),
     radial-gradient(circle at 92% 18%,rgba(32,149,202,.14),transparent 30%),
-    linear-gradient(155deg,#fff 0%,#f7f5ff 58%,#f1f8ff 100%)!important;
+    linear-gradient(155deg,#fff 0%,#eaf9ff 58%,#f1f8ff 100%)!important;
 }
 body .drawer-head{
   margin:0 0 8px;
   padding:12px!important;
-  border:1px solid #e3e4f3;
+  border:1px solid #d8e7ee;
   border-radius:16px;
   background-image:linear-gradient(120deg,#edf4ff,#d8f2ff 55%,#e9f8f5)!important;
 }
@@ -220,7 +220,7 @@ body .drawer-install-action:not(.is-installed)>i{
   box-shadow:0 5px 15px rgba(39,90,114,.18);
 }
 body .drawer-beta-card{
-  background-image:linear-gradient(125deg,#fff8ed,#f7efff 58%,#eef7ff)!important;
+  background-image:linear-gradient(125deg,#fff8ed,#dff6ff 58%,#eef7ff)!important;
   box-shadow:0 8px 22px rgba(50,91,109,.055);
 }
 body .drawer-beta-head span{
@@ -229,7 +229,7 @@ body .drawer-beta-head span{
 }
 body .drawer-beta-head i{color:#247297}
 body .help-navigation-panel{
-  background-image:linear-gradient(160deg,#fff 0%,#faf8ff 55%,#f3f8ff 100%)!important;
+  background-image:linear-gradient(160deg,#fff 0%,#f0fbff 55%,#f3f8ff 100%)!important;
 }
 body .help-navigation-hero{
   background-image:linear-gradient(120deg,#edf4ff,#daf3ff 58%,#eaf8f5)!important;
@@ -242,7 +242,7 @@ body .help-navigation-grid article:nth-child(3n+1){
   background-image:linear-gradient(120deg,#fff,#f2f6ff)!important;
 }
 body .help-navigation-grid article:nth-child(3n+2){
-  background-image:linear-gradient(120deg,#fff,#f4efff)!important;
+  background-image:linear-gradient(120deg,#fff,#def5ff)!important;
 }
 body .help-navigation-grid article:nth-child(3n){
   background-image:linear-gradient(120deg,#fff,#edf9f6)!important;
@@ -252,10 +252,10 @@ body .help-navigation-grid article>i{
   color:#286988;
 }
 body .help-navigation-tip{
-  background-image:linear-gradient(110deg,#f7f9ff,#f6f2ff)!important;
+  background-image:linear-gradient(110deg,#f7f9ff,#e4f7ff)!important;
 }
 body .help-beta-note{
-  background-image:linear-gradient(115deg,#fff8ee,#f7f0ff)!important;
+  background-image:linear-gradient(115deg,#fff8ee,#e3f6ff)!important;
 }
 
 
@@ -286,7 +286,7 @@ body #view-tracker .status-head.late{
   color:#1a688c!important;
 }
 body #view-tracker .journal-ref-row{
-  background-image:linear-gradient(112deg,#ffffff 0%,#f8f9ff 52%,#f3f0ff 100%)!important;
+  background-image:linear-gradient(112deg,#ffffff 0%,#f8f9ff 52%,#dff6ff 100%)!important;
   transition:background-position .25s ease,box-shadow .2s ease,border-color .2s ease;
 }
 body #view-tracker .journal-ref-row:nth-child(even){
@@ -309,7 +309,7 @@ body #view-tracker .journal-status-btn.unexcused{
   background-image:linear-gradient(135deg,#fff6e8,#ffe9c9)!important;
 }
 body #view-tracker .journal-status-btn.late{
-  background-image:linear-gradient(135deg,#f4efff,#bbe9ff)!important;
+  background-image:linear-gradient(135deg,#def5ff,#bbe9ff)!important;
 }
 body #view-tracker .journal-status-btn.selected.present{
   background-image:linear-gradient(135deg,#35c982,#18aa69)!important;
@@ -329,16 +329,16 @@ body #view-tracker .journal-status-btn.selected.late{
 
 /* Home: make the study-day schedule and latest notification feel part of the same gradient system */
 body #view-home .home-ref-today-head{
-  background-image:linear-gradient(120deg,#f0f6ff,#f5efff 58%,#edf9f6)!important;
+  background-image:linear-gradient(120deg,#f0f6ff,#dff6ff 58%,#edf9f6)!important;
 }
 body #view-home .home-ref-lesson-card{
-  background-image:linear-gradient(110deg,#ffffff 0%,#f6f8ff 58%,#f3efff 100%)!important;
+  background-image:linear-gradient(110deg,#ffffff 0%,#f6f8ff 58%,#ddf5ff 100%)!important;
 }
 body #view-home .home-ref-lesson-card:nth-child(even){
   background-image:linear-gradient(110deg,#ffffff 0%,#f2f8ff 58%,#edf9f6 100%)!important;
 }
 body #view-home .home-ref-lesson-card.current{
-  background-image:linear-gradient(110deg,#f7f2ff 0%,#ceefff 54%,#edf6ff 100%)!important;
+  background-image:linear-gradient(110deg,#e5f7ff 0%,#ceefff 54%,#edf6ff 100%)!important;
   box-shadow:0 8px 20px rgba(44,92,115,.07);
 }
 body #view-home .home-ref-lesson-number{
@@ -347,10 +347,10 @@ body #view-home .home-ref-lesson-number{
   box-shadow:0 5px 14px rgba(45,87,106,.08);
 }
 body #view-home .home-ref-break-card{
-  background-image:linear-gradient(110deg,#fbfcff,#f5f3ff 58%,#eff9f7)!important;
+  background-image:linear-gradient(110deg,#fbfcff,#e6f7ff 58%,#eff9f7)!important;
 }
 body #view-home .home-ref-break-card.current{
-  background-image:linear-gradient(110deg,#fff8ec,#fff0df 55%,#f7efff)!important;
+  background-image:linear-gradient(110deg,#fff8ec,#fff0df 55%,#dff6ff)!important;
 }
 body #view-home .home-ref-break-icon{
   background-image:linear-gradient(135deg,#e7efff,#beebff 58%,#e5f6f3)!important;
@@ -369,12 +369,12 @@ body #view-home .home-ref-notification-icon{
   color:#1f6485!important;
 }
 body #view-home .home-ref-notification-empty{
-  background-image:linear-gradient(115deg,#ffffff,#f5f3ff 60%,#eff8f6)!important;
+  background-image:linear-gradient(115deg,#ffffff,#e6f7ff 60%,#eff8f6)!important;
 }
 
 /* Schedule: keep gradients while preserving a clean, fully contained card geometry */
 body #view-schedule .schedule-ref-row:not(.current) .schedule-ref-card{
-  background-image:linear-gradient(112deg,#ffffff 0%,#f7f8ff 62%,#f3efff 100%)!important;
+  background-image:linear-gradient(112deg,#ffffff 0%,#f7f8ff 62%,#ddf5ff 100%)!important;
 }
 body #view-schedule .schedule-ref-row:nth-child(even):not(.current) .schedule-ref-card{
   background-image:linear-gradient(112deg,#ffffff 0%,#f2f8ff 62%,#edf8f5 100%)!important;
