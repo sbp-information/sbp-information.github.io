@@ -1,0 +1,142 @@
+name: Deploy free Cloudflare Web Push (Firebase Spark)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbp-cloudflare-push-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy isolated push Worker
+    if: github.repository == 'sbp-information/sbp-information.github.io' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check free Worker source
+        run: |
+          npm install --prefix cloudflare-push
+          npm run check --prefix cloudflare-push
+          npm test --prefix cloudflare-push
+
+      - name: Validate account configuration and prepare Firebase read-only credential
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const a = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+          if (!a) throw new Error('Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON');
+          if (!process.env.CLOUDFLARE_API_TOKEN || !process.env.CLOUDFLARE_ACCOUNT_ID)
+            throw new Error('Missing Cloudflare GitHub secrets');
+          const json = JSON.parse(a);
+          if (json.type !== 'service_account' || json.project_id !== 'sbpgroup-toe-26-9-1')
+            throw new Error('Firebase service account must belong to sbpgroup-toe-26-9-1');
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/sbp-worker-secrets.json',
+            JSON.stringify({ FIREBASE_SERVICE_ACCOUNT_JSON: a }), { mode: 0o600 });
+          NODE
+
+      - name: Find or create free D1 database and configure local binding
+        working-directory: cloudflare-push
+        run: |
+          set -eu
+          npx wrangler d1 list --json > "$RUNNER_TEMP/sbp-databases.json"
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const rows = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/sbp-databases.json'));
+          const db = rows.find(x => x.name === 'sbp-information-push');
+          if (db) fs.writeFileSync(process.env.RUNNER_TEMP + '/sbp-database-id', db.uuid || db.id);
+          NODE
+          if [ ! -s "$RUNNER_TEMP/sbp-database-id" ]; then
+            npx wrangler d1 create sbp-information-push
+            npx wrangler d1 list --json > "$RUNNER_TEMP/sbp-databases.json"
+            node - <<'NODE'
+          const fs = require('node:fs');
+          const rows = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/sbp-databases.json'));
+          const db = rows.find(x => x.name === 'sbp-information-push');
+          if (!db) throw new Error('D1 database was not created');
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/sbp-database-id', db.uuid || db.id);
+          NODE
+          fi
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const id = fs.readFileSync(process.env.RUNNER_TEMP + '/sbp-database-id', 'utf8').trim();
+          if (!/^[a-f0-9-]{36}$/i.test(id)) throw new Error('Invalid D1 database UUID');
+          const file = 'wrangler.toml';
+          const contents = fs.readFileSync(file, 'utf8').replace('00000000-0000-0000-0000-000000000000', id);
+          fs.writeFileSync(file, contents);
+          console.log('D1 database configured without changing repository files.');
+          NODE
+
+      - name: Apply private D1 schema
+        working-directory: cloudflare-push
+        run: npx wrangler d1 migrations apply sbp-information-push --remote
+
+      - name: Deploy Worker and Firebase credential
+        working-directory: cloudflare-push
+        run: |
+          npx wrangler deploy --secrets-file "$RUNNER_TEMP/sbp-worker-secrets.json" | tee "$RUNNER_TEMP/sbp-worker-deploy.log"
+
+      - name: Create VAPID keys on first deployment only
+        working-directory: cloudflare-push
+        run: |
+          set -eu
+          npx wrangler secret list > "$RUNNER_TEMP/sbp-worker-secret-names.json"
+          node <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const secretNames = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/sbp-worker-secret-names.json', 'utf8'));
+          const names = new Set(secretNames.map(s => s.name));
+          const keys = ['VAPID_PUBLIC_KEY','VAPID_PRIVATE_KEY','VAPID_SUBJECT'];
+          const existing = keys.filter(k => names.has(k));
+          if (existing.length === keys.length) {
+            console.log('Existing VAPID keys preserved; active mobile subscriptions remain valid.');
+          } else if (existing.length) {
+            throw new Error('Incomplete VAPID keys: fix existing secrets manually; refusing to rotate subscriptions.');
+          } else {
+            const curve = crypto.createECDH('prime256v1');
+            curve.generateKeys();
+            fs.writeFileSync(process.env.RUNNER_TEMP + '/sbp-vapid-secrets.json', JSON.stringify({
+              VAPID_PUBLIC_KEY: curve.getPublicKey().toString('base64url'),
+              VAPID_PRIVATE_KEY: curve.getPrivateKey().toString('base64url'),
+              VAPID_SUBJECT: 'https://sbp-information.github.io'
+            }), { mode: 0o600 });
+            console.log('New VAPID key pair created privately for first launch.');
+          }
+          NODE
+          if [ -f "$RUNNER_TEMP/sbp-vapid-secrets.json" ]; then
+            npx wrangler secret bulk "$RUNNER_TEMP/sbp-vapid-secrets.json"
+          fi
+
+      - name: Check deployed worker status
+        run: |
+          URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/sbp-worker-deploy.log" | head -n 1 || true)
+          if [ -n "$URL" ]; then
+            echo "Worker URL: $URL"
+            curl --fail --silent --show-error --max-time 15 "$URL/health" > "$RUNNER_TEMP/sbp-worker-health.json"
+            node - <<'NODE'
+          const fs = require('node:fs');
+          const result = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/sbp-worker-health.json','utf8'));
+          if (result.configured !== true) throw new Error('Worker is deployed but required bindings or secrets are missing');
+          console.log('Worker responds and its Cloudflare bindings and secrets are present.');
+          NODE
+          else
+            echo "Worker deployed. Open Cloudflare dashboard for its workers.dev URL."
+          fi
+
+      - name: Remove temporary credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/sbp-worker-secrets.json" "$RUNNER_TEMP/sbp-vapid-secrets.json" "$RUNNER_TEMP/sbp-databases.json"
