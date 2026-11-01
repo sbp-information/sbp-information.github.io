@@ -16,6 +16,7 @@ jobs:
           node tests/interface-language.test.cjs
           node tests/translation-updates.test.cjs
           node tests/localization-coverage.test.cjs
+          node tests/notification-localization.test.cjs
           node tests/schedule-dates.test.cjs
           node tests/holiday-push-policy.test.cjs
           node tests/release-notes.test.cjs
