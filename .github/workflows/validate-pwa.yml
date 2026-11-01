@@ -15,7 +15,9 @@ jobs:
         run: |
           node tests/interface-language.test.cjs
           node tests/release-notes.test.cjs
+          node scripts/build-css.cjs --check
           node tests/pwa-cache-consistency.test.cjs
+          node tests/css-bundle.test.cjs
           node tests/app-update.test.cjs
           node tests/notification-icon.test.cjs
           node tests/notification-header.test.cjs
