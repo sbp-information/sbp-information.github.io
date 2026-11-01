@@ -62,3 +62,60 @@
 :root:root body.sbp-redesign #view-home .home-ref-progress i {
  background-image:linear-gradient(90deg,#1784bd,#229ed9)!important;
 }
+
+/* 19.18: complete the blue branding without changing semantic status colours.
+   Applied to both desktop and installed mobile PWA; no language-dependent selectors. */
+:root:root { --sbp-accent-text:#126a99; --sbp-accent-solid:#126e9e; }
+:root:root[data-sbp-theme="dark"] { --sbp-accent-text:#9bdeff; --sbp-accent-solid:#65c7f2; }
+
+/* Notification permission controls previously retained violet foregrounds/gradients. */
+:root:root body.sbp-redesign .notification-preference-row input {
+ accent-color:var(--sbp-accent-solid)!important;
+}
+:root:root body.sbp-redesign .notification-setting-button:not(.primary) {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ border-color:var(--sbp-accent-solid)!important;
+ color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign .notification-setting-button.primary {
+ background:var(--sbp-accent-solid)!important;
+ background-image:none!important;
+ border-color:var(--sbp-accent-solid)!important;
+ color:var(--sbp-accent-ink)!important;
+}
+
+/* Admin permission checkboxes and keyboard focus should use the same accent. */
+:root:root body.sbp-redesign #admin-settings-modal input.accent-indigo-600 {
+ accent-color:var(--sbp-accent-solid)!important;
+}
+:root:root body.sbp-redesign #admin-settings-modal :is(#admin-login,#admin-password):focus {
+ border-color:var(--sbp-accent-solid)!important;
+}
+
+/* Informational callouts (not grades, attendance or warning statuses). */
+:root:root body.sbp-redesign #support-active-thread.support-active-thread,
+:root:root body.sbp-redesign #support-staff-inbox .support-reply-label {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign .schedule-editor-sheet .bg-indigo-50 {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ border-color:var(--sbp-accent-solid)!important;
+}
+:root:root body.sbp-redesign .schedule-editor-sheet :is(#schedule-editor-scope,.text-indigo-800) {
+ color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign :is(.schedule-pause-manage>span,.schedule-pause-editor-header>span) {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ color:var(--sbp-accent-text)!important;
+}
+:root:root body.sbp-redesign .schedule-pause-manage {
+ border-color:var(--sbp-line)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign .notification-setting-button:not(.primary) {
+ border-color:var(--sbp-line)!important;
+}
