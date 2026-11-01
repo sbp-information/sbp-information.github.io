@@ -55,7 +55,7 @@ import {
 } from "./schedule.js?v=20261101-lesson-reminders-v1";
 import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-lang-v2";
 import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-lesson-reminders-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-lang-v2';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-lesson-reminders-v1';
 
         
 let homeScheduleExpanded=false;
