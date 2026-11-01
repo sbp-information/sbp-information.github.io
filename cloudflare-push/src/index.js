@@ -209,7 +209,7 @@ function notificationPayload(device, item, key) {
     : (kz ? 'Жаңа хабарландыру' : 'Новое объявление');
   const body = isChange ? (kz ? item.textKz || item.text : item.text)
     : (kz ? item.titleKz || item.title : item.title);
-  return { key, kind: 'events', title: String(title || 'SBP Information').slice(0, 120),
+  return { key, kind: isChange && item.changeType === 'pause' ? 'schedule' : 'events', title: String(title || 'SBP Information').slice(0, 120),
     body: String(body || '').slice(0, 200) };
 }
 function supportPayload(device, item, key, staff) {
@@ -382,4 +382,4 @@ export default {
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload };

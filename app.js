@@ -36,7 +36,7 @@ import {
     formatCalendarLabel,
     getStatusName,
     getStatusBadgeClass
-} from "./utils.js?v=20261101-localization-v1";
+} from "./utils.js?v=20261101-single-day-pauses-v1";
 import { dbPut, dbGet, dbDelete, savePersistentValue } from "./storage.js?v=20261017-admin-tap-v1";
 import {
     configureSchedule,
@@ -52,10 +52,10 @@ import {
     getScheduleAdminSnapshot,
     restoreScheduleSelection,
     syncPendingScheduleData
-} from "./schedule.js?v=20261101-localization-v1";
-import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-localization-v1";
-import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-localization-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-localization-v1';
+} from "./schedule.js?v=20261101-single-day-pauses-v1";
+import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-single-day-pauses-v1";
+import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-single-day-pauses-v1';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-single-day-pauses-v1';
 
         
 let homeScheduleExpanded=false;
@@ -4392,16 +4392,16 @@ function updateHomeScheduleOverviewToggle(hasMore){
 function renderHomePauseCard(pauseState){
     const meta = pauseState.type === 'vacation'
         ? {label:'Каникулы',icon:'fa-umbrella-beach'}
-        : pauseState.type === 'maintenance'
-            ? {label:'Технические работы',icon:'fa-screwdriver-wrench'}
-            : {label:'Временная пауза',icon:'fa-pause'};
+        : pauseState.type === 'holiday'
+            ? {label:'Праздник',icon:'fa-gift'}
+            : pauseState.type === 'maintenance'
+                ? {label:'Технические работы',icon:'fa-screwdriver-wrench'}
+                : {label:'Временная пауза',icon:'fa-pause'};
     const locale=interfaceLocale();
-    const format=value=>{
-        const date=new Date(String(value||'')+'T12:00:00');
-        return Number.isNaN(date.getTime())?'':scheduleCalendarLabel(date,locale,{day:'numeric',month:'long',year:'numeric'});
-    };
-    const period=[format(pauseState.startDate),format(pauseState.endDate)].filter(Boolean).join(' – ');
-    return `<section class="home-schedule-pause-card"><span class="home-schedule-pause-icon"><i class="fa-solid ${meta.icon}"></i></span><div><span>${translateUI('Расписание приостановлено')}</span><strong>${translateUI(meta.label)}</strong><small>${period}</small><p>${translateUI('Расписание автоматически возобновится после окончания периода.')}</p></div></section>`;
+    const key=pauseState.date || pauseState.startDate;
+    const date=new Date(String(key||'')+'T12:00:00');
+    const label=Number.isNaN(date.getTime())?'':scheduleCalendarLabel(date,locale,{day:'numeric',month:'long',year:'numeric'});
+    return '<section class="home-schedule-pause-card"><span class="home-schedule-pause-icon"><i class="fa-solid '+meta.icon+'"></i></span><div><span>'+translateUI('Расписание приостановлено')+'</span><strong>'+translateUI(meta.label)+'</strong><small>'+label+'</small><p>'+translateUI('Расписание автоматически возобновится на следующий день.')+'</p></div></section>';
 }
 let tomorrowSummaryDateKey = '';
 function renderTomorrowChanges(now = new Date()) {

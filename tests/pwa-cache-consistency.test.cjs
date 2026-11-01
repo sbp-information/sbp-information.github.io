@@ -8,10 +8,10 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.32-push-coldstart-2026-11-01-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-push-coldstart-v1'/);
-assert.match(release, /version:'19\.32',date:'2026-11-01'/);
-assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-push-coldstart-v1/);
+assert.match(build, /^step19\.33-single-day-pauses-2026-11-01-v1$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-single-day-pauses-v1'/);
+assert.match(release, /version:'19\.33',date:'2026-11-01'/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-single-day-pauses-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
 assert.ok(core, 'worker has a precache list');
 assert.ok(worker.includes('push-worker-config.js?v=20261101-cloudflare-live-v2'), 'Cloudflare configuration must be cached for installed Android PWA');
@@ -43,7 +43,7 @@ for (const file of moduleFiles) {
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
   if (['i18n.js','schedule.js','group-tools.js','action-history.js','release-data.js','utils.js'].includes(name)) {
-    const version = name === 'release-data.js' ? '?v=20261101-push-coldstart-v1' : '?v=20261101-localization-v1';
+    const version = ['release-data.js','i18n.js','schedule.js','group-tools.js','action-history.js','utils.js'].includes(name) ? '?v=20261101-single-day-pauses-v1' : '?v=20261101-localization-v1';
     assert.ok([...versions][0].endsWith(version),'stale version for '+name);
   }
 }

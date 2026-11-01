@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-push-coldstart-v1';
+const CACHE_NAME = 'sbp-shell-20261101-single-day-pauses-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -11,17 +11,17 @@ const CORE_ASSETS = [
   './college-illustration.svg?v=20261101-no-violet-v1',
   './home-overview.js?v=20261017-admin-tap-v1',
   './schedule-dates.js?v=20261017-admin-tap-v1',
-  './group-tools.js?v=20261101-localization-v1',
+  './group-tools.js?v=20261101-single-day-pauses-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
-  './action-history.js?v=20261101-localization-v1',
-  './release-notes.js?v=20261101-push-coldstart-v1',
-  './release-data.js?v=20261101-push-coldstart-v1',
-  './app.js?v=20261101-push-coldstart-v1',
+  './action-history.js?v=20261101-single-day-pauses-v1',
+  './release-notes.js?v=20261101-single-day-pauses-v1',
+  './release-data.js?v=20261101-single-day-pauses-v1',
+  './app.js?v=20261101-single-day-pauses-v1',
   './firebase.js?v=20261017-admin-tap-v1',
-  './utils.js?v=20261101-localization-v1',
+  './utils.js?v=20261101-single-day-pauses-v1',
   './storage.js?v=20261017-admin-tap-v1',
-  './schedule.js?v=20261101-localization-v1',
-  './i18n.js?v=20261101-localization-v1',
+  './schedule.js?v=20261101-single-day-pauses-v1',
+  './i18n.js?v=20261101-single-day-pauses-v1',
   './performance.js?v=20261101-localization-v1',
   './notification-center.js?v=20261101-cloudflare-live-v2',
   './push-worker-config.js?v=20261101-cloudflare-live-v2',

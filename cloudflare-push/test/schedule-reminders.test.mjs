@@ -91,6 +91,20 @@ test('holidays, maintenance, temporary pauses and weekends suppress reminders', 
   assert.equal(shouldCheckSchedule(monday(450)), true);
   assert.equal(shouldCheckSchedule({ ...monday(450), weekday: 0 }), false);
 });
+test('independent holiday dates suppress only their own reminders', () => {
+  const days = {
+    '2026-09-21': 'holiday',
+    '2026-09-23': 'maintenance',
+    '2026-10-01': 'vacation'
+  };
+  const schedule = { ...normal, pause: { days } };
+  assert.deepEqual(dueReminders(schedule, monday(450)), [], 'holiday has no first-pair reminder');
+  assert.deepEqual(dueReminders(schedule, monday(9 * 60 + 29)), [], 'holiday has no next-pair reminder');
+  assert.equal(dueReminders(schedule, monday(450, '2026-10-05')).length, 1, 'next regular Monday is unaffected');
+  assert.equal(dueReminders(schedule, monday(450, '2026-09-28')).length, 1, 'unpaused Monday works');
+  assert.equal(schedule.pause.days['2026-09-23'], 'maintenance', 'other saved dates remain separate');
+});
+
 test('messages have room, precise time, RU/KZ titles and no journal or release wording', () => {
   const event = dueReminders(normal, monday(450))[0];
   const ru = reminderPayload({ language: 'ru' }, event);

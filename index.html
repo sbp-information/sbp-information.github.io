@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.32-push-coldstart-2026-11-01-v1">
+    <meta name="app-build" content="step19.33-single-day-pauses-2026-11-01-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -147,7 +147,14 @@
         html.sbp-app-launch #sbp-launch-animation::after,
         #sbp-launch-animation .sbp-launch-orb{animation-duration:.18s!important}
       }
-    </style>
+    
+      /* Paused school dates: one native calendar date, multiple independently editable days. */
+      .schedule-pause-editor-dates{grid-template-columns:minmax(0,1fr)!important}
+      .schedule-pause-dates-list{display:flex;flex-direction:column;align-items:stretch;gap:7px;max-height:176px;overflow-y:auto;padding:10px;border:1px solid var(--sbp-line,#dceaf0);border-radius:13px;background:var(--sbp-surface,#fff);font-size:12px;color:var(--sbp-text,#334155)}
+      .schedule-pause-dates-list>strong{font-size:12px;margin-bottom:2px}
+      .schedule-pause-date-item{display:block;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--sbp-line,#dceaf0);background:var(--sbp-surface,#fff);color:inherit;text-align:left;font-size:12px;cursor:pointer}
+      .schedule-pause-date-item:hover,.schedule-pause-date-item:focus-visible{border-color:#2d9bcc;outline:2px solid transparent;background:var(--sbp-surface-soft,#eff9fe)}
+</style>
     <link rel="icon" type="image/png" href="sbp-icon-32.png?v=20261031-icons-v1">
     <link rel="apple-touch-icon" href="sbp-icon-180.png?v=20261031-icons-v1">
     <link rel="stylesheet" href="tailwind-local.css?v=20261101-no-violet-v1">
@@ -158,10 +165,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261101-push-coldstart-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261101-single-day-pauses-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
-    <link rel="modulepreload" href="utils.js?v=20261101-localization-v1">
-    <link rel="modulepreload" href="schedule.js?v=20261101-localization-v1">
+    <link rel="modulepreload" href="utils.js?v=20261101-single-day-pauses-v1">
+    <link rel="modulepreload" href="schedule.js?v=20261101-single-day-pauses-v1">
     <script defer src="performance.js?v=20261101-localization-v1"></script>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
@@ -665,7 +672,7 @@
             </select>
             <p id="schedule-scope-hint" data-i18n-skip style="font-size:12px;margin:8px 0 0"></p>
         </div>
-        <button id="schedule-pause-manage-btn" type="button" onclick="openSchedulePauseEditor()" class="schedule-pause-manage hidden"><span><i class="fa-solid fa-pause"></i></span><div><strong>Пауза расписания</strong><small>Каникулы или технические работы</small></div><i class="fa-solid fa-chevron-right"></i></button>
+        <button id="schedule-pause-manage-btn" type="button" onclick="openSchedulePauseEditor()" class="schedule-pause-manage hidden"><span><i class="fa-solid fa-pause"></i></span><div><strong>Пауза расписания</strong><small>Праздники и другие неучебные дни</small></div><i class="fa-solid fa-chevron-right"></i></button>
         <div id="schedule-pause-status" class="hidden"></div>
         <button id="schedule-add-btn" onclick="openScheduleEditor(-1)" class="schedule-ref-add hidden">
             <i class="fa-solid fa-plus"></i><span>Добавить пару</span>
@@ -878,22 +885,23 @@
                 <button type="button" onclick="closeSchedulePauseEditor()" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
             </header>
             <div class="schedule-pause-editor-body">
-                <p class="schedule-pause-editor-note">В период паузы пары, таймеры и текущий урок не отображаются. Само расписание сохраняется.</p>
+                <p class="schedule-pause-editor-note">На выбранную дату пары, таймеры и текущий урок не отображаются. Само расписание сохраняется.</p>
                 <label>Причина
                     <select id="schedule-pause-type">
                         <option value="vacation">Каникулы</option>
+                        <option value="holiday">Праздник</option>
                         <option value="maintenance">Технические работы</option>
                         <option value="temporary">Временная пауза</option>
                     </select>
                 </label>
                 <div class="schedule-pause-editor-dates">
-                    <label>Начало<input id="schedule-pause-start" type="date"></label>
-                    <label>Окончание<input id="schedule-pause-end" type="date"></label>
+                    <label>Дата без занятий<input id="schedule-pause-date" type="date" onchange="onSchedulePauseDateChanged()"></label>
                 </div>
-                <p class="schedule-pause-editor-auto"><i class="fa-solid fa-rotate"></i><span>Расписание автоматически возобновится после окончания периода.</span></p>
+                <div id="schedule-pause-dates-list" class="schedule-pause-dates-list"></div>
+                <p class="schedule-pause-editor-auto"><i class="fa-solid fa-rotate"></i><span>Расписание автоматически возобновится на следующий день.</span></p>
             </div>
             <footer class="schedule-pause-editor-actions">
-                <button id="schedule-pause-disable-btn" type="button" class="danger hidden" onclick="disableSchedulePause()">Отключить паузу</button>
+                <button id="schedule-pause-disable-btn" type="button" class="danger hidden" onclick="disableSchedulePause()">Убрать выбранную дату</button>
                 <span></span>
                 <button type="button" class="secondary" onclick="closeSchedulePauseEditor()">Отмена</button>
                 <button type="button" class="primary" onclick="saveSchedulePause()">Сохранить</button>
@@ -1043,8 +1051,8 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261101-push-coldstart-v1"></script>
-    <script type="module" src="app.js?v=20261101-push-coldstart-v1"></script>
+    <script type="module" src="release-notes.js?v=20261101-single-day-pauses-v1"></script>
+    <script type="module" src="app.js?v=20261101-single-day-pauses-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

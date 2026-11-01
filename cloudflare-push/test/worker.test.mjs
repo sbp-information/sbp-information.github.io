@@ -90,3 +90,22 @@ test('notification delivery queries do not stop at 40 registered devices', async
   assert.equal((await testing.deviceRows(env, 'user-42'))[0].id, 'device-42');
   assert.ok(statements.every(sql => !/\\bLIMIT\\s+40\\b/i.test(sql)));
 });
+
+test('holiday pause and resume send bilingual Push that opens Schedule', () => {
+  const item = {
+    type:'schedule_change',changeType:'pause',
+    title:'Расписание: Праздник',titleKz:'Сабақ кестесі: Мереке',
+    text:'Занятий 2 ноября не будет. Причина: Праздник.',
+    textKz:'2 қараша күні сабақ болмайды. Себебі: Мереке.'
+  };
+  const ru = testing.notificationPayload({language:'ru'},item,'event:holiday-1');
+  const kz = testing.notificationPayload({language:'kz'},item,'event:holiday-1');
+  assert.equal(ru.kind,'schedule');
+  assert.equal(ru.title,'Расписание: Праздник');
+  assert.match(ru.body,/2 ноября/);
+  assert.equal(kz.kind,'schedule');
+  assert.equal(kz.title,'Сабақ кестесі: Мереке');
+  assert.match(kz.body,/2 қараша/);
+  assert.equal(testing.notificationPayload({language:'ru'}, {...item,changeType:'subject'},'e').kind,'events');
+  assert.equal(testing.notificationPayload({language:'ru'},{type:'announcement',title:'Новости'},'e').kind,'events');
+});
