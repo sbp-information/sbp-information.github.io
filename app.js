@@ -1225,6 +1225,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                     authStateUnsubscribe = onAuthStateChanged(auth, user => {
                         if (user) applyAccessRoleFromUser(user);
                         else applyAccessRoleFromUser(null);
+                        // Cold-start notification links must run as soon as Firebase restores the session.
+                        syncRealtimeModules();
                     });
 
                     userId = auth.currentUser.uid;
@@ -1348,6 +1350,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                     renderRosterList();
                     renderApp(true);
                     renderSchedule(getCurrentScheduleDay());
+                    // Do not wait 90 seconds for the periodic maintenance tick on Android.
+                    syncRealtimeModules();
                 } catch (e) {
                     reportAppError('cloud-init', e, { localSaved:true });
                 }
@@ -4894,6 +4898,7 @@ let supportReadCounts={};
 const supportArrivals=createArrivalTracker();
 let displayedSupportMessages=[];
 let supportRetryAfter=0;
+let pendingSupportThreadId='';
 function supportContext(){return auth?.currentUser?.uid ? `${auth.currentUser.uid}:${isSupportStaff()?'staff':'visitor'}` : '';}
 function supportReadKey(){return `toe_support_read_v1:${supportNotificationsContext}`;}
 function isSupportOpen(){const modal=document.getElementById('support-modal');return !!modal&&!modal.classList.contains('hidden')&&document.visibilityState==='visible';}
@@ -4948,7 +4953,16 @@ window.refreshSupportNotifications=function(){
             arrivals.forEach(({id,count})=>notificationCenter.incoming({key:`support:${id}:${staff?'visitor':'staff'}:${count}`,title:translateUI(staff?'Новое обращение в поддержку':'Новый ответ поддержки'),body:translateUI('Откройте поддержку, чтобы прочитать сообщение'),kind:'support',threadId:staff?id:''}));
         }
         updateSupportBadge();
-        if(staff)renderSupportInbox();
+        if(staff){
+            renderSupportInbox();
+            // Staff inbox can arrive after a cold-start deep link opened the dialog.
+            if(pendingSupportThreadId && isSupportOpen() &&
+                supportThreadsCache.some(thread=>thread.id===pendingSupportThreadId)){
+                const threadId=pendingSupportThreadId;
+                pendingSupportThreadId='';
+                window.openSupportThread(threadId);
+            }
+        }
     },error=>{
         if(context!==supportNotificationsContext)return;
         console.warn('support notifications',error);supportNotificationsUnsubscribe=null;supportThreadsCache=[];supportRetryAfter=Date.now()+10000;updateSupportBadge();
@@ -5034,10 +5048,20 @@ function syncRealtimeModules(){
     window.refreshSupportNotifications();
     const identity=auth?.currentUser?.uid||'';
     if(identity!==notificationIdentity){notificationIdentity=identity;notificationCenter.refreshAccount();}
-    if(pendingNotificationLink&&identity&&(pendingNotificationLink!=='support'||!isSupportStaff()||supportThreadsCache.length)){
-        const kind=pendingNotificationLink;pendingNotificationLink='';
-        if(kind==='support'){window.openSupport().then(()=>{const thread=notificationDeepLink.get('thread');if(thread&&isSupportStaff())window.openSupportThread(thread);});}else if(kind==='schedule')window.switchView('schedule');else if(kind==='events')window.openNotifications();
-        const url=new URL(location.href);url.searchParams.delete('notification');url.searchParams.delete('thread');history.replaceState(null,'',url);
+    if(pendingNotificationLink&&identity){
+        const kind=pendingNotificationLink;
+        if(['support','schedule','events'].includes(kind)){
+            pendingNotificationLink='';
+            if(kind==='support'){
+                // Open immediately after login restoration, even before the staff inbox arrives.
+                pendingSupportThreadId=isSupportStaff()?(notificationDeepLink.get('thread')||''):'';
+                Promise.resolve(window.openSupport()).catch(error=>console.warn('Notification support navigation failed',error));
+            }else if(kind==='schedule')window.switchView('schedule');
+            else window.openNotifications();
+            const url=new URL(location.href);
+            url.searchParams.delete('notification');url.searchParams.delete('thread');
+            history.replaceState(null,'',url);
+        }
     }
 }
 const realtimeMaintenanceTimer=setInterval(()=>{
