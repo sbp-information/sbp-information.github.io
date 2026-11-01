@@ -52,7 +52,7 @@ const CORE_ASSETS = [
   './journal-flat-status.css?v=20261101-all-blue-v1',
   './schedule-break-alignment.css?v=20261031-v1',
   './mobile-menu-hit-target.css?v=20261031-v1',
-  './brand-blue.css?v=20261101-blue-theme-v1',
+  './brand-blue.css?v=20261101-all-blue-v1',
   './sbp-icon-192.png',
   './sbp-icon-512.png',
   './sbp-icon-maskable-512.png',
