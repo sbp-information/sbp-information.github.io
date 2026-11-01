@@ -761,6 +761,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             diagLog: (message, data) => diagLog(message, data),
             publishScheduleChange: async (event) => {
                 if (!event || !db || !auth?.currentUser) return false;
+                // Holiday creations are saved to the schedule now, but their
+                // announcement is sent by the Worker on the eve of the holiday.
+                if (event.changeType === 'pause' && event.pauseAction === 'set' && event.pauseType === 'holiday') return true;
                 const id = `schedule_${event.id || Date.now()}`;
                 const payload = {
                     title: event.title || 'Изменение расписания',
@@ -773,6 +776,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                     type: 'schedule_change',
                     changeId: event.id || '',
                     changeType: event.changeType || '',
+                    pauseAction: event.pauseAction || '',
+                    pauseType: event.pauseType || '',
                     date: event.date || '',
                     pairNumber: event.pairNumber || ''
                 };
