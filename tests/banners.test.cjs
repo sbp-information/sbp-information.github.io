@@ -22,8 +22,8 @@ test('banner controls, styles, release metadata and PWA cache are aligned', () =
   const version = html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
   assert.ok(version, 'active app script version exists');
   assert.ok(sw.includes(`'./app.js?v=${version}'`), 'app script is cached at active version');
-  assert.match(html, /group-banners\.css\?v=20261031-group-banners-v1/);
-  assert.match(sw, /group-banners\.css\?v=20261031-group-banners-v1/);
+  assert.match(html, /group-banners\.css\?v=20261101-all-blue-v1/);
+  assert.match(sw, /group-banners\.css\?v=20261101-all-blue-v1/);
   assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`), 'PWA cache matches app version');
   assert.ok(html.includes(`release-notes.js?v=${version}`), 'page loads current release notes');
   assert.ok(sw.includes(`'./release-notes.js?v=${version}'`), 'release notes are cached');
