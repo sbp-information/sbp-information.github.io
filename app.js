@@ -4,7 +4,7 @@ import { initRedesign } from './redesign.js?v=20261031-dark-mode-v1';
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
 import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261017-admin-tap-v1';
 import { createArrivalTracker } from './notification-state.js?v=20261017-admin-tap-v1';
-import { createNotificationCenter } from './notification-center.js?v=20261101-push-registration-v2';
+import { createNotificationCenter } from './notification-center.js?v=20261101-cloudflare-push-v1';
 import { getSiteVersion, incomingSupportCount, unreadSupportCount } from './support-state.js?v=20261017-admin-tap-v1';
 import {
     createFirebaseServices,
@@ -777,6 +777,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 };
                 try {
                     await setDoc(doc(db,...CLOUD_ROOT,'notifications',id),payload);
+                    void notificationCenter.dispatch('announcement', id);
                     return true;
                 } catch (error) {
                     console.warn('schedule notification',error);
@@ -4821,6 +4822,7 @@ window.publishNotification=async function(){
             type:priority==='important'?'important_announcement':'announcement',
             priority
         });
+        void notificationCenter.dispatch('announcement', id);
         if(titleField?.value.trim()===title)titleField.value='';if(textField?.value.trim()===text)textField.value='';if(priorityField)priorityField.value='normal';
         if(titleKzField?.value.trim()===titleKz)titleKzField.value='';if(textKzField?.value.trim()===textKz)textKzField.value='';
         showToast('Уведомление опубликовано');
@@ -4953,6 +4955,7 @@ window.sendSupportMessage=async function(){
         const displayName=staff?(data.displayName||'Пользователь'):(document.getElementById('support-name')?.value.trim()||data.displayName||'Пользователь');
         messages.push({id:crypto.randomUUID(),senderUid:auth.currentUser.uid,text,author:staff?(currentAccountLogin||'Поддержка'):displayName,role:staff?'staff':'visitor',at:new Date().toISOString()});
         await setDoc(ref,{messages,updatedAt:new Date().toISOString(),displayName,ownerUid:staff?(data.ownerUid||id):auth.currentUser.uid},{merge:true});
+        void notificationCenter.dispatch('support', id);
         if(context===supportContext()){
             if(activeSupportThreadId===id&&field.value.trim()===text)field.value='';
             if(supportDrafts.get(id)?.trim()===text)supportDrafts.delete(id);
