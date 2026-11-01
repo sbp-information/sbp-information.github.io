@@ -194,9 +194,11 @@ async function supportPermissions(env) {
   return (await readOne(env, 'access', 'admin_permissions')) || {};
 }
 async function deviceRows(env, uid = null) {
+  // Do not silently drop devices beyond the first 40: many students use
+  // both an installed PWA and a desktop browser.
   const stmt = uid
-    ? env.DB.prepare('SELECT * FROM devices WHERE uid = ? LIMIT 40').bind(uid)
-    : env.DB.prepare('SELECT * FROM devices LIMIT 40');
+    ? env.DB.prepare('SELECT * FROM devices WHERE uid = ?').bind(uid)
+    : env.DB.prepare('SELECT * FROM devices');
   return (await stmt.all()).results || [];
 }
 function notificationPayload(device, item, key) {
@@ -380,4 +382,4 @@ export default {
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows };
