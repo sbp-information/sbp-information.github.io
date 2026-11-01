@@ -109,3 +109,30 @@ test('holiday pause and resume send bilingual Push that opens Schedule', () => {
   assert.equal(testing.notificationPayload({language:'ru'}, {...item,changeType:'subject'},'e').kind,'events');
   assert.equal(testing.notificationPayload({language:'ru'},{type:'announcement',title:'Новости'},'e').kind,'events');
 });
+
+test('owner, admins and students all get other authors notices, but never their own',()=>{
+  const devices=[
+    {id:'owner-phone',uid:'uid-owner',email:'owner.toe2691@example.com'},
+    {id:'owner-desktop',uid:'uid-owner',email:'owner.toe2691@example.com'},
+    {id:'admin1-phone',uid:'uid-admin1',email:'admin1.toe2691@example.com'},
+    {id:'admin2-phone',uid:'uid-admin2',email:'admin2.toe2691@example.com'},
+    {id:'student-phone',uid:'uid-student',email:'student@example.com'}
+  ];
+  for (const [authorUid,expected] of [
+    ['uid-owner',['admin1-phone','admin2-phone','student-phone']],
+    ['uid-admin1',['owner-phone','owner-desktop','admin2-phone','student-phone']],
+    ['uid-student',['owner-phone','owner-desktop','admin1-phone','admin2-phone']]
+  ]){
+    assert.deepEqual(testing.announcementRecipients(devices,{authorUid}).map(d=>d.id),expected);
+  }
+  assert.equal(testing.announcementRecipients(devices,{authorUid:'uid-admin2'}).some(d=>d.uid==='uid-admin2'),false);
+  assert.equal(testing.announcementRecipients(devices,{}).length,5,'automatic notice has no author exclusion');
+});
+test('holiday creation is deferred, but holiday removal and other changes notify immediately',()=>{
+  assert.equal(testing.isDeferredHolidayCreation({type:'schedule_change',changeType:'pause',pauseAction:'set',pauseType:'holiday'}),true);
+  assert.equal(testing.isDeferredHolidayCreation({type:'schedule_change',changeType:'pause',pauseAction:'remove',pauseType:'holiday'}),false);
+  assert.equal(testing.isDeferredHolidayCreation({type:'schedule_change',changeType:'pause',pauseAction:'set',pauseType:'vacation'}),false);
+  assert.equal(testing.isDeferredHolidayCreation({type:'schedule_change',changeType:'subject'}),false);
+  assert.equal(testing.isDeferredHolidayCreation({type:'announcement'}),false);
+  assert.equal(testing.isDeferredHolidayCreation({type:'mention'}),false);
+});
