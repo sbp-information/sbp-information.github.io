@@ -11,7 +11,7 @@ const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
 assert.match(build, /^step19\.32-push-coldstart-2026-11-01-v1$/);
 assert.match(worker, /CACHE_NAME = 'sbp-shell-20261101-push-coldstart-v1'/);
 assert.match(release, /version:'19\.32',date:'2026-11-01'/);
-assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-localization-v1/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261101-push-coldstart-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
 assert.ok(core, 'worker has a precache list');
 assert.ok(worker.includes('push-worker-config.js?v=20261101-cloudflare-live-v2'), 'Cloudflare configuration must be cached for installed Android PWA');
