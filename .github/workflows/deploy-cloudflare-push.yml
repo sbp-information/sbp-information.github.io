@@ -41,6 +41,15 @@ jobs:
           if (!a) throw new Error('Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON');
           if (!process.env.CLOUDFLARE_API_TOKEN || !process.env.CLOUDFLARE_ACCOUNT_ID)
             throw new Error('Missing Cloudflare GitHub secrets');
+          const cloudflareToken = process.env.CLOUDFLARE_API_TOKEN;
+          if (cloudflareToken !== cloudflareToken.trim() ||
+              /\s/.test(cloudflareToken) ||
+              /^(?:Bearer\s|curl\s|export\s|\{)/i.test(cloudflareToken)) {
+            throw new Error('CLOUDFLARE_API_TOKEN must be the raw API Token value only: no Bearer, curl command, JSON, quotation marks, or spaces/newlines');
+          }
+          if (!/^[a-f0-9]{32}$/i.test(process.env.CLOUDFLARE_ACCOUNT_ID.trim())) {
+            throw new Error('CLOUDFLARE_ACCOUNT_ID must be the 32-character Cloudflare account ID');
+          }
           const json = JSON.parse(a);
           if (json.type !== 'service_account' || json.project_id !== 'sbpgroup-toe-26-9-1')
             throw new Error('Firebase service account must belong to sbpgroup-toe-26-9-1');
