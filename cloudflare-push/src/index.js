@@ -23,7 +23,7 @@ function reply(value, status = 200, origin = '') {
     headers['access-control-allow-methods'] = 'GET, POST, OPTIONS';
     headers['access-control-allow-headers'] = 'Authorization, Content-Type';
   }
-  return new Response(JSON.stringify(value), { status, headers });
+  return new Response(status === 204 ? null : JSON.stringify(value), { status, headers });
 }
 function error(message, status = 400) {
   const result = new Error(message);
@@ -351,3 +351,6 @@ export default {
     ctx.waitUntil(scheduled(env).catch(e => console.error('Scheduled push failed:', e?.message || 'unknown')));
   }
 };
+
+// Pure helpers exposed for unit tests (not HTTP routes).
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent };
