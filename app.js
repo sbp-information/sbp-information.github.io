@@ -52,10 +52,10 @@ import {
     getScheduleAdminSnapshot,
     restoreScheduleSelection,
     syncPendingScheduleData
-} from "./schedule.js?v=20261101-localization-v1";
-import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-localization-v1";
-import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-localization-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-localization-v1';
+} from "./schedule.js?v=20261101-single-day-pauses-v1";
+import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261101-single-day-pauses-v1";
+import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261101-single-day-pauses-v1';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261101-single-day-pauses-v1';
 
         
 let homeScheduleExpanded=false;
