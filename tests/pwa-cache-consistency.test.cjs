@@ -42,5 +42,6 @@ for (const file of moduleFiles) {
 }
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
-  assert.ok([...versions][0].endsWith('?v=20261101-lang-v2'),'stale version for '+name);
+  const requiredVersion = name === 'release-data.js' ? '20261101-notifications-v1' : '20261101-lang-v2';
+  assert.ok([...versions][0].endsWith('?v='+requiredVersion),'stale version for '+name);
 }
