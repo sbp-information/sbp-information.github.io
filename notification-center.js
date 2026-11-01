@@ -74,32 +74,66 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     return registration;
   }
 
-  // Remote Web Push backend is intentionally not contacted from the page until the
-  // Firebase callable functions are deployed. This keeps the production site free
-  // from failed CORS/preflight requests. Foreground event notifications still work.
+  // Keep push registration tied to the authenticated Firebase account.
+  const language = () => getCloud().language?.() === 'kz' ? 'kz' : 'ru';
+  const vapidBytes = key => {
+    const base64 = key.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+    return Uint8Array.from(binary, char => char.charCodeAt(0));
+  };
+  async function registerDevice() {
+    const cloud = getCloud();
+    if (!cloud.auth?.currentUser || !cloud.callFunction) return false;
+    const uid = cloud.auth.currentUser.uid;
+    const settings = await cloud.callFunction('getPushConfiguration');
+    if (!settings?.vapidPublicKey) throw new Error('push-configuration-missing');
+    const sw = await worker();
+    let subscription = await sw.pushManager.getSubscription();
+    if (!subscription) subscription = await sw.pushManager.subscribe({
+      userVisibleOnly: true, applicationServerKey: vapidBytes(settings.vapidPublicKey)
+    });
+    try {
+      await cloud.callFunction('registerPushDevice', { subscription: subscription.toJSON(), language: language() });
+    } catch (error) {
+      // Never leave a newly created subscription silently marked as registered.
+      console.warn('Push device registration failed', error);
+      throw error;
+    }
+    if (context() !== uid) return false;
+    registeredContext = uid;
+    configuration = settings;
+    return true;
+  }
   async function refreshAccount() {
     registeredContext = '';
     configuration = null;
-    if (supported() && deviceEnabled() && Notification.permission === 'granted') {
-      statusOverride = 'Включены, пока сайт открыт. Доставка при закрытом сайте ещё не подключена';
-    } else {
-      statusOverride = '';
-    }
+    if (supported() && deviceEnabled() && Notification.permission === 'granted' && context()) {
+      try {
+        await registerDevice();
+        statusOverride = '';
+      } catch (_) {
+        statusOverride = 'Уведомления разрешены. Фоновая доставка пока недоступна';
+      }
+    } else statusOverride = '';
     render();
   }
-
   async function detach() {
+    const previousContext = registeredContext;
     registeredContext = '';
     configuration = null;
     if (!supported()) return;
     try {
       const sw = await worker();
       const subscription = await sw.pushManager?.getSubscription();
-      if (subscription) await subscription.unsubscribe();
-    } catch (_) {}
+      if (subscription) {
+        if (previousContext && getCloud().callFunction && context() === previousContext) {
+          await getCloud().callFunction('unregisterPushDevice', { endpoint: subscription.endpoint });
+        }
+        await subscription.unsubscribe();
+      }
+    } catch (error) { console.warn('Push unsubscribe failed', error); }
     render();
   }
-
   async function enableDevice() {
     if (busy || !supported()) return;
     if (ios() && !installed()) { render(); return; }
@@ -109,23 +143,24 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       if (permission === 'granted') {
         write(DEVICE_KEY, '1');
         await worker();
-        statusOverride = 'Включены, пока сайт открыт. Доставка при закрытом сайте ещё не подключена';
+        if (await registerDevice()) statusOverride = '';
+        else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
       }
-    } catch (_) {
-      statusOverride = 'Не удалось включить уведомления. Проверьте настройки браузера';
+    } catch (error) {
+      console.warn('Push activation failed', error);
+      statusOverride = 'Уведомления разрешены. Фоновая доставка пока недоступна';
     } finally {
       busy = false;
       render();
     }
   }
-
   async function disableDevice() {
     if (busy) return;
     busy = true;
     write(DEVICE_KEY, '0');
     statusOverride = '';
     try { await detach(); }
-    catch (_) { statusOverride = 'Не удалось отключить подписку. Заблокируйте уведомления в настройках браузера'; }
+    catch (_) { statusOverride = 'Не удалось отключить подписку. Проверьте настройки браузера'; }
     finally { busy = false; render(); }
   }
 
