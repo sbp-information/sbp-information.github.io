@@ -34,7 +34,7 @@ const issues = read('app.js').split('function friendlyIssue(')[1].split('functio
 for(const match of issues.matchAll(/'([^'\n]*[А-Яа-яЁё][^'\n]*)'/g)) {
   assert.notEqual(context.translateUI(match[1],'kz'),match[1],match[1]);
 }
-const release = read('release-data.js').split("version:'19.31'")[1].split("version:'19.30'")[0];
+const release = read('release-data.js').split("version:'19.32'")[1].split("version:'19.31'")[0];
 assert.match(release,/ru:\[/); assert.match(release,/kz:\[/);
 console.log('RU/KZ labels, dynamic sync counts, notification failures and system errors passed');
 
