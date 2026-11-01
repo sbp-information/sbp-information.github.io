@@ -109,3 +109,30 @@ test('invalid, empty or inverted lesson time never generates reminder', () => {
   for (const value of ['bad', '25:00 - 26:00', '10:00 - 09:30']) assert.equal(parseLessonTime(value), null);
   assert.deepEqual(dueReminders({denominator:{mon:[item('Физика','bad')]}},monday(450)),[]);
 });
+
+test('class hour is not mistaken for the first normal pair or a next-pair reminder', () => {
+  const tuesday = {
+    denominator: { tue: [
+      { ...item('Классный час', '08:00 - 08:30'), isClassHour: true },
+      item('Русский язык и литература', '08:30 - 10:00'),
+      item('Математика', '10:10 - 11:40')
+    ] }
+  };
+  const clock = minute => ({ date:'2026-09-22', dayKey:'tue', weekday:2, minute });
+  const lessons = activeLessons(tuesday, clock(450));
+  assert.equal(lessons.length, 2);
+  assert.equal(lessons[0].subject, 'Русский язык и литература');
+  assert.equal(dueReminders(tuesday, clock(450))[0].lesson.subject, 'Русский язык и литература');
+  assert.deepEqual(dueReminders(tuesday, clock(8 * 60 + 29)), [], 'class hour end must not produce another message');
+  assert.equal(dueReminders(tuesday, clock(9 * 60 + 59))[0].lesson.subject, 'Математика');
+});
+
+test('cancelled changeType entries are excluded even if the legacy cancelled flag is false', () => {
+  const schedule = structuredClone(normal);
+  schedule.denominator.mon[1] = { ...schedule.denominator.mon[1], cancelled:false, changeType:'cancel' };
+  assert.deepEqual(activeLessons(schedule, monday(450)).map(lesson => lesson.subject), [
+    'Физика', 'Физическая культура', 'История Казахстана'
+  ]);
+  assert.equal(dueReminders(schedule, monday(9 * 60 + 29))[0].lesson.subject, 'Физическая культура');
+  assert.deepEqual(dueReminders(schedule, monday(11 * 60 + 9)), [], 'cancelled entry must not be a predecessor');
+});
