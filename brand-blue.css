@@ -248,11 +248,16 @@
   padding:8px 10px 10px!important;
   box-shadow:none!important;
 }
+/* The day title is not a separate bordered strip. This overrides the
+   older approved-interface and Home-reference bottom borders. */
 :root:root body.sbp-redesign #view-home .home-ref-today > .home-ref-today-head {
   padding:0 2px 9px!important;
+  border:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
 }
 :root:root body.sbp-redesign #view-home .home-ref-today > #home-day-timeline {
-  padding:0 2px 2px!important;
+  padding:6px 2px 2px!important;
 }
 
 /* 19.26: College heading stays centred in the available area BETWEEN the
