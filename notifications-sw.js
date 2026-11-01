@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-localization-v1';
+const CACHE_NAME = 'sbp-shell-20261101-push-coldstart-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -14,9 +14,9 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261101-localization-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261101-localization-v1',
-  './release-notes.js?v=20261101-localization-v1',
-  './release-data.js?v=20261101-localization-v1',
-  './app.js?v=20261101-localization-v1',
+  './release-notes.js?v=20261101-push-coldstart-v1',
+  './release-data.js?v=20261101-push-coldstart-v1',
+  './app.js?v=20261101-push-coldstart-v1',
   './firebase.js?v=20261017-admin-tap-v1',
   './utils.js?v=20261101-localization-v1',
   './storage.js?v=20261017-admin-tap-v1',
