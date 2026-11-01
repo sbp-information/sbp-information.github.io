@@ -4,10 +4,11 @@ import { initRedesign } from './redesign.js?v=20261031-dark-mode-v1';
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
 import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261017-admin-tap-v1';
 import { createArrivalTracker } from './notification-state.js?v=20261017-admin-tap-v1';
-import { createNotificationCenter } from './notification-center.js?v=20261101-notifications-v1';
+import { createNotificationCenter } from './notification-center.js?v=20261101-push-registration-v2';
 import { getSiteVersion, incomingSupportCount, unreadSupportCount } from './support-state.js?v=20261017-admin-tap-v1';
 import {
     createFirebaseServices,
+    callCloudFunction,
     signInAnonymously,
     signInWithEmailAndPassword,
     signOut,
@@ -4962,7 +4963,7 @@ window.sendSupportMessage=async function(){
 };
 
 const notificationCenter=createNotificationCenter({
-    getCloud:()=>({auth,db}),translate:translateUI,toast:showToast,
+    getCloud:()=>({auth,db,callFunction:callCloudFunction,language:currentLang}),translate:translateUI,toast:showToast,
     open:async data=>{if(data.kind==='support'){await window.openSupport();if(data.threadId&&isSupportStaff())window.openSupportThread(data.threadId);}else window.openNotifications();}
 });
 window.refreshNotificationSettings=()=>notificationCenter.render();
