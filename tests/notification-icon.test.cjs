@@ -15,6 +15,6 @@ assert.ok(!notification.includes('sbp-information-icon.svg'),'nonexistent icon r
 assert.ok(!worker.includes("icon: './sbp-information.png'"),'legacy icon not used');
 assert.ok(notification.includes("supported() && deviceEnabled() && Notification.permission"),'unsupported mobile browsers avoid Notification reference');
 assert.ok(app.includes('notification-center.js?v=20261101-cloudflare-live-v2'),'app uses new notification code');
-assert.ok(index.includes('app.js?v=20261101-day-header-clean-v1'),'web and PWA get updated app entry point');
+assert.ok(index.includes('app.js?v=20261101-css-bundle-v1'),'web and PWA get updated app entry point');
 assert.match(notification,/Доставка при закрытом сайте ещё не подключена/,'do not misrepresent unsupported background push');
 console.log('Notification icon, mobile compatibility and honest status checks passed.');

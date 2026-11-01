@@ -73,6 +73,7 @@ function app({ build = '18.45', remoteBuild = build, online = true, waiting = fa
   assert.equal(url.hash, '#schedule'); assert.equal(url.searchParams.get('source'), 'android-app');
   assert.ok(url.searchParams.has('app-refresh'));
   assert.ok(changed.writes.some(([url]) => url.includes('schedule.js?v=new')), 'refresh follows module dependencies');
+  assert.ok(!changed.calls.some(([url]) => url.includes('style.css?v=old')), 'updates must not redownload retired CSS from previous PWA caches');
   assert.ok(changed.calls.filter(([url]) => !url.endsWith('index.html')).every(([, opts]) => opts.cache === 'reload'));
 
   const nextWorker = app({ waiting: true });

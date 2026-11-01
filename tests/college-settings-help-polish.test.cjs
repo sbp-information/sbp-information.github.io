@@ -55,8 +55,8 @@ test('19.26 release, active CSS, script and offline worker versions agree',()=>{
   const rel=read('release-data.js');
   const block=rel.slice(rel.indexOf("version:'19.26'"),rel.indexOf("version:'19.25'"));
   assert.match(block,/ru:\[/);assert.match(block,/kz:\[/);
-  assert.match(html,/step19\.28-day-header-clean-2026-11-01-v1/);
-  assert.match(html,/brand-blue\.css\?v=20261101-day-header-clean-v1/);
-  assert.match(sw,/brand-blue\.css\?v=20261101-day-header-clean-v1/);
-  assert.match(sw,/sbp-shell-20261101-day-header-clean-v1/);
+  assert.match(html,/step19\.29-css-bundle-2026-11-01-v1/);
+  assert.match(html,/sbp-ui\.css\?v=20261101-css-bundle-v1/);
+  assert.match(sw,/sbp-ui\.css\?v=20261101-css-bundle-v1/);
+  assert.match(sw,/sbp-shell-20261101-css-bundle-v1/);
 });

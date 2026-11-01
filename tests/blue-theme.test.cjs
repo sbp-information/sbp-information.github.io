@@ -11,10 +11,10 @@ const worker = read('notifications-sw.js');
 const releases = read('release-data.js');
 
 test('the blue brand stylesheet is active in the page and offline PWA', () => {
-  assert.match(html, /brand-blue\.css\?v=20261101-day-header-clean-v1/);
-  assert.match(worker, /brand-blue\.css\?v=20261101-day-header-clean-v1/);
-  assert.match(html, /step19\.28-day-header-clean-2026-11-01-v1/);
-  assert.match(worker, /sbp-shell-20261101-day-header-clean-v1/);
+  assert.match(html, /sbp-ui\.css\?v=20261101-css-bundle-v1/);
+  assert.match(worker, /sbp-ui\.css\?v=20261101-css-bundle-v1/);
+  assert.match(html, /step19\.29-css-bundle-2026-11-01-v1/);
+  assert.match(worker, /sbp-shell-20261101-css-bundle-v1/);
 });
 test('notification, admin, schedule editor and support styling share blue tokens', () => {
   for (const selector of [

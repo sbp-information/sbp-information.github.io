@@ -69,12 +69,9 @@
       if (url.origin === location.origin) assets.add(url.href);
     });
     const shellCaches = await Promise.all(cacheNames.map(name => caches.open(name)));
-    for (const cache of shellCaches) {
-      for (const request of await cache.keys()) {
-        const url = new URL(request.url);
-        if (url.origin === location.origin && /\.(js|css|webmanifest)$/.test(url.pathname)) assets.add(url.href);
-      }
-    }
+    // Refresh only assets linked by the NEW shell and the module dependency graph.
+    // Re-fetching every file from the previous cache would download retired CSS
+    // versions (20+ requests on old installations) and delay the upgrade.
     // Follow local module imports so newly introduced modules are fresh too.
     const responses = new Map();
     while ([...assets].some(url => !responses.has(url))) {
