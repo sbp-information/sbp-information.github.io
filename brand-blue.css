@@ -209,3 +209,30 @@
   border-color:var(--sbp-accent-solid)!important;
   color:var(--sbp-accent-ink)!important;
 }
+
+/* 19.23: Every non-active break uses the same thin outline as the nearest
+   break, without taking additional room away from the four lesson cards. */
+:root:root body.sbp-redesign #view-home .home-ref-break-card:not(.current) {
+  margin:0 2px!important;
+  background:var(--sbp-surface)!important;
+  background-image:none!important;
+  border:1px solid #b9deef!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+/* Lesson numbers all have a visible outline, including number 1. The
+   live lesson retains its green status and cancelled lessons are untouched. */
+:root:root body.sbp-redesign #view-home .home-ref-lesson-card:not(.current):not(.cancelled) .home-ref-lesson-number {
+  background:var(--sbp-surface)!important;
+  background-image:none!important;
+  border:1px solid #b9deef!important;
+  border-radius:8px!important;
+}
+:root:root body.sbp-redesign #view-home .home-ref-lesson-card.current .home-ref-lesson-number {
+  border:1px solid var(--sbp-green-line)!important;
+  border-radius:8px!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-break-card:not(.current),
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-lesson-card:not(.current):not(.cancelled) .home-ref-lesson-number {
+  border-color:#42677c!important;
+}
