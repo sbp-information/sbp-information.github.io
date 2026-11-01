@@ -34,6 +34,7 @@ function fixture(kind, { staff = false, threadId = '' } = {}) {
     auth: null,
     db: null,
     notificationsUnsubscribe: null,
+    notificationIdentity: '',
     subscribeNotifications() { calls.push(['subscribe']); },
     notificationCenter: { refreshAccount() { calls.push(['refresh-account']); } },
     supportThreadsCache: [],
