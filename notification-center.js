@@ -1,3 +1,5 @@
+import { PUSH_WORKER_URL } from './push-worker-config.js?v=20261101-cloudflare-push-v1';
+
 const SOUND_KEY = 'toe_notification_sound_v1';
 const DEVICE_KEY = 'toe_device_notifications_v1';
 const DELIVERY_KEY = 'toe_notification_deliveries_v1';
@@ -74,6 +76,39 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     return registration;
   }
 
+  const pushEndpoint = typeof PUSH_WORKER_URL === 'string' ? PUSH_WORKER_URL.replace(/\/+$/, '') : '';
+  async function pushRequest(path, data = undefined) {
+    if (!pushEndpoint || !/^https:\/\/[a-z0-9.-]+$/i.test(pushEndpoint)) throw new Error('push-worker-not-configured');
+    const headers = { 'content-type': 'application/json' };
+    if (data !== undefined) {
+      const user = getCloud().auth?.currentUser;
+      if (!user) throw new Error('firebase-login-required');
+      headers.authorization = 'Bearer ' + await user.getIdToken();
+    }
+    const response = await fetch(pushEndpoint + path, {
+      method: data === undefined ? 'GET' : 'POST',
+      headers,
+      body: data === undefined ? undefined : JSON.stringify(data),
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error('push-worker-http-' + response.status);
+    return response.json();
+  }
+  async function requestPush(path, functionName, data) {
+    return pushEndpoint ? pushRequest(path, data) : getCloud().callFunction(functionName, data);
+  }
+  async function dispatch(kind, id) {
+    if (!pushEndpoint || !context() || !id) return false;
+    try {
+      await pushRequest('/dispatch', { kind, id });
+      return true;
+    } catch (error) {
+      // Firestore already saved the change; cron delivery will retry.
+      console.warn('Instant push dispatch deferred to scheduled delivery', error?.message || error);
+      return false;
+    }
+  }
+
   // Keep push registration tied to the authenticated Firebase account.
   const language = () => getCloud().language?.() === 'kz' ? 'kz' : 'ru';
   const vapidBytes = key => {
@@ -85,7 +120,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     const cloud = getCloud();
     if (!cloud.auth?.currentUser || !cloud.callFunction) return false;
     const uid = cloud.auth.currentUser.uid;
-    const settings = await cloud.callFunction('getPushConfiguration');
+    const settings = await requestPush('/config', 'getPushConfiguration');
     if (!settings?.vapidPublicKey) throw new Error('push-configuration-missing');
     const sw = await worker();
     let subscription = await sw.pushManager.getSubscription();
@@ -93,7 +128,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       userVisibleOnly: true, applicationServerKey: vapidBytes(settings.vapidPublicKey)
     });
     try {
-      await cloud.callFunction('registerPushDevice', { subscription: subscription.toJSON(), language: language() });
+      await requestPush('/register', 'registerPushDevice', { subscription: subscription.toJSON(), language: language() });
     } catch (error) {
       // Never leave a newly created subscription silently marked as registered.
       console.warn('Push device registration failed', error);
@@ -127,7 +162,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       const subscription = await sw.pushManager?.getSubscription();
       if (subscription) {
         if (previousContext && getCloud().callFunction && context() === previousContext) {
-          await getCloud().callFunction('unregisterPushDevice', { endpoint: subscription.endpoint });
+          await requestPush('/unregister', 'unregisterPushDevice', { endpoint: subscription.endpoint });
         }
         await subscription.unsubscribe();
       }
@@ -216,5 +251,5 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   });
   if (supported()) worker().catch(() => {});
   render();
-  return { incoming, refreshAccount, detach, render };
+  return { incoming, refreshAccount, detach, render, dispatch };
 }
