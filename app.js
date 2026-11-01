@@ -1633,7 +1633,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                         const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
                         canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
                         canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-                        ctx.fillStyle = '#ede6ff';
+                        ctx.fillStyle = '#ccefff';
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
                         for (const quality of [0.75, 0.60, 0.45, 0.30, 0.20]) {
