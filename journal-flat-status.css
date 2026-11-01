@@ -7,12 +7,12 @@
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.sick{background-color:#fff1f3!important;color:#d75468!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.excused{background-color:#eef4ff!important;color:#2d68d6!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.unexcused{background-color:#fff6e9!important;color:#d88410!important}
-:root:root body.sbp-redesign #view-tracker .journal-status-btn.late{background-color:#f4efff!important;color:#7147e4!important}
+:root:root body.sbp-redesign #view-tracker .journal-status-btn.late{background-color:#f4efff!important;color:#166f97!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.present{background-color:#22bf75!important;color:#fff!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.sick{background-color:#f15b70!important;color:#fff!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.excused{background-color:#4385f5!important;color:#fff!important}
 :root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.unexcused{background-color:#f1a13a!important;color:#fff!important}
-:root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.late{background-color:#7950f2!important;color:#fff!important}
+:root:root body.sbp-redesign #view-tracker .journal-status-btn.selected.late{background-color:#0d77a9!important;color:#fff!important}
 :root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .journal-status-btn:not(.selected){
  filter:brightness(.86);
 }
