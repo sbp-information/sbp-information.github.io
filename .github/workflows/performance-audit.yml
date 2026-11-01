@@ -1,0 +1,87 @@
+name: Audit site performance (mobile first)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/performance-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/performance-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Lighthouse
+        run: npm install --no-save lighthouse@12
+
+      - name: Mobile audit (simulated phone and network)
+        run: |
+          mkdir -p reports
+          npx lighthouse https://sbp-information.github.io/ \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --only-categories=performance --form-factor=mobile \
+            --output=json --output-path=reports/mobile.json --quiet
+
+      - name: Desktop audit
+        run: |
+          npx lighthouse https://sbp-information.github.io/ \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --only-categories=performance --preset=desktop \
+            --output=json --output-path=reports/desktop.json --quiet
+
+      - name: Write measured metrics to run summary
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const records = [['Mobile (emulated)', 'reports/mobile.json'], ['Desktop', 'reports/desktop.json']];
+          const metric = (data, id, suffix = 'ms', digits = 0) => {
+            const number = data.audits?.[id]?.numericValue;
+            return Number.isFinite(number) ? number.toFixed(digits) + ' ' + suffix : 'n/a';
+          };
+          const rows = records.map(([device, file]) => {
+            const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (data.runtimeError) throw new Error(device + ': ' + data.runtimeError.message);
+            const score = data.categories?.performance?.score;
+            const performance = Number.isFinite(score) ? Math.round(score * 100) + '/100' : 'n/a';
+            return '| ' + [device, performance,
+              metric(data, 'first-contentful-paint'),
+              metric(data, 'largest-contentful-paint'),
+              metric(data, 'total-blocking-time'),
+              metric(data, 'cumulative-layout-shift', '', 3),
+              metric(data, 'speed-index')].join(' | ') + ' |';
+          });
+          const summary = [
+            '## SBP Information — Lighthouse performance',
+            '',
+            'Public website: https://sbp-information.github.io/',
+            '',
+            '| Mode | Score | FCP | LCP | TBT | CLS | Speed Index |',
+            '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+            ...rows, '',
+            'Lighthouse is a synthetic lab test. A physical Android/PWA check is still required.',
+            'Reports are attached to the workflow run as JSON artifacts.',
+            ''
+          ].join('\n');
+          console.log(summary);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          NODE
+
+      - name: Save machine-readable Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: site-performance-lighthouse
+          path: reports/*.json
+          if-no-files-found: warn
+          retention-days: 30
