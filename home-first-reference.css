@@ -1,10 +1,10 @@
 /* Home-only refresh inspired by the original SBP Information Canva concept.
    Does not modify timetable data, Firebase, or other pages. */
 :root body.sbp-redesign #view-home.home-reference {
-  --home-first-accent:#7866bd;
+  --home-first-accent:#407a94;
   --home-first-soft:#f4f0ff;
   --home-first-edge:#e8e2f3;
-  --home-first-text:#29243a;
+  --home-first-text:#1d292e;
   color:var(--home-first-text);
 }
 :root body.sbp-redesign #view-home .home-ref-topbar {
@@ -21,19 +21,19 @@
 }
 :root body.sbp-redesign #view-home #sbp-home-banner {
   height:160px!important;
-  background:linear-gradient(120deg,#f3efff 0%,#e7defd 52%,#f9f3ff 100%)!important;
+  background:linear-gradient(120deg,#f3efff 0%,#c0e9fb 52%,#f9f3ff 100%)!important;
 }
 :root body.sbp-redesign #view-home .home-ref-group-card {
   border:1px solid var(--home-first-edge)!important;
   border-radius:18px!important;
-  box-shadow:0 5px 20px rgba(79,56,128,.07)!important;
+  box-shadow:0 5px 20px rgba(39,74,89,.07)!important;
   padding:11px 14px!important;
   background:rgba(255,255,255,.94)!important;
 }
 :root body.sbp-redesign #view-home .home-ref-group-icon {
   border-radius:12px!important;
-  background:linear-gradient(145deg,#eee8ff,#dcd2fa)!important;
-  color:#6d55ab!important;
+  background:linear-gradient(145deg,#d1f1ff,#addff6)!important;
+  color:#3e697e!important;
 }
 :root body.sbp-redesign #view-home #group-name {
   font-size:19px!important;
@@ -45,7 +45,7 @@
   border:1px solid var(--home-first-edge)!important;
   border-radius:19px!important;
   background:#fff!important;
-  box-shadow:0 5px 22px rgba(69,46,118,.055)!important;
+  box-shadow:0 5px 22px rgba(31,64,79,.055)!important;
 }
 :root body.sbp-redesign #view-home .home-ref-today-head {
   padding:12px 14px!important;
@@ -84,8 +84,8 @@
   :root body.sbp-redesign #view-home .home-ref-page-title{font-size:21px!important}
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home{
-  --home-first-edge:#383147;
-  --home-first-soft:#28243b;
+  --home-first-edge:#2a373c;
+  --home-first-soft:#1c282e;
   --home-first-text:#f1edfb;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today){
@@ -93,9 +93,9 @@
   border-color:var(--home-first-edge)!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head{
-  background:linear-gradient(110deg,#242137,#29253d)!important;
+  background:linear-gradient(110deg,#1a262b,#1d2a30)!important;
   border-color:var(--home-first-edge)!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home #sbp-home-banner{
-  background:linear-gradient(110deg,#302747,#403353,#27283c)!important;
+  background:linear-gradient(110deg,#1e2f36,#2a3c44,#202b31)!important;
 }
