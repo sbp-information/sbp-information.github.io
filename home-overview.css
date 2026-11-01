@@ -7,7 +7,7 @@ html:root body #view-home.home-overview .home-ref-group-card {
   min-height:0!important;
   padding:12px 14px!important;
   gap:12px!important;
-  border-color:#ece7f2!important;
+  border-color:#e1eaef!important;
 }
 html:root body #view-home.home-overview .home-ref-group-icon {
   width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
@@ -55,7 +55,7 @@ html:root body #view-home.home-overview .home-ref-notification-copy > span {
 #home-schedule-toggle {
   display:block;width:calc(100% - 24px);min-height:44px;margin:10px 12px 12px;
   padding:10px 14px;border:1px solid #cedfe8;border-radius:12px;
-  background:#f4eefb;color:#466472;font-size:14px!important;font-weight:650;
+  background:#e4f3f9;color:#466472;font-size:14px!important;font-weight:650;
 }
 #home-schedule-toggle[hidden] { display:none!important; }
 #home-schedule-toggle:hover { background:#d2eaf4; }

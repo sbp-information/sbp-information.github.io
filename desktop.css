@@ -149,7 +149,7 @@
 /* Shared frame polish on the computer; preserve the explicit Phone layout. */
 @media (min-width:768px) {
   html:root body:not(.layout-phone) #bottom-nav {
-    border-color:#ece7f2!important;
+    border-color:#e1eaef!important;
     box-shadow:0 5px 18px rgba(22,132,186,.055)!important;
   }
   html:root body:not(.layout-phone) :is(#view-home,#view-tracker,#view-schedule,#view-roster) :is(
@@ -157,7 +157,7 @@
     .home-ref-group-card,.home-ref-role-card,.journal-ref-editor,.journal-ref-panel,
     .roster-person-card,.leadership-card
   ) {
-    border-color:#ece7f2!important;
+    border-color:#e1eaef!important;
   }
   html:root body:not(.layout-phone) :is(#view-home,#view-tracker,#view-schedule,#view-roster) :is(
     .home-ref-topbtn,.journal-ref-topbtn,.schedule-ref-topbtn,.roster-ref-topbtn

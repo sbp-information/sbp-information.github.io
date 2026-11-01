@@ -135,7 +135,7 @@
   padding:0!important;
   border:0!important;
   border-radius:0 0 20px 20px!important;
-  background:linear-gradient(115deg,#ccefff 0%,#b2e0f6 55%,#f8efff 100%)!important;
+  background:linear-gradient(115deg,#ccefff 0%,#b2e0f6 55%,#e0f6ff 100%)!important;
   overflow:hidden!important;
   box-shadow:none!important;
   z-index:0!important;
@@ -158,7 +158,7 @@
   position:absolute;
   inset:0;
   pointer-events:none;
-  background:linear-gradient(to bottom,rgba(250,250,254,.16),rgba(250,250,254,.34) 72%,rgba(250,250,254,.74));
+  background:linear-gradient(to bottom,rgba(246,251,253,.16),rgba(246,251,253,.34) 72%,rgba(246,251,253,.74));
   z-index:1;
 }
 :root:root body.sbp-redesign #view-home #sbp-home-banner .sbp-banner-edit,

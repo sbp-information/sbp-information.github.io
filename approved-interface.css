@@ -1,14 +1,14 @@
 /* Approved 2026-10-31 SBP Information UI: dark charcoal/lavender + bright lavender.
    CSS-only visual layer; academic data and backend are unchanged. */
 :root {
- --sbp-page:#faf9ff;--sbp-surface:#fff;--sbp-soft:#f4f1fc;--sbp-raised:#d1f1ff;
+ --sbp-page:#f3fbff;--sbp-surface:#fff;--sbp-soft:#e8f5fa;--sbp-raised:#d1f1ff;
  --sbp-line:#d0e5ee;--sbp-ink:#0e1b20;--sbp-muted:#657780;
  --sbp-accent:#0f709e;--sbp-tint:#cbefff;
 }
 :root[data-sbp-theme="dark"] {
  --sbp-page:#0b0c11;--sbp-surface:#191a22;--sbp-soft:#22232e;
- --sbp-raised:#292a38;--sbp-sunken:#101117;--sbp-line:#30313e;
- --sbp-ink:#f5f3ff;--sbp-muted:#98adb8;--sbp-accent:#009de6;
+ --sbp-raised:#232d30;--sbp-sunken:#101117;--sbp-line:#30313e;
+ --sbp-ink:#e6f7ff;--sbp-muted:#98adb8;--sbp-accent:#009de6;
  --sbp-accent-ink:#081319;--sbp-tint:#1d2c32;--sbp-green:#8bddb1;
  --sbp-green-soft:#1e3930;--sbp-shadow:0 12px 35px rgba(0,0,0,.3);
  color-scheme:dark;
@@ -63,7 +63,7 @@
  border-color:var(--sbp-line)!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(.home-ref-group-card,.home-ref-today,.home-ref-notifications){
- background:#191a22!important;border-color:#2c2c38!important;
+ background:#191a22!important;border-color:#272e32!important;
  box-shadow:0 8px 24px rgba(0,0,0,.17)!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head,
@@ -71,7 +71,7 @@
  background:#191a22!important;border-color:#30313e!important;
 }
 :root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-group-icon{background:linear-gradient(135deg,#009be2,#106d98)!important}
-:root[data-sbp-theme="dark"] body.sbp-redesign #app-menu-drawer .app-drawer{background:#15151d!important}
+:root[data-sbp-theme="dark"] body.sbp-redesign #app-menu-drawer .app-drawer{background:#121619!important}
 @media(max-width:500px) {
  :root:root body.sbp-redesign #bottom-nav>button[data-nav]{padding-left:2px!important;padding-right:2px!important}
  :root:root body.sbp-redesign #bottom-nav>button[data-nav] span{font-size:11px!important}
