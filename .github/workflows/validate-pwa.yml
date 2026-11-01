@@ -22,6 +22,8 @@ jobs:
           node tests/css-bundle.test.cjs
           node tests/app-update.test.cjs
           node tests/notification-icon.test.cjs
+          node tests/notification-coldstart.test.cjs
+          node tests/service-worker-push.test.cjs
           node tests/notification-header.test.cjs
           node tests/group-settings-visibility.test.cjs
           node tests/college-settings-help-polish.test.cjs

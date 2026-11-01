@@ -6,7 +6,7 @@ const root = path.join(__dirname, '..');
 const data = fs.readFileSync(path.join(root, 'release-data.js'), 'utf8').replaceAll('export ', '');
 const ui = fs.readFileSync(path.join(root, 'release-notes.js'), 'utf8').replace(/^import .*;\n/, '');
 
-function app({ build = 'step18.46-release-history-2026-10-05', seen = false, language = 'ru', denied = false, busy = false } = {}) {
+function app({ build = 'step18.46-release-history-2026-10-05', seen = false, language = 'ru', denied = false, busy = false, pushLaunch = false } = {}) {
   const storage = new Map([['toe_ui_language', language]]);
   if (seen) storage.set('sbp_release_seen_18.46', '1');
   const timers = [], nodes = new Map(), events = new Map();
@@ -30,7 +30,8 @@ function app({ build = 'step18.46-release-history-2026-10-05', seen = false, lan
     return nodes.get(id);
   }
   document.activeElement = node('bottom-nav-home');
-  const context = { console, Date, Intl, String, Number, document,
+  const context = { console, Date, Intl, String, Number, URLSearchParams, document,
+    location: {search: pushLaunch ? '?notification=support' : ''},
     localStorage: {
       getItem(key) { if (denied) throw new Error('Storage denied'); return storage.get(key) || null; },
       setItem(key, value) { if (denied) throw new Error('Storage denied'); assert.match(key, /^sbp_release_seen_/); storage.set(key, value); }
@@ -41,6 +42,11 @@ function app({ build = 'step18.46-release-history-2026-10-05', seen = false, lan
   vm.createContext(context); vm.runInContext(data, context); vm.runInContext(ui, context);
   return { context, storage, timers, node, document, events };
 }
+
+const openedFromNotification=app({pushLaunch:true});
+openedFromNotification.timers.shift()();
+assert.equal(openedFromNotification.node('release-notes-modal').classList.contains('hidden'), true,
+  'update dialog must never cover a cold-start Push destination');
 
 const first = app();
 first.timers.shift()();
