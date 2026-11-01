@@ -382,4 +382,4 @@ export default {
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload };
