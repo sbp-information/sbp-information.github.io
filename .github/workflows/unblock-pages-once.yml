@@ -1,0 +1,19 @@
+name: Clear stuck Pages deployment (one-time)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/unblock-pages-once.yml'
+permissions:
+  contents: read
+  pages: write
+jobs:
+  clear-stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel only the stale 19.12 Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST repos/$GITHUB_REPOSITORY/pages/deployments/3ae5ba5f7cd65e86224398e4c27910b3fdb7f56e/cancel
+          echo 'Cancellation of stale Pages deployment requested.'
