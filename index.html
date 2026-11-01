@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.17-lesson-reminders-2026-11-01-v1">
+    <meta name="app-build" content="step19.18-blue-theme-2026-11-01-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -73,10 +73,10 @@
         overflow:hidden;
         pointer-events:none;
         background:
-          radial-gradient(circle at 18% 22%,rgba(156,119,255,.72),transparent 34%),
+          radial-gradient(circle at 18% 22%,rgba(34,158,217,.55),transparent 34%),
           radial-gradient(circle at 82% 30%,rgba(91,196,255,.58),transparent 38%),
-          radial-gradient(circle at 48% 88%,rgba(115,86,231,.62),transparent 40%),
-          linear-gradient(145deg,#5d48cf 0%,#7658e8 34%,#667eea 68%,#7fc9ee 100%);
+          radial-gradient(circle at 48% 88%,rgba(22,132,186,.52),transparent 40%),
+          linear-gradient(145deg,#156b9a 0%,#2589bb 34%,#51b4df 68%,#9edff0 100%);
         opacity:1;
         transform:scale(1);
         transition:opacity .28s ease,transform .36s cubic-bezier(.2,.7,.2,1);
@@ -119,7 +119,7 @@
         top:50%;
         border-radius:50%;
         transform:translate(-50%,-50%) scale(.18);
-        background:radial-gradient(circle,rgba(255,255,255,.38) 0%,rgba(232,225,255,.18) 32%,transparent 67%);
+        background:radial-gradient(circle,rgba(255,255,255,.38) 0%,rgba(218,240,255,.18) 32%,transparent 67%);
         filter:blur(9px);
         animation:sbpLaunchPulse .95s cubic-bezier(.16,.8,.24,1) both;
       }
@@ -160,7 +160,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261101-lesson-reminders-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261101-blue-theme-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="schedule.js?v=20261101-lesson-reminders-v1">
@@ -186,7 +186,7 @@
 <link rel="stylesheet" href="journal-flat-status.css?v=20261031-v1">
 <link rel="stylesheet" href="schedule-break-alignment.css?v=20261031-v1">
     <link rel="stylesheet" href="mobile-menu-hit-target.css?v=20261031-v1">
-    <link rel="stylesheet" href="brand-blue.css?v=20261031-v1">
+    <link rel="stylesheet" href="brand-blue.css?v=20261101-blue-theme-v1">
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
     <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
@@ -1061,8 +1061,8 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261101-lesson-reminders-v1"></script>
-    <script type="module" src="app.js?v=20261101-lesson-reminders-v1"></script>
+    <script type="module" src="release-notes.js?v=20261101-blue-theme-v1"></script>
+    <script type="module" src="app.js?v=20261101-blue-theme-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
