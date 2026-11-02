@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-title" content="Push Test"><link rel="apple-touch-icon" href="./sbp-icon-180.png">
 <title>Проверка уведомлений · SBP Information</title>
 <link rel="icon" href="./sbp-icon-32.png"><link rel="manifest" href="./notification-test.webmanifest?v=20261102-lab-v2">
-<link rel="stylesheet" href="./notification-test.css?v=20261102-lab-v1">
+<link rel="stylesheet" href="./notification-test.css?v=20261102-install-guide-v1">
 </head>
 <body>
 <header><a href="./" class="brand"><span class="mark">S</span> SBP Information</a><button id="language" class="language" aria-label="Қазақша">ҚАЗ</button></header>
@@ -15,7 +15,8 @@
 <h1 data-text="title">Проверим, доходит ли Push.</h1><p class="lead" data-text="lead">Три коротких теста — от разрешения браузера до доставки при закрытом сайте.</p>
 <div class="privacy"><span class="dot"></span><span data-text="privacy">Тесты приходят только на это устройство</span></div></section>
 <section class="install-card" aria-labelledby="install-title"><div><p class="eyebrow" data-text="phoneEyebrow">ПРОВЕРКА НА ТЕЛЕФОНЕ</p><h2 id="install-title" data-text="installTitle">Установите Push Test</h2><p data-text="installText">Откройте эту публичную страницу на телефоне и установите тестовое приложение. Оно открывает сразу эту проверку.</p></div>
-<div class="install-actions"><button id="install" class="primary" data-text="installButton">Установить приложение</button><button id="copy-link" data-text="copyLink">Скопировать ссылку для телефона</button></div>
+<div class="install-actions"><button id="install" class="primary" data-text="installButton">Установить приложение</button><a id="open-chrome" class="chrome-link" hidden href="intent://sbp-information.github.io/notification-test.html#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fsbp-information.github.io%2Fnotification-test.html;end" data-text="openChrome">Открыть в Chrome</a><button id="copy-link" data-text="copyLink">Скопировать ссылку для телефона</button></div>
+<p id="android-browser-tip" class="hint" data-text="browserTip" hidden>Если страница открыта внутри ChatGPT или мессенджера, выберите «Открыть в браузере» и установите приложение через Chrome.</p>
 <details id="install-help"><summary data-text="installHelp">Как установить на Android или iPhone</summary><p data-text="androidHelp">Android: откройте ссылку в Chrome → меню ⋮ → «Установить приложение» или «Добавить на главный экран».</p><p data-text="iphoneHelp">iPhone: откройте ссылку в Safari → «Поделиться» → «На экран Домой». Затем откройте Push Test с новой иконки.</p></details>
 <p class="hint" data-text="desktopHelp">На компьютере установка необязательна: подключите уведомления ниже и нажмите «Отправить Push». Ожидайте системное уведомление за пределами страницы.</p>
 <p id="install-status" role="status"></p>
@@ -34,5 +35,5 @@
 <div class="log-heading"><h3 data-text="log">Журнал этой страницы</h3><button id="clear" class="secondary" data-text="clear">Очистить журнал</button></div><ol id="log"></ol>
 </section>
 <footer><a href="./" data-text="back">Вернуться на основной сайт</a><span>SBP / NOTIFICATION LAB</span></footer>
-</main><script type="module" src="./notification-test.js?v=20261102-lab-v1"></script>
+</main><script type="module" src="./notification-test.js?v=20261102-install-guide-v1"></script>
 </body></html>
