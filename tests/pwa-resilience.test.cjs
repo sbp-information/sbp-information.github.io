@@ -52,9 +52,9 @@ test('failed critical asset keeps old installed app and rejects half-filled new 
  assert.equal(f.data.has(f.cacheName),false,'no broken new version is left in Cache Storage');
  assert.equal(await (await old.match('./index.html')).text(),'complete previous app');
  f.setFail('');await f.event('install');
- assert.ok(f.data.get(f.cacheName).has('./index.html'));
- assert.ok(f.data.get(f.cacheName).has('./app.js?v=20261102-push-reminders-v1'));
- assert.ok(f.data.get(f.cacheName).has('./firebase.js?v=20261102-fast-start-v1'));
+ assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/index.html'));
+ assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/app.js?v=20261102-push-reminders-v1'));
+ assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/firebase.js?v=20261102-fast-start-v1'));
  assert.ok(f.data.get(f.cacheName).has('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'));
 });
 
