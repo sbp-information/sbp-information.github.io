@@ -45,22 +45,40 @@ const CORE_ASSETS = [
   'https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js'
 ];
 
+// A new worker MUST NOT become installable with half a shell. If the network
+// drops on a budget phone while updating, leave the old active worker intact.
+const CRITICAL_ASSETS = new Set(CORE_ASSETS.filter(url =>
+  !url.startsWith('https://') || url.startsWith('https://www.gstatic.com/firebasejs/')
+));
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    // Limit background precaching to four concurrent requests. Dozens of parallel
-    // font/SDK downloads compete with the first app paint on budget Android phones.
     const remaining = CORE_ASSETS.slice();
+    const failed = [];
     const cacheNext = async () => {
       while (remaining.length) {
         const url = remaining.shift();
         try {
-          const response = await fetch(url, { cache: url.startsWith('http') ? 'force-cache' : 'reload', mode: url.startsWith('http') ? 'cors' : 'same-origin' });
-          if (response.ok || response.type === 'opaque') await cache.put(url, response);
-        } catch (_) {}
+          const response = await fetch(url, {
+            cache: url.startsWith('http') ? 'force-cache' : 'reload',
+            mode: url.startsWith('http') ? 'cors' : 'same-origin'
+          });
+          if (!response || !(response.ok || response.type === 'opaque')) {
+            if (CRITICAL_ASSETS.has(url)) failed.push(url);
+            continue;
+          }
+          await cache.put(url, response);
+        } catch (_) {
+          if (CRITICAL_ASSETS.has(url)) failed.push(url);
+        }
       }
     };
+    // Keep mobile first paint responsive: four workers, no huge parallel burst.
     await Promise.all(Array.from({ length: Math.min(4, remaining.length) }, cacheNext));
+    if (failed.length) {
+      await caches.delete(CACHE_NAME);
+      throw new Error('Incomplete PWA shell: ' + failed.length + ' essential resources');
+    }
   })());
 });
 
@@ -72,59 +90,55 @@ self.addEventListener('message', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
-    const names = await caches.keys();
-    await Promise.all(names.filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map(name => caches.delete(name)));
+    const names = (await caches.keys()).filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME);
+    // Keep ONE previous complete app shell. Old open tabs may still request
+    // their versioned modules after the new worker takes control.
+    await Promise.all(names.slice(0, -1).map(name => caches.delete(name)));
     if (self.registration.navigationPreload) {
-      try { await self.registration.navigationPreload.enable(); } catch (_) {}
+      try { await self.registration.navigationPreload.disable(); } catch (_) {}
     }
     await self.clients.claim();
   })());
 });
 
+// Always serve one internally consistent, fully installed app-shell version.
+// Remote HTML is checked for updates by performance.js without overwriting
+// this worker's offline shell or mixing a new document with old JavaScript.
 async function networkFirstNavigation(event) {
   const cache = await caches.open(CACHE_NAME);
-  const networkPromise = (async () => {
-    const preloaded = await event.preloadResponse;
-    const response = preloaded || await fetch(event.request, { cache: 'no-cache' });
-    if (response?.ok) {
-      await cache.put('./index.html', response.clone());
-    }
-    return response;
-  })().catch(() => null);
-
-  const quickNetwork = await Promise.race([
-    networkPromise,
-    new Promise(resolve => setTimeout(() => resolve(null), 75))
-  ]);
-
-  if (quickNetwork) return quickNetwork;
   const cached = await cache.match('./index.html') || await cache.match('./');
-  if (cached) {
-    event.waitUntil(networkPromise);
-    return cached;
-  }
-  return (await networkPromise) || Response.error();
+  if (cached) return cached;
+  try {
+    const response = await fetch(event.request, { cache: 'no-cache' });
+    return response?.ok ? response : Response.error();
+  } catch (_) { return Response.error(); }
 }
 
-async function staleWhileRevalidate(event) {
+async function cachedAsset(event) {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(event.request);
-  const networkPromise = fetch(event.request).then(async response => {
-    if (response && (response.ok || response.type === 'opaque')) await cache.put(event.request, response.clone());
-    return response;
-  }).catch(() => null);
-
-  if (cached) {
-    event.waitUntil(networkPromise);
-    return cached;
+  let cached = await cache.match(event.request);
+  if (!cached) {
+    // Exact URL match only: never substitute a module of another release.
+    const older = (await caches.keys()).filter(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME);
+    for (const name of older.slice(-1)) {
+      cached = await (await caches.open(name)).match(event.request);
+      if (cached) break;
+    }
   }
-  return (await networkPromise) || Response.error();
+  if (cached) return cached;
+  try {
+    const response = await fetch(event.request);
+    if (response && (response.ok || response.type === 'opaque')) {
+      await cache.put(event.request, response.clone());
+    }
+    return response || Response.error();
+  } catch (_) { return Response.error(); }
 }
 
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
-  // Explicit update requests must reach the network, never stale cached code.
+  // Only explicit direct fetches bypass offline cache (manual update checks).
   if (request.cache === 'reload' || request.cache === 'no-store') return;
   const url = new URL(request.url);
   const externalOfflineHosts = new Set([
@@ -136,21 +150,8 @@ self.addEventListener('fetch', event => {
 
   if (url.origin !== self.location.origin) {
     if (externalOfflineHosts.has(url.hostname)) {
-      event.respondWith(staleWhileRevalidate(event));
+      event.respondWith(cachedAsset(event));
     }
-    return;
-  }
-
-  if (request.mode === 'navigate' && url.searchParams.has('app-refresh')) {
-    // An update request should prefer fresh HTML, but offline launches must still work.
-    event.respondWith((async () => {
-      try {
-        const fresh = await fetch(request, { cache: 'reload' });
-        if (fresh.ok) return fresh;
-      } catch (_) {}
-      const cache = await caches.open(CACHE_NAME);
-      return (await cache.match('./index.html')) || (await cache.match('./')) || Response.error();
-    })());
     return;
   }
 
@@ -159,9 +160,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  const destination = request.destination;
-  if (['script', 'style', 'image', 'font', 'manifest'].includes(destination) || /\.(?:js|css|png|webmanifest)(?:\?|$)/i.test(url.pathname + url.search)) {
-    event.respondWith(staleWhileRevalidate(event));
+  if (['script', 'style', 'image', 'font', 'manifest'].includes(request.destination) ||
+      /\.(?:js|css|png|webmanifest)(?:\?|$)/i.test(url.pathname + url.search)) {
+    event.respondWith(cachedAsset(event));
   }
 });
 
