@@ -20,7 +20,7 @@ test('stale Android VAPID subscription is renewed, then foreground events show a
  for(const id of ['notification-device-enable','notification-device-disable','notification-device-status']){
   buttons.set(id,{id,hidden:false,disabled:false,textContent:'',addEventListener(name,handler){listeners[id+':'+name]=handler;}});
  }
- const window={isSecureContext:true,matchMedia(){return {matches:false};},addEventListener(){}};
+ const window={isSecureContext:true,Notification:notification,matchMedia(){return {matches:false};},addEventListener(){}};
  const document={visibilityState:'visible',getElementById:id=>buttons.get(id)||null,addEventListener(){}};
  const navigator={serviceWorker,standalone:false,userAgent:'Android',platform:'Linux',maxTouchPoints:0};
  const localStorage={getItem:k=>saved.get(k)||null,setItem:(k,v)=>saved.set(k,v)};
