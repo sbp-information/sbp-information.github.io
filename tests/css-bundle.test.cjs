@@ -43,7 +43,7 @@ test('PWA caches only required local CSS while keeping original application scri
   const assets=[...precache.matchAll(/'([^']+)'/g)].map(match=>match[1]);
   const cachedCss=assets.filter(asset=>/^\.\/[^?]+\.css\?/.test(asset));
   assert.deepEqual(cachedCss.sort(),[
-    './notification-test.css?v=20261102-lab-v2',
+    './notification-test.css?v=20261102-install-guide-v1',
     './tailwind-local.css?v=20261101-no-violet-v1',
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
