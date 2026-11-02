@@ -55,8 +55,8 @@ test('19.26 release, active CSS, script and offline worker versions agree',()=>{
   const rel=read('release-data.js');
   const block=rel.slice(rel.indexOf("version:'19.26'"),rel.indexOf("version:'19.25'"));
   assert.match(block,/ru:\[/);assert.match(block,/kz:\[/);
-  assert.match(html,/step19\.43-mobile-cls-2026-11-02-v1/);
+  assert.match(html,/step19\.44-lazy-history-2026-11-02-v1/);
   assert.match(html,/sbp-ui\.css\?v=20261101-localization-v1/);
   assert.match(sw,/sbp-ui\.css\?v=20261101-localization-v1/);
-  assert.match(sw,/sbp-shell-20261102-mobile-cls-v1/);
+  assert.match(sw,/sbp-shell-20261102-lazy-history-v1/);
 });

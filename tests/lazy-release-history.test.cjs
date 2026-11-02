@@ -1,0 +1,40 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+test('release history is not an eager module, while PWA still precaches it for offline use',()=>{
+ assert.doesNotMatch(html,/<script type="module" src="release-notes\.js/);
+ assert.match(html,/id="sbp-lazy-release-history"/);
+ assert.match(html,/import\('\.\/release-notes\.js\?v=20261102-lazy-history-v1'\)/);
+ const worker=fs.readFileSync(path.join(root,'notifications-sw.js'),'utf8');
+ assert.match(worker,/\.\/release-notes\.js\?v=20261102-lazy-history-v1/);
+ assert.match(worker,/\.\/release-data\.js\?v=20261102-lazy-history-v1/);
+});
+test('manual history loads only on menu click, exactly once, and switches RU/KZ labels',async()=>{
+ const script=html.match(/<script id="sbp-lazy-release-history">([\s\S]*?)<\/script>/)?.[1];
+ assert.ok(script,'history bootstrap is found');
+ const code=script.replace("import('./release-notes.js?v=20261102-lazy-history-v1')",'window.__importHistory()');
+ let loads=0,opens=0,lang='ru',notification='',listener=null;
+ const label={textContent:''};
+ const window={addEventListener(type,fn){if(type==='storage')listener=fn;},showToast(msg){notification=msg;},__importHistory(){
+  loads++;
+  return Promise.resolve().then(()=>{window.openReleaseHistory=()=>{opens++;};return {};});
+ }};
+ const context={document:{getElementById(id){return id==='menu-release-history-label'?label:null;}},window,console,localStorage:{getItem(){return lang;}}};
+ vm.runInNewContext(code,context);
+ assert.equal(loads,0,'first paint must not load the full release archive');
+ assert.equal(label.textContent,'История обновлений');
+ lang='kz';window.refreshReleaseNotes();assert.equal(label.textContent,'Жаңартулар тарихы');
+ lang='ru';listener({key:'toe_ui_language'});assert.equal(label.textContent,'История обновлений');
+ window.openReleaseHistory();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(loads,1,'history should load on click');
+ assert.equal(opens,1,'history should open after loading');
+ assert.equal(notification,'');
+ window.openReleaseHistory();
+ assert.equal(opens,2,'subsequent open uses the already loaded module');
+});

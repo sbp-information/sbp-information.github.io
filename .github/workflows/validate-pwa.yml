@@ -20,6 +20,7 @@ jobs:
           node tests/schedule-dates.test.cjs
           node tests/holiday-push-policy.test.cjs
           node tests/release-notes.test.cjs
+          node tests/lazy-release-history.test.cjs
           node scripts/build-css.cjs --check
           node tests/pwa-cache-consistency.test.cjs
           node tests/mobile-pwa-performance.test.cjs

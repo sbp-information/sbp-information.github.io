@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.43-mobile-cls-2026-11-02-v1">
+    <meta name="app-build" content="step19.44-lazy-history-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -209,7 +209,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-mobile-cls-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-lazy-history-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-lab-v1">
@@ -1100,8 +1100,46 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261102-mobile-cls-v1"></script>
-    <script type="module" src="app.js?v=20261102-mobile-cls-v1"></script>
+    <script id="sbp-lazy-release-history">
+      // History is user-invoked: do not download and parse every historical release on app launch.
+      (() => {
+        const label = document.getElementById('menu-release-history-label');
+        const isKazakh = () => {
+          try { return localStorage.getItem('toe_ui_language') === 'kz'; }
+          catch (_) { return false; }
+        };
+        function updateHistoryLabel() {
+          if (label) label.textContent = isKazakh() ? 'Жаңартулар тарихы' : 'История обновлений';
+        }
+        // App language switching calls this hook even before the history module is loaded.
+        window.refreshReleaseNotes = updateHistoryLabel;
+        updateHistoryLabel();
+        window.addEventListener('storage', event => {
+          if (event.key === 'toe_ui_language') updateHistoryLabel();
+        });
+        let pending = null;
+        let opening = false;
+        function openHistoryOnDemand() {
+          if (opening) return;
+          opening = true;
+          if (!pending) pending = import('./release-notes.js?v=20261102-lazy-history-v1').catch(error => {
+            console.warn('Release history module unavailable', error);
+            pending = null;
+            return null;
+          });
+          pending.then(module => {
+            opening = false;
+            if (module && window.openReleaseHistory !== openHistoryOnDemand) {
+              window.openReleaseHistory();
+            } else {
+              window.showToast?.(isKazakh() ? 'Жаңартулар тарихы жүктелмеді' : 'Не удалось загрузить историю обновлений');
+            }
+          });
+        }
+        window.openReleaseHistory = openHistoryOnDemand;
+      })();
+    </script>
+    <script type="module" src="app.js?v=20261102-lazy-history-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
