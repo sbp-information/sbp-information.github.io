@@ -8,7 +8,7 @@ const root = path.join(__dirname, '..');
 const read = name => fs.readFileSync(path.join(root,name),'utf8');
 const html = read('index.html'), worker = read('notifications-sw.js');
 const core = read('sbp-core.css'), ui = read('sbp-ui.css');
-const version = '20261101-localization-v1';
+const version = '20261102-calm-dark-v1';
 
 test('both generated CSS bundles exactly match the editable source sheets',()=>{
   const result = spawnSync(process.execPath, ['scripts/build-css.cjs','--check'], {cwd:root,encoding:'utf8'});
@@ -51,13 +51,13 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261102-device-theme-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261102-device-theme-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261102-device-theme-v1'));
+  assert.ok(assets.includes('./app.js?v=20261102-calm-dark-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261102-calm-dark-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261102-calm-dark-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
   assert.ok(!assets.some(asset=>/college-data\.js|college-illustration\.svg/.test(asset)), 'removed college page is not precached');
-  assert.match(worker,/sbp-shell-20261102-device-theme-v1/);
-  assert.match(html,/step19\.51-device-theme-2026-11-02-v1/);
+  assert.match(worker,/sbp-shell-20261102-calm-dark-v1/);
+  assert.match(html,/step19\.52-calm-dark-2026-11-02-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');
