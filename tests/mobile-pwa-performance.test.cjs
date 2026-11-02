@@ -49,7 +49,7 @@ test('offline app-refresh navigation falls back to the locally cached shell',asy
  assert.ok(answer,'service worker intercepts app refresh');
  const response=await answer;
  assert.equal(await response.text(),'cached shell');
- assert.equal(requests,1,'always prefer the network for a genuine update');
+ assert.equal(requests,0,'complete installed version stays atomic, including on app-refresh');
  assert.deepEqual(cachedKeys,['./index.html']);
 });
 
