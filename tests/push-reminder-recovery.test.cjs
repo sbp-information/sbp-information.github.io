@@ -32,7 +32,7 @@ test('stale Android VAPID subscription is renewed, then foreground events show a
     {configured:true,remindersReady:true}:{registered:true};
   return {ok:true,status:200,async json(){return data;}};
  };
- const context={window,document,navigator,localStorage,Notification:notification,fetch,
+ const context={window,document,navigator,localStorage,Notification:notification,fetch,PUSH_WORKER_URL:'https://push.example.com',
   AbortSignal,Uint8Array,ArrayBuffer,atob,console,Promise,setTimeout};
  vm.runInNewContext(script+'\nwindow.center=createNotificationCenter({getCloud:()=>({auth:{currentUser:window.user},callFunction:async()=>true,language:()=>\'ru\'}),translate:x=>x,toast:()=>{},open:()=>{}});',context);
  window.user=user;
