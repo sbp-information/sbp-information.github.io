@@ -220,7 +220,7 @@ function supportPayload(device, item, key, staff) {
       : (kz ? 'Қолдаудың жаңа жауабы' : 'Новый ответ поддержки'),
     body: kz ? 'Хабарламаны оқу үшін қолдауды ашыңыз' : 'Откройте поддержку, чтобы прочитать сообщение' };
 }
-async function deliver(env, devices, key, build) {
+async function deliver(env, devices, key, build, options = {}) {
   if (!env.VAPID_PRIVATE_KEY || !env.VAPID_PUBLIC_KEY || !env.VAPID_SUBJECT) {
     throw error('VAPID keys are not configured', 503);
   }
@@ -229,27 +229,37 @@ async function deliver(env, devices, key, build) {
   // Sequential sending keeps CPU/subrequest use predictable on the free tier.
   for (const device of devices) {
     const receipt = await hash(key + ':' + device.id);
+    const lease = crypto.randomUUID();
     const reserved = await env.DB.prepare(
-      'INSERT OR IGNORE INTO deliveries (id, created_at) VALUES (?, ?)'
-    ).bind(receipt, Date.now()).run();
-    if ((reserved.meta?.changes || 0) === 0) continue;
+      "INSERT INTO deliveries (id, created_at, state, lease_token) VALUES (?, ?, 'pending', ?) " +
+      "ON CONFLICT(id) DO UPDATE SET created_at=excluded.created_at, lease_token=excluded.lease_token " +
+      "WHERE deliveries.state='pending' AND deliveries.created_at < ?"
+    ).bind(receipt, Date.now(), lease, Date.now() - 30000).run();
+    if ((reserved.meta?.changes || 0) === 0) {
+      const existing = await env.DB.prepare('SELECT state FROM deliveries WHERE id = ?').bind(receipt).first();
+      if (existing?.state === 'pending' && options.status) options.status.failed++;
+      continue;
+    }
     try {
       const subscription = { endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } };
       if (!validSubscription(subscription)) throw error('Stored device is invalid');
       const payload = await buildPushPayload(
-        { data: JSON.stringify(build(device)), options: { ttl: 86400 } }, subscription, vapid
+        { data: JSON.stringify(build(device)), options: { ttl: options.ttl || 86400, urgency: 'high' } }, subscription, vapid
       );
-      const response = await fetch(device.endpoint, payload);
+      const response = await fetch(device.endpoint, { ...payload, signal: AbortSignal.timeout(8000) });
       if (!response.ok) {
         if ([404, 410].includes(response.status)) {
           await env.DB.prepare('DELETE FROM devices WHERE id = ?').bind(device.id).run();
+          await env.DB.prepare("UPDATE deliveries SET state='sent' WHERE id=? AND lease_token=?").bind(receipt, lease).run();
           continue;
         }
         throw error('Push provider returned HTTP ' + response.status, 502);
       }
+      await env.DB.prepare("UPDATE deliveries SET state='sent' WHERE id=? AND lease_token=?").bind(receipt, lease).run();
       sent++;
     } catch (reason) {
-      await env.DB.prepare('DELETE FROM deliveries WHERE id = ?').bind(receipt).run();
+      if (options.status) options.status.failed++;
+      await env.DB.prepare('DELETE FROM deliveries WHERE id = ? AND lease_token = ?').bind(receipt, lease).run();
       console.warn('Push delivery failed: ', reason?.message || 'unknown error');
     }
   }
@@ -264,17 +274,17 @@ function announcementRecipients(devices, item) {
   // updates; exclude only devices belonging to the exact Firebase author UID.
   return devices.filter(device => !item.authorUid || device.uid !== item.authorUid);
 }
-async function sendAnnouncement(env, item) {
+async function sendAnnouncement(env, item, status) {
   if (!item || !recent(item.createdAt) || isDeferredHolidayCreation(item)) return 0;
   const devices = announcementRecipients(await deviceRows(env), item);
   return deliver(env, devices, 'event:' + item.id,
-    device => notificationPayload(device, item, 'event:' + item.id));
+    device => notificationPayload(device, item, 'event:' + item.id), {status});
 }
-async function sendSupport(env, item) {
+async function sendSupport(env, item, status) {
   if (!item || !recent(item.updatedAt) || !Array.isArray(item.messages)) return 0;
   const permissions = await supportPermissions(env);
   const devices = await deviceRows(env);
-  const messages = item.messages.slice(-12);
+  const messages = item.messages.slice(-12).reverse();
   let sent = 0;
   for (const message of messages) {
     if (!recent(message.at) || !['visitor','staff'].includes(message.role) || !validId(message.id)) continue;
@@ -282,7 +292,7 @@ async function sendSupport(env, item) {
     const toStaff = message.role === 'visitor';
     const recipients = devices.filter(device => device.uid !== message.senderUid &&
       (toStaff ? staffAllowed(device.email, permissions) : device.uid === item.id));
-    sent += await deliver(env, recipients, key, device => supportPayload(device, item, key, toStaff));
+    sent += await deliver(env, recipients, key, device => supportPayload(device, item, key, toStaff), {status});
   }
   return sent;
 }
@@ -297,7 +307,11 @@ async function sendScheduleReminders(env, clock) {
   const devices = await deviceRows(env);
   let sent = 0;
   for (const reminder of reminders) {
-    sent += await deliver(env, devices, reminder.key, device => reminderPayload(device, reminder));
+    const now = Date.now();
+    const expiresAt = now - now % 60000 + (reminder.lesson.range.start - clock.minute) * 60000;
+    const ttl = Math.max(1, Math.min(300, Math.floor((expiresAt - now) / 1000)));
+    sent += await deliver(env, devices, reminder.key,
+      device => ({ ...reminderPayload(device, reminder), expiresAt }), {ttl});
   }
   return sent;
 }
@@ -317,17 +331,14 @@ async function sendHolidayNotices(env, clock) {
   return sent;
 }
 
-async function scheduled(env, triggerTime = Date.now()) {
-  const clock = kazakhstanClock(new Date(triggerTime));
-  const tooLate = Date.now() - triggerTime > 120000;
+async function scheduled(env) {
+  const clock = kazakhstanClock(new Date());
   // Lesson timings need a one-minute clock. Existing announcement/support
   // polling remains at two-minute intervals to control free-tier usage.
-  if (!tooLate) {
-    try { await sendScheduleReminders(env, clock); }
-    catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
-    try { await sendHolidayNotices(env, clock); }
-    catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
-  }
+  try { await sendScheduleReminders(env, clock); }
+  catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
+  try { await sendHolidayNotices(env, clock); }
+  catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
 
   if (clock.minute % 2 === 0) {
     const [notifications, threads] = await Promise.all([
@@ -384,15 +395,17 @@ async function fetchHandler(request, env) {
       if (data.kind === 'announcement') {
         const doc = await readOne(env, 'notifications', data.id);
         if (!doc || doc.authorUid !== user.uid) throw error('Not allowed', 403);
-        const sent = await sendAnnouncement(env, doc);
-        return reply({ accepted: true, sent }, 200, origin);
+        const status = {failed:0};
+        const sent = await sendAnnouncement(env, doc, status);
+        return reply({ accepted: true, sent, retryable: status.failed > 0 }, 200, origin);
       }
       if (data.kind === 'support') {
         const permissions = await supportPermissions(env);
         if (data.id !== user.uid && !staffAllowed(user.email, permissions)) throw error('Not allowed', 403);
         const doc = await readOne(env, 'support', data.id);
-        const sent = await sendSupport(env, doc);
-        return reply({ accepted: true, sent }, 200, origin);
+        const status = {failed:0};
+        const sent = await sendSupport(env, doc, status);
+        return reply({ accepted: true, sent, retryable: status.failed > 0 }, 200, origin);
       }
       throw error('Invalid event type');
     }
@@ -405,10 +418,10 @@ async function fetchHandler(request, env) {
 export default {
   fetch: fetchHandler,
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(scheduled(env, event?.scheduledTime || Date.now())
+    ctx.waitUntil(scheduled(env)
       .catch(e => console.error('Scheduled push failed:', e?.message || 'unknown')));
   }
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload, announcementRecipients, isDeferredHolidayCreation };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload, announcementRecipients, isDeferredHolidayCreation, deliver };

@@ -88,12 +88,15 @@ export function dueReminders(schedule, clock) {
   const first = lessons[0];
   // 07:30 on normal 08:00+ days. Earlier starts get a 30-minute warning instead.
   const morning = Math.min(7 * 60 + 30, first.range.start - 30);
-  if (clock.minute === morning) {
+  // Retry briefly after a missed tick/provider failure; delivery receipts prevent
+  // duplicates. Never send a reminder after its lesson has already started.
+  const isDue = minute => clock.minute >= minute && clock.minute < minute + 5;
+  if (isDue(morning) && clock.minute < first.range.start) {
     events.push({ key: 'lesson:' + clock.date + ':first', lesson: first, type: 'first' });
   }
   for (let index = 1; index < lessons.length; index++) {
     const previous = lessons[index - 1], current = lessons[index];
-    if (clock.minute === previous.range.end - 1 && current.range.start >= previous.range.end) {
+    if (isDue(previous.range.end - 1) && clock.minute < current.range.start && current.range.start >= previous.range.end) {
       events.push({
         key: 'lesson:' + clock.date + ':after:' + previous.originalIndex,
         lesson: current,

@@ -1,9 +1,10 @@
 // Read only: no device endpoints, names, messages, keys or tokens in output.
-import {createSign} from 'node:crypto';
+import {createSign,createHash} from 'node:crypto';
 import {kazakhstanClock, activeLessons, dueReminders} from '../cloudflare-push/src/schedule-reminders.js';
 const account=process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
 const token=process.env.CLOUDFLARE_API_TOKEN;
 const api='https://api.cloudflare.com/client/v4';
+let databaseId;
 async function cf(suffix, body) {
   const response=await fetch(api+suffix,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)});
   const value=await response.json();
@@ -21,6 +22,7 @@ await section('cron',async()=>{
 await section('database',async()=>{
  const rows=await cf(`/accounts/${account}/d1/database`);
  const db=rows.find(x=>x.name==='sbp-information-push');if(!db)throw Error('D1 database missing');
+ databaseId=db.uuid;
  const result=await cf(`/accounts/${account}/d1/database/${db.uuid}/query`,{sql:'SELECT (SELECT COUNT(*) FROM devices) AS devices, (SELECT COUNT(*) FROM devices WHERE email != \'\') AS staff_devices, (SELECT COUNT(*) FROM deliveries) AS reservations, (SELECT COUNT(*) FROM deliveries WHERE created_at >= ?) AS reservations_24h, (SELECT MAX(created_at) FROM deliveries) AS last_reservation',params:[Date.now()-86400000]});
  return result.map(x=>x.results);
 });
@@ -46,6 +48,17 @@ await section('schedule',async()=>{
  function decode(value){if('mapValue'in value)return Object.fromEntries(Object.entries(value.mapValue.fields||{}).map(([k,v])=>[k,decode(v)]));if('arrayValue'in value)return(value.arrayValue.values||[]).map(decode);return value.stringValue??value.booleanValue??(value.integerValue!==undefined?Number(value.integerValue):null);}
  const schedule=Object.fromEntries(Object.entries(doc.fields||{}).map(([k,v])=>[k,decode(v)]));
  const clock=kazakhstanClock();const lessons=activeLessons(schedule,clock);
- const times=[];for(let minute=0;minute<1440;minute++)for(const event of dueReminders(schedule,{...clock,minute}))times.push({minute,type:event.type});
+ const times=[];const seen=new Set();
+ const devices=databaseId?(await cf(`/accounts/${account}/d1/database/${databaseId}/query`,{sql:'SELECT id FROM devices'}))[0].results:[];
+ for(let minute=0;minute<1440;minute++)for(const event of dueReminders(schedule,{...clock,minute})){
+  if(seen.has(event.key))continue;seen.add(event.key);
+  let reserved=0;
+  for(const device of devices){
+   const id=createHash('sha256').update(event.key+':'+device.id).digest('base64url');
+   const result=await cf(`/accounts/${account}/d1/database/${databaseId}/query`,{sql:'SELECT COUNT(*) AS count FROM deliveries WHERE id = ?',params:[id]});
+   reserved+=result[0].results[0].count;
+  }
+  times.push({minute,type:event.type,reservations:reserved});
+ }
  return {date:clock.date,minute:clock.minute,fields:Object.keys(schedule),activeLessonCount:lessons.length,lessonTimes:lessons.map(x=>({start:x.range.start,end:x.range.end})),reminderTimes:times};
 });

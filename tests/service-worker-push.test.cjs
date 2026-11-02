@@ -145,3 +145,11 @@ test('hidden client without navigation support still receives the message fallba
   assert.equal(posted.length, 1);
   assert.equal(posted[0].type, 'notification-open');
 });
+
+test('expired lesson reminder is suppressed, future reminder remains visible', async () => {
+  const worker=fixture([]);
+  await worker.send('push',{data:{json:()=>({title:'Old lesson',kind:'schedule',expiresAt:Date.now()-1000})}});
+  assert.equal(worker.displayed.length,0);
+  await worker.send('push',{data:{json:()=>({title:'Next lesson',kind:'schedule',expiresAt:Date.now()+60000})}});
+  assert.equal(worker.displayed.length,1);
+});
