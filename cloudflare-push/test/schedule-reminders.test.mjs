@@ -142,7 +142,7 @@ test('class hour is not mistaken for the first normal pair or a next-pair remind
   assert.equal(lessons.length, 2);
   assert.equal(lessons[0].subject, 'Русский язык и литература');
   assert.equal(dueReminders(tuesday, clock(450))[0].lesson.subject, 'Русский язык и литература');
-  assert.deepEqual(dueReminders(tuesday, clock(8 * 60 + 29)), [], 'class hour end must not produce another message');
+  assert.equal(dueReminders(tuesday, clock(8 * 60 + 29))[0].type, 'first', 'class hour end does not replace the still-due first regular lesson');
   assert.equal(dueReminders(tuesday, clock(10 * 60 + 9))[0].lesson.subject, 'Математика');
 });
 
