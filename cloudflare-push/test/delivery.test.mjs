@@ -48,3 +48,35 @@ test('real encrypted delivery: urgency, retry, deduplication and abandoned reser
     assert.equal(calls,3);
   } finally {globalThis.fetch=original;db.close();}
 });
+
+test('a slow subscription does not block prompt delivery to other classmates',async()=>{
+ const db=new DatabaseSync(':memory:');
+ for(const name of ['0001_init.sql','0002_delivery_leases.sql'])
+  db.exec(readFileSync(new URL('../migrations/'+name,import.meta.url),'utf8'));
+ const ecdh=createECDH('prime256v1');ecdh.generateKeys();
+ const vapid=createECDH('prime256v1');vapid.generateKeys();
+ const env={VAPID_PRIVATE_KEY:vapid.getPrivateKey().toString('base64url'),
+  VAPID_PUBLIC_KEY:vapid.getPublicKey().toString('base64url'),VAPID_SUBJECT:'mailto:test@example.com',
+  DB:{prepare(sql){const stmt=db.prepare(sql);return {bind(...args){return {
+   async run(){return {meta:{changes:stmt.run(...args).changes}};},
+   async first(){return stmt.get(...args);}
+  };}};}}
+ };
+ const devices=Array.from({length:8},(_,i)=>({id:'device-'+i,
+  endpoint:'https://fcm.googleapis.com/push-'+i,
+  p256dh:ecdh.getPublicKey().toString('base64url'),
+  auth:randomBytes(16).toString('base64url')}));
+ const original=globalThis.fetch;let active=0,peak=0,calls=0;
+ globalThis.fetch=async()=>{
+  calls++;active++;peak=Math.max(peak,active);
+  await new Promise(resolve=>setTimeout(resolve,15));
+  active--;return new Response('',{status:201});
+ };
+ try{
+  assert.equal(await testing.deliver(env,devices,'lesson:2026-11-03:next',()=>({title:'Next class'}),{ttl:180}),8);
+  assert.ok(peak>=2&&peak<=4,'delivery is concurrent but limited to four connections, peak='+peak);
+  assert.equal(calls,8);
+  assert.equal(await testing.deliver(env,devices,'lesson:2026-11-03:next',()=>({title:'Next class'}),{ttl:180}),0);
+  assert.equal(calls,8,'stable D1 receipts prevent duplicate push on retry');
+ }finally{globalThis.fetch=original;db.close();}
+});
