@@ -9,12 +9,14 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),app=read('app.js'),worker=read('notifications-sw.js');
 
 test('home renders reserved lesson space before JS without inventing a timetable',()=>{
- const match=html.match(/<div id="home-day-timeline" class="home-ref-schedule-list">([\s\S]*?)<\/div><button id="home-schedule-toggle"/);
- assert.ok(match,'home timeline has a synchronous placeholder before app boot');
- assert.equal((match[1].match(/home-timeline-placeholder-lesson/g)||[]).length,4);
- assert.equal((match[1].match(/home-timeline-placeholder-break/g)||[]).length,3);
- assert.match(match[1],/aria-hidden="true"/);
- assert.doesNotMatch(match[1],/\d\d:\d\d|Физика|Математика/);
+ const start=html.indexOf('<div id="home-day-timeline" class="home-ref-schedule-list">');
+ const end=html.indexOf('<button id="home-schedule-toggle"',start);
+ assert.ok(start>=0&&end>start,'home timeline has a synchronous placeholder before app boot');
+ const initialMarkup=html.slice(start,end);
+ assert.equal((initialMarkup.match(/class="home-timeline-placeholder-lesson"/g)||[]).length,4);
+ assert.equal((initialMarkup.match(/class="home-timeline-placeholder-break"/g)||[]).length,3);
+ assert.match(initialMarkup,/aria-hidden="true"/);
+ assert.doesNotMatch(initialMarkup,/\d\d:\d\d|Физика|Математика/);
  assert.match(html,/#home-day-timeline \.home-timeline-placeholder\{[^}]*min-height:425px/);
  assert.match(app,/box\.innerHTML=html/,'real lesson cards replace the placeholder');
 });
