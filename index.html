@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.55-push-reminders-2026-11-02-v1">
+    <meta name="app-build" content="step19.56-pwa-reliability-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -226,7 +226,7 @@
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
-    <script defer src="performance.js?v=20261102-postpaint-v1"></script>
+    <script defer src="performance.js?v=20261102-pwa-reliability-v1"></script>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
@@ -1179,7 +1179,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-push-reminders-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-pwa-reliability-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
