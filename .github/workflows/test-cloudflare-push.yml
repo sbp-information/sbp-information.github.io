@@ -8,6 +8,7 @@ on:
       - 'notifications-sw.js'
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
+      - 'tests/pwa-resilience.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
       - 'tests/push-reminder-recovery.test.cjs'
       - 'tests/holiday-push-policy.test.cjs'
@@ -20,6 +21,7 @@ on:
       - 'notifications-sw.js'
       - 'tests/pwa-cache-consistency.test.cjs'
       - 'tests/service-worker-push.test.cjs'
+      - 'tests/pwa-resilience.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
       - 'tests/holiday-push-policy.test.cjs'
       - 'tests/group-mentions.test.cjs'
@@ -44,6 +46,7 @@ jobs:
           node --check notification-center.js
           node --check notifications-sw.js
           node tests/service-worker-push.test.cjs
+          node tests/pwa-resilience.test.cjs
           node tests/notification-coldstart.test.cjs
           node tests/push-reminder-recovery.test.cjs
           node tests/holiday-push-policy.test.cjs

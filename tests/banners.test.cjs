@@ -24,11 +24,12 @@ test('banner controls, styles, release metadata and PWA cache are aligned', () =
   assert.ok(sw.includes(`'./app.js?v=${version}'`), 'app script is cached at active version');
   assert.match(html, /sbp-core\.css\?v=20261102-schedule-theme-v1/);
   assert.match(sw, /sbp-core\.css\?v=20261102-schedule-theme-v1/);
-  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`), 'PWA cache matches app version');
-  assert.ok(html.includes(`release-notes.js?v=${version}`), 'page loads current release notes');
-  assert.ok(sw.includes(`'./release-notes.js?v=${version}'`), 'release notes are cached');
-  assert.ok(notes.includes(`release-data.js?v=${version}`), 'release notes import active data');
-  assert.ok(sw.includes(`'./release-data.js?v=${version}'`), 'release data are cached');
+  const releaseVersion='20261102-pwa-reliability-v1';
+  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${releaseVersion}'`), 'PWA cache uses latest release');
+  assert.ok(html.includes(`release-notes.js?v=${releaseVersion}`), 'page loads current release notes');
+  assert.ok(sw.includes(`'./release-notes.js?v=${releaseVersion}'`), 'release notes are cached');
+  assert.ok(notes.includes(`release-data.js?v=${releaseVersion}`), 'release notes import active data');
+  assert.ok(sw.includes(`'./release-data.js?v=${releaseVersion}'`), 'release data are cached');
   assert.match(releases, /version:'19\.10'/);
   assert.match(releases, /kz:\[/);
   assert.match(releases, /ru:\[/);

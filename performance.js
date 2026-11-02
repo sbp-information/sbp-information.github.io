@@ -57,45 +57,10 @@
     finally { checking = false; }
   }
 
-  async function refreshShell(page) {
-    // Refresh only the app shell. Accounts, journal records and drafts stay intact.
-    if (!('caches' in window)) return;
-    const cacheNames = (await caches.keys()).filter(name => name.startsWith('sbp-shell-'));
-    if (!cacheNames.length) return;
-    const base = new URL('./', location.href);
-    const assets = new Set([new URL('index.html', base).href]);
-    page.querySelectorAll('script[src],link[rel="stylesheet"][href],link[rel="modulepreload"][href]').forEach(node => {
-      const url = new URL(node.getAttribute('src') || node.getAttribute('href'), base);
-      if (url.origin === location.origin) assets.add(url.href);
-    });
-    const shellCaches = await Promise.all(cacheNames.map(name => caches.open(name)));
-    // Refresh only assets linked by the NEW shell and the module dependency graph.
-    // Re-fetching every file from the previous cache would download retired CSS
-    // versions (20+ requests on old installations) and delay the upgrade.
-    // Follow local module imports so newly introduced modules are fresh too.
-    const responses = new Map();
-    while ([...assets].some(url => !responses.has(url))) {
-      const pending = [...assets].filter(url => !responses.has(url));
-      await Promise.all(pending.map(async url => {
-        const response = await fetch(url, { cache: 'reload', signal: AbortSignal.timeout(20000) });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        responses.set(url, response);
-        if (new URL(url).pathname.endsWith('.js')) {
-          const source = await response.clone().text();
-          for (const match of source.matchAll(/(?:from\s*|import\s*)['"](\.\.?\/[^'"]+)['"]/g)) {
-            const dependency = new URL(match[1], url);
-            if (dependency.origin === location.origin) assets.add(dependency.href);
-          }
-        }
-      }));
-    }
-    for (const cache of shellCaches) {
-      for (const [url, response] of responses) await cache.put(url, response.clone());
-      const html = responses.get(new URL('index.html', base).href);
-      await cache.put(base.href, html.clone());
-    }
-  }
-
+  // Never rewrite the active worker's Cache Storage during a version change.
+  // Its app-shell HTML and scripts are a single immutable set. The installing
+  // worker precaches the NEW set before it may activate; failure keeps the
+  // currently installed app usable offline.
   window.refreshSBPApp = async function() {
     if (busy) return;
     const { now, manual, hint } = elements();
@@ -111,11 +76,15 @@
     if (hint) hint.textContent = text('Загружаем свежую версию…', 'Жаңа нұсқа жүктелуде…');
     try {
       const page = await fetchPage();
+      // Registration may still be starting on a very slow Android phone.
+      if (!registration && navigator.serviceWorker?.getRegistration) {
+        registration = await navigator.serviceWorker.getRegistration('./');
+      }
       await registration?.update();
       if (registration?.installing) {
         const worker = registration.installing;
         await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Install timeout')), 30000);
+          const timeout = setTimeout(() => reject(new Error('Install timeout')), 45000);
           const done = () => {
             if (!['installed', 'redundant'].includes(worker.state)) return;
             clearTimeout(timeout);
@@ -126,8 +95,13 @@
           done();
         });
       }
-      await refreshShell(page);
       waitingWorker = registration?.waiting || (waitingWorker?.state === 'installed' ? waitingWorker : null);
+      // Refuse to load new HTML through an old active worker. That would
+      // strand the next offline launch with mismatched script versions.
+      const remoteBuild = page.querySelector('meta[name="app-build"]')?.content || '';
+      if (!waitingWorker && navigator.serviceWorker?.controller && remoteBuild !== currentBuild) {
+        throw new Error('New offline shell has not installed completely');
+      }
       if (waitingWorker) {
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(() => { navigator.serviceWorker.removeEventListener('controllerchange', done); reject(new Error('Activation timeout')); }, 15000);

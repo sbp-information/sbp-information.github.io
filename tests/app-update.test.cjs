@@ -18,7 +18,7 @@ function app({ build = '18.45', remoteBuild = build, online = true, waiting = fa
   };
   const worker = { state: 'installed', postMessage(message) {
     assert.equal(message.type, 'SKIP_WAITING');
-    assert.ok(writes.some(([url]) => url.endsWith('index.html')), 'shell ready before activation');
+    assert.equal(writes.length, 0, 'active cache must not be rewritten when updating');
     this.state = 'activated'; registration.waiting = null;
     queueMicrotask(() => events.get('controllerchange')?.());
   } };
@@ -64,23 +64,25 @@ function app({ build = '18.45', remoteBuild = build, online = true, waiting = fa
   const changed = app({ remoteBuild: '18.46' });
   await Promise.resolve();
   await changed.timers.find(([, ms]) => ms === 2500)[0]();
-  assert.equal(changed.node('app-update-bar').classList.hidden, false, 'HTML version detects update even when worker does not change');
+  assert.equal(changed.node('app-update-bar').classList.hidden, false, 'HTML detects newer build');
   changed.node('app-update-later').handlers.click();
   assert.equal(changed.node('app-update-bar').classList.hidden, true);
   await changed.context.window.refreshSBPApp();
-  assert.equal(changed.navigations.length, 1);
-  const url = new URL(changed.navigations[0]);
-  assert.equal(url.hash, '#schedule'); assert.equal(url.searchParams.get('source'), 'android-app');
-  assert.ok(url.searchParams.has('app-refresh'));
-  assert.ok(changed.writes.some(([url]) => url.includes('schedule.js?v=new')), 'refresh follows module dependencies');
-  assert.ok(!changed.calls.some(([url]) => url.includes('style.css?v=old')), 'updates must not redownload retired CSS from previous PWA caches');
-  assert.ok(changed.calls.filter(([url]) => !url.endsWith('index.html')).every(([, opts]) => opts.cache === 'reload'));
+  assert.equal(changed.navigations.length, 0, 'old controller cannot load new HTML without a complete worker');
+  assert.equal(changed.writes.length, 0, 'existing cached app shell remains untouched');
+  assert.equal(changed.node('menu-update-button').disabled, false, 'failed install can be retried');
 
-  const nextWorker = app({ waiting: true });
+  const nextWorker = app({ waiting: true, remoteBuild: '18.46' });
   await Promise.resolve();
   assert.equal(nextWorker.node('app-update-bar').classList.hidden, false);
   await nextWorker.context.window.refreshSBPApp();
-  assert.equal(nextWorker.navigations.length, 1, 'waiting worker activates before one reload');
+  assert.equal(nextWorker.navigations.length, 1, 'complete waiting worker activates before one reload');
+  assert.equal(nextWorker.writes.length, 0, 'no mixed version files in old caches');
+  const url = new URL(nextWorker.navigations[0]);
+  assert.equal(url.hash, '#schedule');
+  assert.equal(url.searchParams.get('source'), 'android-app');
+  assert.ok(url.searchParams.has('app-refresh'),'old section and deep links survive refresh');
+  assert.ok(!nextWorker.calls.some(([url]) => url.includes('style.css?v=old')), 'does not fetch retired assets');
 
   const offline = app({ online: false });
   await offline.context.window.refreshSBPApp();
@@ -99,5 +101,5 @@ function app({ build = '18.45', remoteBuild = build, online = true, waiting = fa
   assert.equal(noWorker.node('app-update-bar').classList.hidden, false);
   await noWorker.context.window.refreshSBPApp();
   assert.equal(noWorker.navigations.length, 1);
-  console.log('App updates: version detection, manual refresh, module freshness, worker activation, offline, failure, and no-worker fallback passed.');
+  console.log('App updates: no mixed cache versions, atomic worker activation, saved section, offline failure and no-worker fallback passed.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

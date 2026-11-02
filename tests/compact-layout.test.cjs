@@ -36,11 +36,11 @@ test('compact styles, release history and active PWA build agree',()=>{
  const build=html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
  assert.ok(version && build?.startsWith('step'),'active build and app script version exist');
  assert.ok(sw.includes(`'./app.js?v=${version}'`),'app script matches PWA precache');
- assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'PWA cache matches app script');
+ assert.ok(sw.includes("const CACHE_NAME = 'sbp-shell-20261102-pwa-reliability-v1'"),'PWA cache is revisioned independently of unchanged app.js');
  assert.match(html,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
  assert.match(sw,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
- assert.ok(html.includes(`release-notes.js?v=${version}`),'release notes use active version');
- assert.ok(sw.includes(`'./release-data.js?v=${version}'`),'release data uses active PWA version');
+ assert.ok(html.includes('release-notes.js?v=20261102-pwa-reliability-v1'),'release notes use current PWA release');
+ assert.ok(sw.includes("'./release-data.js?v=20261102-pwa-reliability-v1'"),'release data uses active PWA version');
  assert.match(release,/version:'19\.10'/);
  const top=release.slice(release.indexOf("version:'19.10'"),release.indexOf("version:'19.09'"));
  assert.match(top,/ru:\[/);
