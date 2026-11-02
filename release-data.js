@@ -2,6 +2,14 @@
 // Keep descriptions factual and describe changes visible to users.
 export const RELEASES = [
   {
+    version:'19.48',date:'2026-11-02',type:'update',size:'mini',
+    title:{ru:'Установка на iPhone',kz:'iPhone құрылғысына орнату'},
+    updates:{
+      ru:['В меню установки на iPhone добавлена инструкция через Safari: «Поделиться» → «На экран Домой» → «Добавить».','Фирменная иконка и режим PWA на iPhone поддерживаются без App Store. Android-установка и остальные разделы сохранены.'],
+      kz:['iPhone құрылғысында Safari арқылы орнату нұсқаулығы қосылды: «Бөлісу» → «Басты экранға» → «Қосу».','Фирмалық белгіше мен PWA режимі iPhone жүйесінде App Store-сыз қолданылады. Android орнату жолы және басқа бөлімдер сақталған.']
+    }
+  },
+  {
     version:'19.47',date:'2026-11-02',type:'fix',size:'mini',
     title:{ru:'Мгновенный запуск на телефоне',kz:'Телефонда жылдам іске қосу'},
     fixes:{
