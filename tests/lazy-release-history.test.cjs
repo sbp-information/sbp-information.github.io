@@ -9,10 +9,10 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 test('release history is not an eager module, while PWA still precaches it for offline use',()=>{
  assert.doesNotMatch(html,/<script type="module" src="release-notes\.js/);
  assert.match(html,/id="sbp-lazy-release-history"/);
- assert.match(html,/import\('\.\/release-notes\.js\?v=20261102-ios-install-v1'\)/);
+ assert.match(html,/import\('\.\/release-notes\.js\?v=20261102-remove-college-v1'\)/);
  const worker=fs.readFileSync(path.join(root,'notifications-sw.js'),'utf8');
- assert.match(worker,/\.\/release-notes\.js\?v=20261102-ios-install-v1/);
- assert.match(worker,/\.\/release-data\.js\?v=20261102-ios-install-v1/);
+ assert.match(worker,/\.\/release-notes\.js\?v=20261102-remove-college-v1/);
+ assert.match(worker,/\.\/release-data\.js\?v=20261102-remove-college-v1/);
 });
 test('manual history loads only on menu click, exactly once, and switches RU/KZ labels',async()=>{
  const script=html.match(/<script id="sbp-lazy-release-history">([\s\S]*?)<\/script>/)?.[1];
