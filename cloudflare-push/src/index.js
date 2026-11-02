@@ -227,6 +227,10 @@ async function deliver(env, devices, key, build, options = {}) {
   }
   const vapid = { privateKey: env.VAPID_PRIVATE_KEY, publicKey: env.VAPID_PUBLIC_KEY, subject: env.VAPID_SUBJECT };
   let sent = 0;
+  let providerAttempts = 0;
+  // Reserve room for the Firestore/OAuth calls under Workers Free's 50
+  // external-subrequest limit. A following Cron tick retries the remainder.
+  const MAX_PROVIDER_ATTEMPTS = 40;
   // Cloudflare permits at most six simultaneous outgoing connections.
   // Four concurrent deliveries prevent a slow provider or device from delaying
   // every classmate, without making unlimited parallel connections.
@@ -250,6 +254,12 @@ async function deliver(env, devices, key, build, options = {}) {
       const payload = await buildPushPayload(
         { data: JSON.stringify(build(device)), options: { ttl: options.ttl || 86400, urgency: 'high' } }, subscription, vapid
       );
+      if (providerAttempts >= MAX_PROVIDER_ATTEMPTS) {
+        if (options.status) options.status.failed++;
+        await env.DB.prepare('DELETE FROM deliveries WHERE id = ? AND lease_token = ?').bind(receipt, lease).run();
+        return;
+      }
+      providerAttempts++;
       const response = await fetch(device.endpoint, { ...payload, signal: AbortSignal.timeout(8000) });
       if (!response.ok) {
         if ([404, 410].includes(response.status)) {
