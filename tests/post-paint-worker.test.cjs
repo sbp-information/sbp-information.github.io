@@ -30,7 +30,7 @@ test('mobile PWA worker starts only after first paint; offline and push events r
  assert.equal(calls.length,1,'no duplicate registration after fallback');
  assert.match(sw,/self\.addEventListener\('push'/);
  assert.match(sw,/self\.addEventListener\('notificationclick'/);
- assert.match(html,/performance\.js\?v=20261102-launch-fast-v1/);
+ assert.match(html,/performance\.js\?v=20261102-postpaint-v1/);
 });
 test('desktop keeps immediate worker registration and offline update support',()=>{
  assert.match(source,/if \(mobileFast && document\.visibilityState === 'visible'\)/);
