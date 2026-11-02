@@ -22,3 +22,17 @@ test('test app installs separately and starts on its own diagnostic page',()=>{
  for(const icon of manifest.icons)assert.ok(fs.existsSync(path.join(__dirname,'..',icon.src)));
  assert.match(read('notification-test.html'),/notification-test.webmanifest/);
 });
+
+test('Android install offers Chrome handoff and bilingual fallback guidance',()=>{
+ const page=read('notification-test.html'),script=read('notification-test.js'),styles=read('notification-test.css');
+ assert.match(page,/id="open-chrome"/);
+ assert.match(page,/package=com\.android\.chrome/);
+ assert.match(page,/id="android-browser-tip"/);
+ assert.match(script,/installStatus=isAndroid\(\)\?'androidManualInstall':'manualInstall'/);
+ assert.match(script,/openChrome:'Открыть в Google Chrome'/);
+ assert.match(script,/openChrome:'Google Chrome браузерінде ашу'/);
+ assert.match(styles,/\.chrome-link\[hidden\]/);
+ const sw=read('notifications-sw.js');
+ assert.ok(sw.includes('notification-test.js?v=20261102-install-guide-v1'));
+ assert.ok(sw.includes('notification-test.css?v=20261102-install-guide-v1'));
+});
