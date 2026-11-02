@@ -24,7 +24,7 @@ import {
     updateDoc,
     deleteDoc,
     deleteField
-} from "./firebase.js?v=20261017-admin-tap-v1";
+} from "./firebase.js?v=20261102-fast-start-v1";
 
 import {
     getWeekTypeForDate,
@@ -1208,7 +1208,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             // ВАЖНО: ошибка чтения/правил Firestore не должна отключать сам Firebase.
             // Иначе сайт ошибочно переключается в локальный режим даже при успешной инициализации SDK.
             try {
-                ({ app, auth, db } = createFirebaseServices());
+                ({ app, auth, db } = await createFirebaseServices());
                 firebaseDiag.init = true;
                 window.__firebaseDebug.init = true;
                 firebaseDiag.error = null;
@@ -1350,8 +1350,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 if (document.visibilityState === 'visible' && homeView && !homeView.classList.contains('hidden')) updateHomeTodayCard();
             }, MOBILE_FAST_MODE ? 90000 : 30000);
 
-            // CLOUD BOOT: Firebase and realtime listeners connect in parallel without blocking the UI.
-            queueMicrotask(async () => {
+            // Start the remote SDK after the first local frame, not in a microtask before paint.
+            // Important on slow phones: Firebase Auth/Firestore need not gate the timetable UI.
+            const startCloudBoot = async () => {
                 try {
                     await initFirebase();
                     renderGroupInfo();
@@ -1363,7 +1364,12 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 } catch (e) {
                     reportAppError('cloud-init', e, { localSaved:true });
                 }
-            });
+            };
+            if (document.visibilityState === 'visible' && typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => setTimeout(startCloudBoot, 0));
+            } else {
+                setTimeout(startCloudBoot, 0);
+            }
         });
 
 
