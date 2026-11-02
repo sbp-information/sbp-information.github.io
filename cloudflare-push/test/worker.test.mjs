@@ -136,3 +136,13 @@ test('holiday creation is deferred, but holiday removal and other changes notify
   assert.equal(testing.isDeferredHolidayCreation({type:'announcement'}),false);
   assert.equal(testing.isDeferredHolidayCreation({type:'mention'}),false);
 });
+
+test('group mention is bilingual, opens events, and excludes every sender device',()=>{
+ const item={id:'mention_123',type:'mention',title:'Встреча группы',titleKz:'Топ жиналысы',text:'В 16:00',textKz:'16:00-де',authorUid:'uid-admin1'};
+ const ru=testing.notificationPayload({language:'ru'},item,'event:mention_123');
+ const kz=testing.notificationPayload({language:'kz'},item,'event:mention_123');
+ assert.deepEqual([ru.kind,ru.title,ru.body],['events','Упоминание группы','Встреча группы']);
+ assert.deepEqual([kz.kind,kz.title,kz.body],['events','Топты атап өту','Топ жиналысы']);
+ const devices=[{id:'author-phone',uid:'uid-admin1'},{id:'author-pc',uid:'uid-admin1'},{id:'owner-phone',uid:'uid-owner'},{id:'admin2-phone',uid:'uid-admin2'},{id:'student-phone',uid:'uid-student'}];
+ assert.deepEqual(testing.announcementRecipients(devices,item).map(d=>d.id),['owner-phone','admin2-phone','student-phone']);
+});

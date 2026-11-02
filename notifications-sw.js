@@ -1,13 +1,9 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-lab-v1';
+const CACHE_NAME = 'sbp-shell-20261102-mentions-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './notification-test.html',
-  './notification-test.js?v=20261102-install-guide-v1',
-  './notification-test.css?v=20261102-install-guide-v1',
-  './notification-test.webmanifest?v=20261102-lab-v2',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
   './redesign.js?v=20261101-no-violet-v1',
@@ -18,9 +14,9 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261102-lab-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261102-lab-v1',
-  './release-notes.js?v=20261102-lab-v1',
-  './release-data.js?v=20261102-lab-v1',
-  './app.js?v=20261102-lab-v1',
+  './release-notes.js?v=20261102-mentions-v1',
+  './release-data.js?v=20261102-mentions-v1',
+  './app.js?v=20261102-mentions-v1',
   './firebase.js?v=20261017-admin-tap-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
@@ -146,15 +142,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // The standalone diagnostic page must never replace the main offline shell.
-  if (request.mode === 'navigate' && url.pathname.endsWith('/notification-test.html')) {
-    event.respondWith(fetch(request, {cache:'no-cache'}).catch(async () => {
-      const cache = await caches.open(CACHE_NAME);
-      return await cache.match('./notification-test.html') || Response.error();
-    }));
-    return;
-  }
-
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstNavigation(event));
     return;
@@ -182,18 +169,8 @@ self.addEventListener('push', event => {
       vibrate: [110, 70, 110],
       data: { kind: payload.kind, threadId: payload.threadId || '' }
     });
-    if (payload.kind === 'test' && /^[a-zA-Z0-9-]{1,80}$/.test(payload.testId || '')) {
-      try {
-        const cache = await caches.open('sbp-push-test-results');
-        const key = new URL('./__push-test/' + payload.testId, self.registration.scope).href;
-        await cache.put(key, new Response(JSON.stringify({id:payload.testId,receivedAt:Date.now(),plannedAt:payload.plannedAt})));
-        const keys = await cache.keys();
-        for (const old of keys.slice(0, Math.max(0, keys.length-20))) await cache.delete(old);
-      } catch (_) {}
-    }
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    windows.filter(client => payload.kind !== 'test' || new URL(client.url).pathname.endsWith('/notification-test.html'))
-      .forEach(client => client.postMessage({ ...payload, type: 'notification-arrival' }));
+    windows.forEach(client => client.postMessage({ ...payload, type: 'notification-arrival' }));
   })());
 });
 
@@ -201,14 +178,6 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil((async () => {
     const data = event.notification.data || {};
-    if (data.kind === 'test') {
-      const target = new URL('./notification-test.html', self.registration.scope).href;
-      const clients = await self.clients.matchAll({type:'window',includeUncontrolled:true});
-      const existing = clients.find(client => new URL(client.url).pathname.endsWith('/notification-test.html'));
-      if (existing) { await existing.focus(); existing.postMessage({type:'test-refresh'}); }
-      else await self.clients.openWindow(target);
-      return;
-    }
     const url = new URL('./', self.registration.scope);
     url.searchParams.set('notification', data.kind === 'support' ? 'support' : data.kind === 'schedule' ? 'schedule' : 'events');
     if (data.threadId) url.searchParams.set('thread', data.threadId);

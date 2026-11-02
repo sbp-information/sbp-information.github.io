@@ -4,6 +4,7 @@ export function currentLang() { return localStorage.getItem(UI_LANG_KEY) === 'kz
 export function interfaceLocale() { return currentLang() === 'kz' ? 'kk-KZ' : 'ru-RU'; }
 
 export const KZ_EXACT = Object.freeze({
+  'Упоминание группы':'Топты атап өту',
   'Проверить доставку уведомлений':'Хабарландырулардың жеткізілуін тексеру',
   // Notifications, sound preferences and contextual messages must be
   // translated in both the settings panel and the dynamically rendered alerts.

@@ -155,29 +155,12 @@ test('expired lesson reminder is suppressed, future reminder remains visible', a
   await worker.send('push',{data:{json:()=>({title:'Next lesson',kind:'schedule',expiresAt:Date.now()+60000})}});
   assert.equal(worker.displayed.length,1);
 });
-
-test('test push records receipt with closed page and opens the diagnostic page', async () => {
+ 
+test('group mention Push opens events after cold PWA start', async () => {
  const worker=fixture([]);
- await worker.send('push',{data:{json:()=>({kind:'test',testId:'test-id-123',title:'Test',plannedAt:Date.now()-1000})}});
+ await worker.send('push',{data:{json:()=>({key:'event:mention-123',kind:'events',title:'Упоминание группы',body:'Важная информация'})}});
  assert.equal(worker.displayed.length,1);
- const receipt=await worker.stored.get(scope+'__push-test/test-id-123').json();
- assert.equal(receipt.id,'test-id-123');assert.ok(receipt.receivedAt>=receipt.plannedAt);
- await worker.send('notificationclick',{notification:{data:{kind:'test'},close(){}}});
- assert.equal(worker.opened[0],scope+'notification-test.html');
-});
-test('test push does not leak into the main site notification feed', async () => {
- let mainPosts=0,testPosts=0;
- const worker=fixture([{url:scope,postMessage(){mainPosts++;}},{url:scope+'notification-test.html',postMessage(){testPosts++;}}]);
- await worker.send('push',{data:{json:()=>({kind:'test',testId:'test-id-456',title:'Test'})}});
- assert.equal(mainPosts,0);assert.equal(testPosts,1);
-});
-
-test('diagnostic navigation never overwrites the primary offline app shell', async () => {
- const events=new Map();let cacheWrites=0,response;
- const self={location:{origin:scope.slice(0,-1)},registration:{scope},addEventListener(name,fn){events.set(name,fn);}};
- vm.runInNewContext(script,{self,URL,fetch:async()=>new Response('diagnostic page'),Response,console,
-  caches:{async open(){return {async put(){cacheWrites++;}};}}});
- events.get('fetch')({request:{method:'GET',url:scope+'notification-test.html',mode:'navigate'},respondWith(promise){response=promise;}});
- assert.equal(await (await response).text(),'diagnostic page');
- assert.equal(cacheWrites,0);
+ assert.equal(worker.displayed[0].options.tag,'event:mention-123');
+ await worker.send('notificationclick',{notification:{data:{kind:'events'},close(){}}});
+ assert.equal(new URL(worker.opened[0]).searchParams.get('notification'),'events');
 });

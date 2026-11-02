@@ -4654,6 +4654,8 @@ function notificationVisualMeta(item={}){
     const rawType=String(item.type||item.kind||'').trim().toLowerCase();
     const haystack=`${notificationTitleForLocale(item)} ${notificationTextForLocale(item)}`.toLowerCase();
 
+    if(rawType==='mention')return {key:'mention',label:'Упоминание группы',icon:'fa-at'};
+
     if(
         rawType==='schedule_change' ||
         rawType==='schedule' ||
@@ -4821,12 +4823,14 @@ function subscribeNotifications(){
                 const meta=notificationVisualMeta(item);
                 notificationCenter.incoming({
                     key:`event:${item.id}`,
-                    title:meta.key==='announcement'
+                    title:meta.key==='mention'
+                        ? translateUI('Упоминание группы')
+                        : meta.key==='announcement'
                         ? translateUI('Новое объявление')
                         : meta.key==='important'
                             ? translateUI('Важное объявление')
                             : notificationTitleForLocale(item),
-                    body:(meta.key==='announcement'||meta.key==='important')
+                    body:(meta.key==='announcement'||meta.key==='important'||meta.key==='mention')
                         ? notificationTitleForLocale(item)
                         : notificationTextForLocale(item),
                     kind:'events'
@@ -4860,6 +4864,7 @@ window.publishNotification=async function(){
     const titleField=document.getElementById('notification-title'),textField=document.getElementById('notification-text');
     const priorityField=document.getElementById('notification-priority');
     const priority=priorityField?.value==='important'?'important':'normal';
+    const isMention=priorityField?.value==='mention';
     const title=titleField?.value.trim()||'',text=textField?.value.trim()||'';
     const titleKzField=document.getElementById('notification-title-kz'),textKzField=document.getElementById('notification-text-kz');
     const titleKz=titleKzField?.value.trim()||'',textKz=textKzField?.value.trim()||'';
@@ -4876,7 +4881,7 @@ window.publishNotification=async function(){
             createdAt:new Date().toISOString(),
             author:currentAccountLogin||'Владелец',
             authorUid:auth.currentUser.uid,
-            type:priority==='important'?'important_announcement':'announcement',
+            type:isMention?'mention':priority==='important'?'important_announcement':'announcement',
             priority
         });
         void notificationCenter.dispatch('announcement', id);

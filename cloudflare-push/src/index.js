@@ -1,6 +1,5 @@
 // SBP Information: Cloudflare Workers Free + D1 + Firebase Spark Web Push.
 // Private support messages are never included in the push payload.
-import { testRequest, sendDueTests } from './test-push.js';
 import { buildPushPayload } from '@block65/webcrypto-web-push';
 import { kazakhstanClock, dueReminders, reminderPayload, shouldCheckSchedule } from './schedule-reminders.js';
 import { dueHolidayNotices, holidayNoticePayload } from './holiday-reminders.js';
@@ -206,9 +205,10 @@ async function deviceRows(env, uid = null) {
 function notificationPayload(device, item, key) {
   const kz = device.language === 'kz';
   const isChange = item.type === 'schedule_change';
+  const isMention = item.type === 'mention';
   const title = isChange
     ? (kz ? item.titleKz || item.title : item.title)
-    : (kz ? 'Жаңа хабарландыру' : 'Новое объявление');
+    : (isMention ? (kz ? 'Топты атап өту' : 'Упоминание группы') : (kz ? 'Жаңа хабарландыру' : 'Новое объявление'));
   const body = isChange ? (kz ? item.textKz || item.text : item.text)
     : (kz ? item.titleKz || item.title : item.title);
   return { key, kind: isChange && item.changeType === 'pause' ? 'schedule' : 'events', title: String(title || 'SBP Information').slice(0, 120),
@@ -342,9 +342,6 @@ async function scheduled(env) {
   try { await sendHolidayNotices(env, clock); }
   catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
 
-  try { await sendDueTests(env, deliver); }
-  catch (err) { console.error('Test push failed:', err?.message || 'unknown'); }
-
   if (clock.minute % 2 === 0) {
     const [notifications, threads] = await Promise.all([
       readRecent(env, 'notifications', 'createdAt'),
@@ -379,9 +376,6 @@ async function fetchHandler(request, env) {
   try {
     const user = await authorize(request);
     const data = await requestJson(request);
-    if (['/test','/test-status'].includes(url.pathname)) {
-      return reply(await testRequest(env,user,data,url.pathname,hash,deliver),200,origin);
-    }
     if (url.pathname === '/register') {
       if (!validSubscription(data.subscription)) throw error('Invalid subscription');
       const sub = data.subscription;
