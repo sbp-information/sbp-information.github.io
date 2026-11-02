@@ -1,6 +1,6 @@
 import { nextCalendarDay, summarizeScheduleChanges, scheduleSummaryMarkup } from './schedule-summary.js?v=20261017-admin-tap-v1';
 import { initAdminDrawer } from './admin-drawer.js?v=20261017-admin-tap-v1';
-import { initRedesign } from './redesign.js?v=20261102-neutral-dark-v1';
+import { initRedesign } from './redesign.js?v=20261102-schedule-theme-v1';
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
 import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261017-admin-tap-v1';
 import { createArrivalTracker } from './notification-state.js?v=20261017-admin-tap-v1';
@@ -4020,8 +4020,8 @@ function updateLanguageButtons() {
     document.documentElement.lang = lang === 'kz' ? 'kk' : 'ru';
     const topSwitch = document.getElementById('sbp-lang-switch');
     if (topSwitch) {
-        topSwitch.textContent = lang === 'kz' ? 'ҚЗ' : 'РУ';
-        topSwitch.setAttribute('aria-label', lang === 'kz' ? 'Қазақша. Орыс тіліне ауысу' : 'Русский. Переключить на казахский');
+        topSwitch.textContent = lang === 'kz' ? 'RU' : 'KZ';
+        topSwitch.setAttribute('aria-label', lang === 'kz' ? 'Орыс тіліне ауысу' : 'Переключить на казахский');
         topSwitch.title = lang === 'kz' ? 'Русский' : 'Қазақша';
     }
 }

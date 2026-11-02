@@ -20,15 +20,15 @@ test('device dark mode has dedicated contrast styles with no manual setting requ
  assert.match(dark,/:root\[data-sbp-theme="dark"\]/);
  assert.doesNotMatch(dark,/html:not\(\[data-sbp-theme="dark"\]\)/);
  assert.ok((dark.match(/:root:root\[data-sbp-theme="dark"\]/g)||[]).length>30);
- assert.match(html,/sbp-core\.css\?v=20261102-neutral-dark-v1/);
- assert.match(sw,/sbp-core\.css\?v=20261102-neutral-dark-v1/);
+ assert.match(html,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
+ assert.match(sw,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
  const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
  assert.ok(version,'active app script version exists');
  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'dark theme is cached in current PWA build');
- assert.match(html,/sbp-core\.css\?v=20261102-neutral-dark-v1/);
- assert.match(sw,/sbp-core\.css\?v=20261102-neutral-dark-v1/);
- assert.match(app,/redesign\.js\?v=20261102-neutral-dark-v1/);
- assert.match(sw,/redesign\.js\?v=20261102-neutral-dark-v1/);
+ assert.match(html,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
+ assert.match(sw,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
+ assert.match(app,/redesign\.js\?v=20261102-schedule-theme-v1/);
+ assert.match(sw,/redesign\.js\?v=20261102-schedule-theme-v1/);
  assert.match(release,/version:'19\.09'/);
 });
 test('all core text colors pass WCAG AA contrast on relevant surfaces',()=>{
@@ -52,48 +52,49 @@ test('semantic lesson colors, modal surfaces, sections and form controls are pre
  assert.ok(dark.includes(x),'missing dark style for '+x);
  assert.equal((dark.match(/\{/g)||[]).length,(dark.match(/\}/g)||[]).length);
 });
-test('appearance follows Android, iOS and desktop OS, never a previously saved preference',()=>{
- const storage=new Map([['sbp_design_theme','dark'],['toe_ui_language','ru']]);
- const accessed=[],mediaEvents={};
- const mq={matches:false,addEventListener(event,fn){mediaEvents[event]=fn;}};
- const meta={attributes:{content:'#fafafe'},getAttribute(k){return this.attributes[k]},
-  setAttribute(k,v){this.attributes[k]=v;}};
- const languageButtons=['ru','kz'].map(value=>({dataset:{sbpLang:value},attributes:{},
-  setAttribute(k,v){this.attributes[k]=v;},addEventListener(){}}));
- const document={
-  documentElement:{dataset:{},style:{}},
-  querySelector(sel){return sel==='meta[name="theme-color"]'?meta:null},
-  querySelectorAll(sel){return sel==='[data-sbp-lang]'?languageButtons:[]}
- };
- const window={localStorage:{getItem(k){accessed.push(k);return storage.get(k)||null;},
-  setItem(k,v){throw Error('Theme must not be written to storage');}},
-  matchMedia:()=>mq};
- const src=redesign.replaceAll('export ','');
- const ctx={window,document,console};
- vm.runInNewContext(src+'\ninitRedesign();',ctx);
- assert.equal(document.documentElement.dataset.sbpTheme,'light','OS light overrules stale dark preference');
- assert.equal(document.documentElement.style.colorScheme,'light dark','native controls use automatic OS scheme');
- assert.equal(meta.getAttribute('content'),'#f6fbfd');
- assert.equal(window.setSBPTheme,undefined,'there is no manual theme API');
- assert.equal(accessed.includes('sbp_design_theme'),false,'old theme selection is ignored');
- mq.matches=true;mediaEvents.change();
- assert.equal(document.documentElement.dataset.sbpTheme,'dark');
- assert.equal(meta.getAttribute('content'),'#121416');
- mq.matches=false;mediaEvents.change();
- assert.equal(document.documentElement.dataset.sbpTheme,'light');
- storage.set('toe_ui_language','kz');window.refreshRedesign();
- assert.equal(document.documentElement.dataset.sbpTheme,'light','language switch keeps device appearance');
- assert.equal(languageButtons[1].attributes['aria-pressed'],'true');
- assert.equal(ctx.resolvedTheme(true),'dark');
- assert.equal(ctx.resolvedTheme(false),'light');
-});
 
-test('theme selector removed from settings and early page paint never reads saved override',()=>{
- assert.doesNotMatch(html,/sbp-theme-card|sbp-theme-options|data-sbp-theme="(?:light|dark|system)"/);
- assert.doesNotMatch(redesign,/sbp_design_theme|setSBPTheme|data-sbp-theme/);
- const firstScript=html.slice(html.indexOf('// Let the device choose the light/dark appearance'),html.indexOf('</script>',html.indexOf('// Let the device choose the light/dark appearance')));
- assert.match(firstScript,/prefers-color-scheme: dark/);
- assert.doesNotMatch(firstScript,/localStorage|sbp_design_theme/);
- assert.match(html,/step19\.53-neutral-dark-2026-11-02-v1/);
- assert.match(release,/version:'19\.51'/);
+function boot(saved,systemDark=false,blocked=false){
+ const storage=new Map(saved?[['sbp_design_theme',saved]]:[]),events={},mediaEvents={};
+ const mq={matches:systemDark,addEventListener(k,fn){mediaEvents[k]=fn;}};
+ const meta={attributes:{},getAttribute(k){return this.attributes[k]},setAttribute(k,v){this.attributes[k]=v;}};
+ const buttons=['light','dark','system'].map(value=>({dataset:{sbpTheme:value},attributes:{},events:{},getAttribute(k){return this.attributes[k]},setAttribute(k,v){this.attributes[k]=v},addEventListener(k,fn){this.events[k]=fn}}));
+ const label={dataset:{sbpText:'theme'},textContent:''};
+ const document={documentElement:{dataset:{},style:{}},querySelector(){return meta},querySelectorAll(sel){return sel==='button[data-sbp-theme]'?buttons:sel==='[data-sbp-text]'?[label]:[]}};
+ const window={localStorage:{getItem(k){if(blocked)throw Error('denied');return storage.get(k)||null},setItem(k,v){if(blocked)throw Error('denied');storage.set(k,v)}},matchMedia:()=>mq,addEventListener(k,fn){events[k]=fn}};
+ const ctx={window,document,console};vm.runInNewContext(redesign.replaceAll('export ','')+'\ninitRedesign();',ctx);
+ return {window,document,storage,events,mediaEvents,mq,buttons,label,meta};
+}
+test('manual choices persist, override OS, update controls and survive language changes',()=>{
+ const b=boot('dark',false);const theme=()=>b.document.documentElement.dataset.sbpTheme;
+ assert.equal(theme(),'dark');assert.equal(b.document.documentElement.style.colorScheme,'dark');
+ b.buttons[0].events.click();assert.equal(theme(),'light');assert.equal(b.storage.get('sbp_design_theme'),'light');
+ b.mq.matches=true;b.mediaEvents.change();assert.equal(theme(),'light');
+ assert.equal(b.buttons[0].attributes['aria-pressed'],'true');
+ assert.equal(boot(b.storage.get('sbp_design_theme'),true).document.documentElement.dataset.sbpTheme,'light');
+ b.buttons[1].events.click();assert.equal(theme(),'dark');assert.equal(b.meta.attributes.content,'#121416');
+ b.storage.set('toe_ui_language','kz');b.window.refreshRedesign();assert.equal(b.label.textContent,'Безендіру тақырыбы');assert.equal(theme(),'dark');
+ b.window.setSBPTheme('invalid');assert.equal(theme(),'dark');
+ b.buttons[2].events.click();b.mq.matches=false;b.mediaEvents.change();assert.equal(theme(),'light');
+ b.mq.matches=true;b.mediaEvents.change();assert.equal(theme(),'dark');
+ b.storage.set('sbp_design_theme','light');b.events.storage({key:'sbp_design_theme'});assert.equal(theme(),'light');
+});
+test('first paint matches loaded theme for saved, system, invalid and unavailable storage',()=>{
+ const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+ for(const [saved,dark,blocked] of [['dark',false,false],['light',true,false],[null,true,false],['bad',true,false],[null,true,true]]){
+  const b=boot(saved,dark,blocked);const expected=b.document.documentElement.dataset.sbpTheme;
+  b.document.documentElement.dataset={};
+  vm.runInNewContext(script,{window:b.window,document:b.document,localStorage:b.window.localStorage});
+  assert.equal(b.document.documentElement.dataset.sbpTheme,expected);
+ }
+ const b=boot(null,true,true);b.window.setSBPTheme('light');assert.equal(b.document.documentElement.dataset.sbpTheme,'light');
+ assert.match(html,/sbp-theme-card/);
+});
+test('language quick switch shows destination with Latin labels in both directions',()=>{
+ const button={setAttribute(k,v){this[k]=v}},nodes={'sbp-lang-switch':button};
+ const document={documentElement:{},getElementById:id=>nodes[id]};let lang='ru';
+ const fn=app.slice(app.indexOf('function updateLanguageButtons()'),app.indexOf('startInterfaceTranslations();',app.indexOf('function updateLanguageButtons()')));
+ const ctx={document,currentLang:()=>lang};vm.runInNewContext(fn+'\nupdateLanguageButtons();',ctx);
+ assert.equal(button.textContent,'KZ');assert.equal(button['aria-label'],'Переключить на казахский');
+ lang='kz';ctx.updateLanguageButtons();assert.equal(button.textContent,'RU');assert.equal(button['aria-label'],'Орыс тіліне ауысу');
+ assert.match(html,/id="lang-ru"[^>]*>RU<\/button>/);assert.match(html,/id="lang-kz"[^>]*>KZ<\/button>/);
 });

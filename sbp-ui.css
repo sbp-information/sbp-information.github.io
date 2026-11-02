@@ -1388,3 +1388,52 @@
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(:focus-visible) {
  outline:2px solid var(--sbp-focus)!important;outline-offset:3px;
 }
+
+/* 19.54: schedule surfaces follow the same neutral palette as the journal. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-timeline,.schedule-ref-card,.schedule-ref-break-card,.schedule-live-card,
+ .schedule-pause-placeholder,.schedule-ref-empty
+) {
+ background:var(--sbp-surface)!important;background-image:none!important;
+ color:var(--sbp-ink)!important;border-color:var(--sbp-line)!important;box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-number,.schedule-ref-state,.schedule-ref-change,.schedule-ref-admin-hint,
+ .schedule-ref-break-card>b,.schedule-ref-break-rail>span,.schedule-live-icon,
+ .schedule-admin-actions button,.schedule-ref-date-arrow,.schedule-ref-days button,
+ .schedule-ref-week-switch button,.schedule-ref-day-summary,.schedule-ref-day-state
+) {
+ background:var(--sbp-tint)!important;background-image:none!important;
+ color:var(--sbp-ink)!important;border-color:var(--sbp-line)!important;box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-card-head time,.schedule-ref-subject,.schedule-ref-day-heading,
+ .schedule-ref-break-card strong,.schedule-ref-break-card time,.schedule-ref-break-card i,
+ .schedule-live-today strong,.schedule-live-card p,.schedule-live-state strong,
+ .schedule-ref-empty strong,.schedule-ref-days button strong,.schedule-ref-week-switch button
+) {color:var(--sbp-ink)!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-meta,.schedule-ref-meta span,.schedule-ref-meta small,.schedule-ref-meta i,
+ .schedule-ref-days button span,.schedule-live-state span,.schedule-live-today>div>span
+) {color:var(--sbp-muted)!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-rail>i,.schedule-ref-break-rail::before,.schedule-live-progress
+) {background:#353739!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule .schedule-live-progress i {
+ background:#8b9e92!important;background-image:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(
+ .schedule-ref-row.current .schedule-ref-card,.schedule-ref-break.current .schedule-ref-break-card,
+ .schedule-ref-days button.active,.schedule-ref-week-switch button:is(.active,[aria-selected="true"])
+) {background:#303234!important;border-color:var(--sbp-focus)!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule .schedule-ref-state.current {color:#b1c9ba!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule :is(.schedule-ref-state.cancelled,.schedule-ref-change.cancelled) {color:#d3b5bb!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule .schedule-ref-change:not(.cancelled) {color:#d3c2a5!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign .sbp-theme-options button[aria-pressed="true"] {
+ background:#343434!important;border-color:var(--sbp-focus)!important;color:var(--sbp-ink)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign .sbp-theme-options button[aria-pressed="true"] :is(i,span) {color:var(--sbp-ink)!important}
+:root:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule .schedule-ref-days button.active,
+:root:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="true"]) {
+ background:#343434!important;border:1px solid var(--sbp-focus)!important;border-radius:10px;
+}

@@ -23,7 +23,7 @@ test('light palette is not changed by last dark-only overrides',()=>{
  assert.match(calm,/:root:root\[data-sbp-theme="dark"\] body\.sbp-redesign/);
  assert.doesNotMatch(calm,/:root:root body\.sbp-redesign/,'dark-only overrides must not target the light UI');
  assert.match(read('redesign.js'),/prefers-color-scheme: dark/);
- assert.doesNotMatch(html,/data-sbp-theme="(?:light|dark|system)"|sbp-theme-card/);
+ assert.match(html,/data-sbp-theme="system"/,'device appearance remains available alongside manual themes');
 });
 test('cards, navigation, fields, banner and current lesson are muted and separated',()=>{
  for(const selector of ['#view-home .home-ref-today','#view-schedule .schedule-ref-card','#view-roster .roster-person-card','#admin-settings-modal .settings-reference-card','.support-thread-btn','.notification-card','.sbp-cover-banner','.home-ref-lesson-card.current','.primary','.mini-calendar-day.today'])
@@ -34,9 +34,9 @@ test('cards, navigation, fields, banner and current lesson are muted and separat
 test('compiled CSS and installed PWA use the same updated dark palette',()=>{
  assert.ok(core.includes('--sbp-page:#121416'));
  assert.ok(ui.includes('/* 19.52: charcoal dark UI'));
- assert.match(html,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
- assert.match(sw,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
- assert.match(sw,/sbp-shell-20261102-neutral-dark-v1/);
+ assert.match(html,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
+ assert.match(sw,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
+ assert.match(sw,/sbp-shell-20261102-schedule-theme-v1/);
  const release=read('release-data.js');
  const entry=release.slice(release.indexOf("version:'19.52'"),release.indexOf("version:'19.51'"));
  assert.match(entry,/ru:\[/);assert.match(entry,/kz:\[/);

@@ -1,20 +1,20 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-neutral-dark-v1';
+const CACHE_NAME = 'sbp-shell-20261102-schedule-theme-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 // Precache HTML only once. Navigation fallbacks still support both root and index.html.
 const CORE_ASSETS = [
   './index.html',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
-  './redesign.js?v=20261102-neutral-dark-v1',
+  './redesign.js?v=20261102-schedule-theme-v1',
   './home-overview.js?v=20261017-admin-tap-v1',
   './schedule-dates.js?v=20261017-admin-tap-v1',
   './group-tools.js?v=20261102-fast-start-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261102-fast-start-v1',
-  './release-notes.js?v=20261102-neutral-dark-v1',
-  './release-data.js?v=20261102-neutral-dark-v1',
-  './app.js?v=20261102-neutral-dark-v1',
+  './release-notes.js?v=20261102-schedule-theme-v1',
+  './release-data.js?v=20261102-schedule-theme-v1',
+  './app.js?v=20261102-schedule-theme-v1',
   './firebase.js?v=20261102-fast-start-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
@@ -26,8 +26,8 @@ const CORE_ASSETS = [
   './notification-state.js?v=20261017-admin-tap-v1',
   './support-state.js?v=20261017-admin-tap-v1',
   './tailwind-local.css?v=20261101-no-violet-v1',
-  './sbp-core.css?v=20261102-neutral-dark-v1',
-  './sbp-ui.css?v=20261102-neutral-dark-v1',
+  './sbp-core.css?v=20261102-schedule-theme-v1',
+  './sbp-ui.css?v=20261102-schedule-theme-v1',
   './manifest.webmanifest?v=20261102-brand-launch-v1',
   './sbp-icon-32.png?v=20261031-icons-v1',
   './sbp-icon-180.png?v=20261031-icons-v1',
