@@ -2800,6 +2800,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
         };
 
         window.switchView = function(viewName, fromReload = false) {
+            if (!mainViews[viewName]) viewName = 'home';
             window.closeAdminDrawer?.(false);
             const settingsModal = document.getElementById('admin-settings-modal');
             const settingsOpen = !!settingsModal && !settingsModal.classList.contains('hidden');
