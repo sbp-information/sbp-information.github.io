@@ -1,5 +1,6 @@
 // SBP Information: Cloudflare Workers Free + D1 + Firebase Spark Web Push.
 // Private support messages are never included in the push payload.
+import { testRequest, sendDueTests } from './test-push.js';
 import { buildPushPayload } from '@block65/webcrypto-web-push';
 import { kazakhstanClock, dueReminders, reminderPayload, shouldCheckSchedule } from './schedule-reminders.js';
 import { dueHolidayNotices, holidayNoticePayload } from './holiday-reminders.js';
@@ -238,6 +239,7 @@ async function deliver(env, devices, key, build, options = {}) {
     if ((reserved.meta?.changes || 0) === 0) {
       const existing = await env.DB.prepare('SELECT state FROM deliveries WHERE id = ?').bind(receipt).first();
       if (existing?.state === 'pending' && options.status) options.status.failed++;
+      if (existing?.state === 'sent' && options.status) options.status.alreadySent = (options.status.alreadySent || 0) + 1;
       continue;
     }
     try {
@@ -340,6 +342,9 @@ async function scheduled(env) {
   try { await sendHolidayNotices(env, clock); }
   catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
 
+  try { await sendDueTests(env, deliver); }
+  catch (err) { console.error('Test push failed:', err?.message || 'unknown'); }
+
   if (clock.minute % 2 === 0) {
     const [notifications, threads] = await Promise.all([
       readRecent(env, 'notifications', 'createdAt'),
@@ -374,6 +379,9 @@ async function fetchHandler(request, env) {
   try {
     const user = await authorize(request);
     const data = await requestJson(request);
+    if (['/test','/test-status'].includes(url.pathname)) {
+      return reply(await testRequest(env,user,data,url.pathname,hash,deliver),200,origin);
+    }
     if (url.pathname === '/register') {
       if (!validSubscription(data.subscription)) throw error('Invalid subscription');
       const sub = data.subscription;
