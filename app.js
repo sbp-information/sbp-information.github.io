@@ -1,6 +1,6 @@
 import { nextCalendarDay, summarizeScheduleChanges, scheduleSummaryMarkup } from './schedule-summary.js?v=20261017-admin-tap-v1';
 import { initAdminDrawer } from './admin-drawer.js?v=20261017-admin-tap-v1';
-import { initRedesign } from './redesign.js?v=20261101-no-violet-v1';
+import { initRedesign } from './redesign.js?v=20261102-remove-college-v1';
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
 import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261017-admin-tap-v1';
 import { createArrivalTracker } from './notification-state.js?v=20261017-admin-tap-v1';
@@ -1308,7 +1308,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             const savedDay = localStorage.getItem('toe_current_schedule_day');
             const savedWeek = localStorage.getItem('toe_schedule_week_type');
             const savedView = localStorage.getItem('toe_current_view');
-            const initialView = savedView && ['home','tracker','roster','schedule','college'].includes(savedView) ? savedView : 'home';
+            const initialView = savedView && ['home','tracker','roster','schedule'].includes(savedView) ? savedView : 'home';
             restoreScheduleSelection(savedDay, savedWeek);
 
             // Show the last-used screen immediately. Its skeleton masks the short
@@ -1330,7 +1330,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 syncScheduleToToday();
                 // The requested view is drawn by switchView. Do not build three invisible
                 // panels first on low-end phones (journal/roster/schedule DOM is expensive).
-                if (savedView && ['home','tracker','roster','schedule','college'].includes(savedView)) switchView(savedView, true);
+                if (savedView && ['home','tracker','roster','schedule'].includes(savedView)) switchView(savedView, true);
                 else {
                     switchView('home', true);
                     restoreScrollPosition('home');
@@ -2562,7 +2562,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
 
         function ensureMainViewVisible() {
-            const viewIds = ['view-home','view-tracker','view-roster','view-schedule','view-college'];
+            const viewIds = ['view-home','view-tracker','view-roster','view-schedule'];
             const views = viewIds.map(id => document.getElementById(id)).filter(Boolean);
             if (!views.length) return;
             const hasVisibleView = views.some(el => !el.classList.contains('hidden'));
@@ -2722,8 +2722,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             home: document.getElementById('view-home'),
             tracker: document.getElementById('view-tracker'),
             roster: document.getElementById('view-roster'),
-            schedule: document.getElementById('view-schedule'),
-            college: document.getElementById('view-college')
+            schedule: document.getElementById('view-schedule')
         };
 
         const reducedMotionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)');
@@ -2801,6 +2800,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
         };
 
         window.switchView = function(viewName, fromReload = false) {
+            if (!mainViews[viewName]) viewName = 'home';
             window.closeAdminDrawer?.(false);
             const settingsModal = document.getElementById('admin-settings-modal');
             const settingsOpen = !!settingsModal && !settingsModal.classList.contains('hidden');

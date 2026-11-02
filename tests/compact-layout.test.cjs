@@ -13,10 +13,10 @@ test('compact header replaces logo bar without removing language and navigation'
  assert.match(html, /class="sbp-language"/);
  assert.match(html, /id="sbp-lang-switch"/);
  assert.match(html, /window\.setInterfaceLanguage\(document\.documentElement\.lang==='kk'\?'ru':'kz'\)/);
- for(const name of ['home','tracker','schedule','roster','college']) {
+ for(const name of ['home','tracker','schedule','roster']) {
   assert.match(html,new RegExp('id="view-'+name+'"'));
  }
- assert.ok((html.match(/onclick="openAppMenu\(\)"/g)||[]).length>=5);
+ assert.ok((html.match(/onclick="openAppMenu\(\)"/g)||[]).length>=4);
  assert.ok((html.match(/onclick="openNotifications\(\)"/g)||[]).length>=5);
  assert.match(css, /grid-template-columns:42px minmax\(0,1fr\) 42px 88px/);
 });

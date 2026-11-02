@@ -27,8 +27,8 @@ test('new dark theme is only enabled by resolved dark setting',()=>{
  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'dark theme is cached in current PWA build');
  assert.match(html,/sbp-core\.css\?v=20261101-localization-v1/);
  assert.match(sw,/sbp-core\.css\?v=20261101-localization-v1/);
- assert.match(app,/redesign\.js\?v=20261101-no-violet-v1/);
- assert.match(sw,/redesign\.js\?v=20261101-no-violet-v1/);
+ assert.match(app,/redesign\.js\?v=20261102-remove-college-v1/);
+ assert.match(sw,/redesign\.js\?v=20261102-remove-college-v1/);
  assert.match(release,/version:'19\.09'/);
 });
 test('all core text colors pass WCAG AA contrast on relevant surfaces',()=>{

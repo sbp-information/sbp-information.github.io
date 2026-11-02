@@ -8,16 +8,16 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const html=read('index.html'), app=read('app.js'), css=read('secondary-header-alignment.css');
 const worker=read('notifications-sw.js');
 
-test('five views share one correctly labelled clickable bell and independent unread badge',()=>{
+test('four views share one correctly labelled clickable bell and independent unread badge',()=>{
   const bells=[...html.matchAll(/<button\b[^>]*class="[^"]*\bnotification-bell\b[^"]*"[^>]*>[\s\S]*?<\/button>/g)].map(m=>m[0]);
-  assert.equal(bells.length,5,'Home, Journal, Schedule, College and Group all need a bell');
+  assert.equal(bells.length,4,'Home, Journal, Schedule and Group need a bell');
   for(const bell of bells){
     for(const token of ['type="button"','onclick="openNotifications()"','aria-controls="notifications-modal"','aria-haspopup="dialog"','aria-expanded="false"','data-sbp-aria="notifications"','notification-badge hidden']){
       assert.ok(bell.includes(token),'bell missing '+token);
     }
   }
   assert.equal((html.match(/id="notification-badge"/g)||[]).length,1,'keep the original badge ID unique');
-  for(const view of ['home','tracker','schedule','roster','college']){
+  for(const view of ['home','tracker','schedule','roster']){
     const section=html.slice(html.indexOf('id="view-'+view+'"'),html.indexOf('id="view-'+view+'"')+1700);
     assert.ok(section.includes('notification-bell'),'bell missing from '+view);
   }
@@ -28,7 +28,6 @@ test('all headers use the Home bell slot and allow taps without covering languag
   assert.match(css, /\.notification-bell\s*\{[\s\S]*?grid-column:3!important/);
   assert.match(css, /pointer-events:auto!important/);
   assert.match(css, /\.notification-badge\.hidden\s*\{\s*display:none!important/);
-  assert.match(css, /#view-college \.college-topbar > h1/);
   assert.match(html, /sbp-ui\.css\?v=20261101-localization-v1/);
   assert.match(worker, /sbp-ui\.css\?v=20261101-localization-v1/);
 });
@@ -37,7 +36,7 @@ test('unread counts update and clear simultaneously on every page',()=>{
   const end=app.indexOf('function renderHomeLatestNotification()',start);
   assert.ok(start>=0 && end>start);
   const source=app.slice(start,end);
-  const badges=Array.from({length:5},()=>({
+  const badges=Array.from({length:4},()=>({
     textContent:'0',
     hidden:true,
     classList:{toggle(name,hidden){assert.equal(name,'hidden');this.hidden=hidden;}}
@@ -55,13 +54,13 @@ test('unread counts update and clear simultaneously on every page',()=>{
   update();
   for(const badge of badges){assert.equal(badge.textContent,'0');assert.equal(badge.classList.hidden,true);}
 });
-test('opening and closing notifications syncs the five bell aria-expanded states',()=>{
+test('opening and closing notifications syncs the four bell aria-expanded states',()=>{
   const start=app.indexOf('window.openNotifications=function(){');
   const end=app.indexOf('let publishingNotification=false;',start);
   assert.ok(start>=0 && end>start);
   const source=app.slice(start,end);
   const states=[];
-  const buttons=Array.from({length:5},()=>({setAttribute(k,v){assert.equal(k,'aria-expanded');this.expanded=v;}}));
+  const buttons=Array.from({length:4},()=>({setAttribute(k,v){assert.equal(k,'aria-expanded');this.expanded=v;}}));
   const modal={classList:{add(v){states.push('modal-add-'+v);},remove(v){states.push('modal-remove-'+v);}}};
   const composer={classList:{toggle(k,val){states.push('composer-'+k+'-'+val);}}};
   const doc={getElementById:id=>id==='notifications-modal'?modal:id==='notification-admin-composer'?composer:null,

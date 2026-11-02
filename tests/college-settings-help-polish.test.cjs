@@ -8,17 +8,13 @@ const read=n=>fs.readFileSync(path.join(root,n),'utf8');
 const css=read('brand-blue.css'),html=read('index.html'),sw=read('notifications-sw.js');
 const latest=css.slice(css.indexOf('/* 19.26:'));
 
-test('College heading is centered inside the safe grid column, never beneath the bell',()=>{
-  assert.match(html, /id="view-college" class="hidden college-page"/);
-  assert.match(html, /class="college-topbar"[^\n]*<h1 data-sbp-text="college">О колледже<\/h1>[^\n]*class="notification-bell"/);
-  const rule=latest.match(/#view-college\.college-page \.college-topbar > h1\s*\{([\s\S]*?)\}/);
-  assert.ok(rule,'explicit College-title override after the 19.21 absolute centering');
-  const body=rule[1];
-  for(const token of ['position:relative!important','grid-column:2!important','grid-row:1!important','transform:none!important','justify-self:stretch!important','width:100%!important','max-width:100%!important','min-width:0!important','text-align:center!important','white-space:normal!important','overflow-wrap:break-word!important']){
-    assert.ok(body.includes(token),'College title missing safe positioning: '+token);
-  }
-  assert.match(read('secondary-header-alignment.css'), /#view-college \.college-topbar > h1/);
-  assert.match(latest, /@media\(min-width:900px\)/);
+test('removed College information is absent from UI, JS and PWA resources',()=>{
+  assert.doesNotMatch(html, /id="view-college"|menu-college-button|switchView\('college'\)|О колледже/);
+  assert.doesNotMatch(read('app.js'), /getElementById\('view-college'\)|'view-college'|'schedule','college'/);
+  assert.doesNotMatch(read('redesign.js'), /collegeMarkup|college-data\.js|college-content/);
+  assert.doesNotMatch(sw, /college-data\.js|college-illustration\.svg/);
+  assert.equal(fs.existsSync(path.join(root,'college-data.js')),false);
+  assert.equal(fs.existsSync(path.join(root,'college-illustration.svg')),false);
 });
 
 test('all requested settings sections use the same rounded, clipped card container',()=>{
@@ -55,8 +51,8 @@ test('19.26 release, active CSS, script and offline worker versions agree',()=>{
   const rel=read('release-data.js');
   const block=rel.slice(rel.indexOf("version:'19.26'"),rel.indexOf("version:'19.25'"));
   assert.match(block,/ru:\[/);assert.match(block,/kz:\[/);
-  assert.match(html,/step19\.48-ios-install-2026-11-02-v1/);
+  assert.match(html,/step19\.49-remove-college-2026-11-02-v1/);
   assert.match(html,/sbp-ui\.css\?v=20261101-localization-v1/);
   assert.match(sw,/sbp-ui\.css\?v=20261101-localization-v1/);
-  assert.match(sw,/sbp-shell-20261102-ios-install-v1/);
+  assert.match(sw,/sbp-shell-20261102-remove-college-v1/);
 });

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.48-ios-install-2026-11-02-v1">
+    <meta name="app-build" content="step19.49-remove-college-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,7 +47,7 @@
       (() => {
         try {
           const savedView = localStorage.getItem('toe_current_view');
-          const initialView = ['home','tracker','roster','schedule','college'].includes(savedView) ? savedView : 'home';
+          const initialView = ['home','tracker','roster','schedule'].includes(savedView) ? savedView : 'home';
           document.documentElement.setAttribute('data-initial-view', initialView);
         } catch (_) {
           document.documentElement.setAttribute('data-initial-view', 'home');
@@ -58,13 +58,11 @@
       html[data-initial-view] #view-home,
       html[data-initial-view] #view-tracker,
       html[data-initial-view] #view-roster,
-      html[data-initial-view] #view-college,
       html[data-initial-view] #view-schedule{display:none!important}
       html[data-initial-view="home"] #view-home{display:flex!important}
       html[data-initial-view="tracker"] #view-tracker{display:block!important}
       html[data-initial-view="roster"] #view-roster{display:flex!important}
       html[data-initial-view="schedule"] #view-schedule{display:block!important}
-      html[data-initial-view="college"] #view-college{display:block!important}
 
       /* Reserve the mobile lesson timeline before Firebase/local data paints. This is only a visual placeholder, not a lesson. */
       #home-day-timeline .home-timeline-placeholder{display:grid;gap:0;min-height:425px;pointer-events:none;}
@@ -225,7 +223,7 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-ios-install-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-remove-college-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
@@ -766,11 +764,6 @@
         <div id="schedule-container" class="schedule-ref-timeline"></div>
     </div>
 
-    <div id="view-college" class="hidden college-page" data-i18n-skip>
-      <div class="college-topbar"><button type="button" onclick="openAppMenu()" data-sbp-aria="menu" aria-label="Меню"><i class="fa-solid fa-bars"></i></button><h1 data-sbp-text="college">О колледже</h1><button type="button" class="notification-bell" onclick="openNotifications()" data-sbp-aria="notifications" aria-label="Уведомления" aria-haspopup="dialog" aria-controls="notifications-modal" aria-expanded="false"><i class="fa-regular fa-bell"></i><span class="notification-badge hidden" aria-hidden="true">0</span></button></div>
-      <main id="college-content"></main>
-    </div>
-
     <div id="view-roster" class="hidden roster-reference-page min-h-screen flex flex-col max-w-2xl mx-auto p-4 pb-20">
         <div class="roster-ref-topbar">
             <button class="roster-ref-topbtn" onclick="openAppMenu()" aria-label="Меню">
@@ -1007,7 +1000,6 @@
                 <button onclick="closeAppMenu();switchView('tracker')"><i class="fa-solid fa-book-open"></i><span>Журнал</span></button>
                 <button onclick="closeAppMenu();switchView('schedule')"><i class="fa-regular fa-calendar-days"></i><span>Расписание</span></button>
                 <button onclick="closeAppMenu();switchView('roster')"><i class="fa-solid fa-user-group"></i><span>Группа</span></button>
-                <button id="menu-college-button" type="button" onclick="closeAppMenu();switchView('college')" data-i18n-skip><i class="fa-solid fa-building-columns"></i><span data-sbp-text="college">О колледже</span></button>
 
             </div>
 
@@ -1180,7 +1172,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-ios-install-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-remove-college-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1197,7 +1189,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-ios-install-v1"></script>
+    <script type="module" src="app.js?v=20261102-remove-college-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
