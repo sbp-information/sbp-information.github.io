@@ -1,136 +1,113 @@
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
-const vm = require('node:vm');
-const root = path.join(__dirname, '..');
-const data = fs.readFileSync(path.join(root, 'release-data.js'), 'utf8').replaceAll('export ', '');
-const ui = fs.readFileSync(path.join(root, 'release-notes.js'), 'utf8').replace(/^import .*;\n/, '');
-
-function app({ build = 'step18.46-release-history-2026-10-05', seen = false, language = 'ru', denied = false, busy = false, pushLaunch = false } = {}) {
-  const storage = new Map([['toe_ui_language', language]]);
-  if (seen) storage.set('sbp_release_seen_18.46', '1');
-  const timers = [], nodes = new Map(), events = new Map();
-  const classList = initial => ({ values: new Set(initial), contains(x) { return this.values.has(x); }, add(x) { this.values.add(x); }, remove(x) { this.values.delete(x); } });
-  const document = { visibilityState: 'visible', readyState: 'complete', activeElement: null,
-    body: { classList: classList([]) }, documentElement: { classList: classList([]) },
-    addEventListener(type, fn) { events.set(type, fn); },
-    querySelector(selector) { return selector.includes('meta') ? { content: build } : node('bottom-nav-home'); },
-    getElementById: node,
-    querySelectorAll() { return [node('release-notes-modal'), { getClientRects: () => busy ? [{}] : [] }]; }
-  };
-  function node(id) {
-    if (!nodes.has(id)) nodes.set(id, { textContent: '', innerHTML: '', scrollTop: 0, hidden: false, disabled: false, isConnected: true,
-      classList: classList(id === 'release-notes-modal' ? ['hidden'] : []), handlers: {}, attributes: {},
-      setAttribute(name, value) { this.attributes[name] = value; },
-      focus() { document.activeElement = this; }, closest() { return null; },
-      addEventListener(type, fn) { this.handlers[type] = fn; },
-      getClientRects() { return this.classList.contains('hidden') ? [] : [{}]; },
-      querySelectorAll() { return [node('release-notes-close'), node('release-notes-history'), node('release-notes-acknowledge')]; }
-    });
-    return nodes.get(id);
-  }
-  document.activeElement = node('bottom-nav-home');
-  const context = { console, Date, Intl, String, Number, URLSearchParams, document,
-    location: {search: pushLaunch ? '?notification=support' : ''},
-    localStorage: {
-      getItem(key) { if (denied) throw new Error('Storage denied'); return storage.get(key) || null; },
-      setItem(key, value) { if (denied) throw new Error('Storage denied'); assert.match(key, /^sbp_release_seen_/); storage.set(key, value); }
-    },
-    setTimeout(fn) { timers.push(fn); return timers.length; }, clearTimeout() {},
-    window: { addEventListener(type, fn) { events.set(type, fn); }, closeAppMenu() {} }
-  };
-  vm.createContext(context); vm.runInContext(data, context); vm.runInContext(ui, context);
-  return { context, storage, timers, node, document, events };
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const root=path.join(__dirname,'..');
+const data=fs.readFileSync(path.join(root,'release-data.js'),'utf8').replaceAll('export ','');
+const ui=fs.readFileSync(path.join(root,'release-notes.js'),'utf8').replace(/^import .*;\n/,'');
+function app({build='step19.40-history-manual-2026-11-02-v1',language='ru',denied=false,pushLaunch=false}={}){
+ const storage=new Map([['toe_ui_language',language]]),nodes=new Map(),events=new Map(),timers=[];
+ const cls=initial=>({items:new Set(initial),contains(x){return this.items.has(x);},add(x){this.items.add(x);},remove(x){this.items.delete(x);}});
+ const document={
+  readyState:'complete',visibilityState:'visible',activeElement:null,
+  body:{classList:cls([])},documentElement:{classList:cls([])},
+  addEventListener(name,fn){events.set('document:'+name,fn);},
+  querySelector(selector){return selector.includes('meta')?{content:build}:node('bottom-nav-home');},
+  getElementById:node,
+  querySelectorAll(){return [];}
+ };
+ function node(id){
+  if(!nodes.has(id))nodes.set(id,{
+   textContent:'',innerHTML:'',scrollTop:0,hidden:false,disabled:false,isConnected:true,
+   classList:cls(id==='release-notes-modal'?['hidden']:[]),handlers:{},attributes:{},
+   setAttribute(k,v){this.attributes[k]=v;},focus(){document.activeElement=this;},
+   closest(){return null;},addEventListener(name,fn){this.handlers[name]=fn;},
+   querySelectorAll(){return [node('release-notes-close'),node('release-notes-history'),node('release-notes-acknowledge')];}
+  });
+  return nodes.get(id);
+ }
+ document.activeElement=node('bottom-nav-home');
+ let closedMenu=0;
+ const context={console,Date,Intl,String,Number,URLSearchParams,document,
+  location:{search:pushLaunch?'?notification=support':''},
+  localStorage:{
+   getItem(key){if(denied)throw Error('Storage denied');return storage.get(key)||null;},
+   setItem(key,value){if(denied)throw Error('Storage denied');storage.set(key,value);}
+  },
+  setTimeout(fn){timers.push(fn);return timers.length;},clearTimeout(){},
+  window:{addEventListener(name,fn){events.set('window:'+name,fn);},closeAppMenu(){closedMenu++;}}
+ };
+ vm.createContext(context);
+ vm.runInContext(data,context);vm.runInContext(ui,context);
+ return {node,storage,timers,events,document,context,get closedMenu(){return closedMenu;}};
 }
+const fresh=app();
+assert.equal(fresh.node('release-notes-modal').classList.contains('hidden'),true,'no automatic Whats New dialog on first visit');
+assert.equal(fresh.timers.length,0,'no delayed update prompt');
+assert.equal(fresh.events.has('document:DOMContentLoaded'),false,'no DOM-ready auto prompt');
+assert.equal(fresh.events.has('document:visibilitychange'),false,'returning to app never prompts');
+assert.doesNotMatch(ui,/function showUnreadRelease|function schedulePrompt/,'automatic prompt implementation removed');
+assert.equal(fresh.storage.has('sbp_release_seen_19.40'),false,'manual history does not need seen keys');
 
-const openedFromNotification=app({pushLaunch:true});
-openedFromNotification.timers.shift()();
-assert.equal(openedFromNotification.node('release-notes-modal').classList.contains('hidden'), true,
-  'update dialog must never cover a cold-start Push destination');
+fresh.context.window.openReleaseHistory();
+assert.equal(fresh.closedMenu,1,'history action closes navigation menu');
+assert.equal(fresh.node('release-notes-modal').classList.contains('hidden'),false,'manual menu action opens history');
+assert.equal(fresh.node('release-notes-heading').textContent,'История обновлений');
+assert.equal(fresh.node('release-notes-history').hidden,true);
+assert.match(fresh.node('release-notes-content').innerHTML,/19\.40/);
+assert.match(fresh.node('release-notes-content').innerHTML,/19\.39/);
+assert.match(fresh.node('release-notes-content').innerHTML,/Исправления/);
+assert.equal(fresh.document.body.classList.contains('release-notes-open'),true);
+fresh.node('release-notes-acknowledge').handlers.click();
+assert.equal(fresh.node('release-notes-modal').classList.contains('hidden'),true);
+assert.equal(fresh.document.body.classList.contains('release-notes-open'),false);
+assert.equal(fresh.storage.has('sbp_release_seen_19.40'),false,'closing history must not write prompt tracking state');
+assert.equal(fresh.document.activeElement,fresh.node('bottom-nav-home'),'focus returns to the prior control');
 
-const first = app();
-first.timers.shift()();
-assert.equal(first.node('release-notes-modal').classList.contains('hidden'), false, 'new version prompts once');
-assert.match(first.node('release-notes-content').innerHTML, /Среднее обновление/);
-assert.doesNotMatch(first.node('release-notes-content').innerHTML, /18\.45/, 'initial card shows only installed release');
-first.node('release-notes-acknowledge').handlers.click();
-assert.equal(first.storage.get('sbp_release_seen_18.46'), '1');
-assert.equal(first.node('release-notes-modal').classList.contains('hidden'), true);
-assert.equal(first.document.body.classList.contains('release-notes-open'), false);
+const push=app({pushLaunch:true});
+assert.equal(push.node('release-notes-modal').classList.contains('hidden'),true,'Push deep link must not be covered');
+push.context.window.openReleaseHistory();
+assert.equal(push.node('release-notes-modal').classList.contains('hidden'),false,'history stays manually accessible from Push launch');
+const privateMode=app({denied:true});
+assert.equal(privateMode.node('release-notes-modal').classList.contains('hidden'),true,'storage-denied visit stays quiet');
+privateMode.context.window.openReleaseHistory();
+assert.equal(privateMode.node('release-notes-modal').classList.contains('hidden'),false,'history works without storage access');
+privateMode.node('release-notes-close').handlers.click();
+assert.equal(privateMode.node('release-notes-modal').classList.contains('hidden'),true);
 
-const seen = app({ seen: true }); seen.timers.shift()();
-assert.equal(seen.node('release-notes-modal').classList.contains('hidden'), true, 'acknowledged version stays silent');
-seen.context.window.openReleaseHistory();
-assert.equal(seen.node('release-notes-modal').classList.contains('hidden'), false, 'history is always available');
-assert.match(seen.node('release-notes-content').innerHTML, /18\.46/);
-assert.match(seen.node('release-notes-content').innerHTML, /18\.45/);
-assert.match(seen.node('release-notes-content').innerHTML, /Исправления/);
-assert.equal(seen.node('release-notes-history').hidden, true);
-
-const older = app({ build: 'step18.45-mobile-bells-update-2026-10-05' });
-older.context.window.openReleaseHistory();
-assert.doesNotMatch(older.node('release-notes-content').innerHTML, /18\.46/, 'older clients do not describe features not installed');
-assert.match(older.node('release-notes-content').innerHTML, /Исправления/);
-
-const unknown = app({ build: 'step18.999-not-described-yet' }); unknown.timers.shift()();
-assert.equal(unknown.node('release-notes-modal').classList.contains('hidden'), true, 'missing notes never reuse an old release');
-
-const blocked = app({ busy: true }); blocked.timers.shift()();
-assert.equal(blocked.node('release-notes-modal').classList.contains('hidden'), true, 'prompt does not interrupt another dialog');
-assert.equal(blocked.timers.length, 1);
-
-const privateMode = app({ denied: true }); privateMode.timers.shift()();
-privateMode.node('release-notes-acknowledge').handlers.click();
-privateMode.events.get('visibilitychange')(); privateMode.timers.shift()();
-assert.equal(privateMode.node('release-notes-modal').classList.contains('hidden'), true, 'storage denial remains usable and silent for this session');
-
-const kz = app({ language: 'kz' }); kz.timers.shift()();
-assert.equal(kz.node('release-notes-heading').textContent, 'Не жаңалық');
-assert.match(kz.node('release-notes-content').innerHTML, /Орташа жаңарту/);
-assert.match(kz.node('release-notes-content').innerHTML, /Жаңалықтар мен жаңартулар тарихы/);
-assert.equal(kz.node('release-notes-acknowledge').textContent, 'Түсінікті');
+const kz=app({language:'kz'});
+assert.equal(kz.node('menu-release-history-label').textContent,'Жаңартулар тарихы');
 kz.context.window.openReleaseHistory();
-assert.equal(kz.node('release-notes-heading').textContent, 'Жаңартулар тарихы');
-assert.match(kz.node('release-notes-content').innerHTML, /Түзетулер/);
-assert.match(kz.node('release-notes-content').innerHTML, /Жаңарту түймесі және қоңырау кестесі/);
-assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Кнопка обновления/,'Kazakh history must not show Russian release titles');
-assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Среднее обновление/,'Kazakh history must not show Russian update type');
-assert.match(kz.node('release-notes-content').innerHTML,/Нұсқа 18\.46/,'Kazakh version label');
-vm.runInContext(`for (const release of RELEASES) for (const key of ['fixes', 'updates']) {
-  if (!release[key]) continue;
-  if (release[key].ru.length !== release[key].kz.length || release[key].kz.some(text => !text)) throw new Error('Missing Kazakh release translation');
-}`, kz.context);
-kz.storage.set('toe_ui_language', 'ru'); kz.context.window.refreshReleaseNotes();
-assert.equal(kz.node('release-notes-heading').textContent, 'История обновлений');
-assert.match(kz.node('release-notes-content').innerHTML, /Исправления/);
-assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Түзетулер/,'Russian history must not show Kazakh');
+assert.equal(kz.node('release-notes-heading').textContent,'Жаңартулар тарихы');
+assert.match(kz.node('release-notes-content').innerHTML,/Нұсқа 19\.40/);
+assert.match(kz.node('release-notes-content').innerHTML,/Түзетулер/);
+assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/История обновлений|Исправления/);
+kz.storage.set('toe_ui_language','ru');
+kz.events.get('window:storage')({key:'toe_ui_language'});
+assert.equal(kz.node('release-notes-heading').textContent,'История обновлений');
+assert.match(kz.node('release-notes-content').innerHTML,/Исправления/);
 kz.storage.set('toe_ui_language','kz');kz.context.window.refreshReleaseNotes();
-assert.match(kz.node('release-notes-content').innerHTML,/Түзетулер/,'open release dialog switches to Kazakh');
-assert.doesNotMatch(kz.node('release-notes-content').innerHTML,/Исправления/);
+assert.match(kz.node('release-notes-content').innerHTML,/Түзетулер/);
+vm.runInContext("for(const r of RELEASES) for(const k of ['fixes','updates']) { if(!r[k]) continue; if(r[k].ru.length!==r[k].kz.length || r[k].kz.some(t=>!t)) throw Error('RU/KZ mismatch'); }",kz.context);
 
+const older=app({build:'step18.45-mobile-bells-update-2026-10-05'});
+older.context.window.openReleaseHistory();
+assert.doesNotMatch(older.node('release-notes-content').innerHTML,/19\.40|18\.46/,'old builds do not show unreleased entries');
+const unknown=app({build:'step18.999-not-described-yet'});
+assert.equal(unknown.node('release-notes-modal').classList.contains('hidden'),true);
+unknown.context.window.openReleaseHistory();
+assert.match(unknown.node('release-notes-content').innerHTML,/Описание этой версии скоро появится/);
+const keyboard=app();
+keyboard.context.window.openReleaseHistory();
+let prevented=false;
+keyboard.events.get('document:keydown')({key:'Tab',shiftKey:false,preventDefault(){prevented=true;}});
+assert.equal(prevented,true);
+assert.equal(keyboard.document.activeElement,keyboard.node('release-notes-close'));
+keyboard.events.get('document:keydown')({key:'Escape',preventDefault(){}});
+assert.equal(keyboard.node('release-notes-modal').classList.contains('hidden'),true);
+assert.equal(keyboard.storage.has('sbp_release_seen_19.40'),false);
 
-const crossTab = app(); crossTab.timers.shift()();
-crossTab.events.get('storage')({ key: 'sbp_release_seen_18.46', newValue: '1' });
-assert.equal(crossTab.node('release-notes-modal').classList.contains('hidden'), true);
-
-const keyboard = app(); keyboard.timers.shift()();
-let prevented = false;
-keyboard.events.get('keydown')({ key: 'Tab', shiftKey: false, preventDefault() { prevented = true; } });
-assert.equal(prevented, true, 'keyboard focus stays in the dialog');
-assert.equal(keyboard.document.activeElement, keyboard.node('release-notes-close'));
-keyboard.events.get('keydown')({ key: 'Escape', preventDefault() {} });
-assert.equal(keyboard.node('release-notes-modal').classList.contains('hidden'), true);
-assert.equal(keyboard.storage.get('sbp_release_seen_18.46'), '1');
-assert.equal(first.context.releaseTypeLabel({ type:'update', size:'small' }), 'Мини-обновление');
-assert.equal(first.context.releaseTypeLabel({ type:'update', size:'major' }), 'Крупное обновление');
-console.log('Release notes: once-per-version, history, corrections, installed-version filtering, modal deferral, storage denial, RU/KZ, cross-tab dismissal and keyboard checks passed.');
-
-// Latest update, including mobile PWA, must show only the selected language.
-const latestKz=app({build:'step19.13-language-2026-11-01-v2',language:'kz'});
-latestKz.timers.shift()();
-assert.match(latestKz.node('release-notes-content').innerHTML,/Тілді ауыстыруды түзету/);
-assert.doesNotMatch(latestKz.node('release-notes-content').innerHTML,/Исправление переключения языка/);
-const latestRu=app({build:'step19.13-language-2026-11-01-v2',language:'ru'});
-latestRu.timers.shift()();
-assert.match(latestRu.node('release-notes-content').innerHTML,/Исправление переключения языка/);
-assert.doesNotMatch(latestRu.node('release-notes-content').innerHTML,/Тілді ауыстыруды түзету/);
+assert.equal(fresh.context.releaseTypeLabel({type:'update',size:'small'}),'Мини-обновление');
+assert.equal(fresh.context.releaseTypeLabel({type:'update',size:'major'}),'Крупное обновление');
+console.log('Release history: manual-only, no startup/reentry prompt, Push launch, privacy, RU/KZ, filtering, accessibility and close passed.');

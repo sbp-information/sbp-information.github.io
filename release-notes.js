@@ -1,8 +1,6 @@
-import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261102-mentions-v1';
+import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261102-history-manual-v1';
 
 const build = document.querySelector('meta[name="app-build"]')?.content;
-// A Push deep link must open its destination first, never be covered by the update dialog.
-const launchedFromPush = typeof location !== 'undefined' && new URLSearchParams(location.search).has('notification');
 const currentRelease = releaseForBuild(build);
 const modal = document.getElementById('release-notes-modal');
 const content = document.getElementById('release-notes-content');
@@ -13,17 +11,9 @@ const closeButton = document.getElementById('release-notes-close');
 const menuLabel = document.getElementById('menu-release-history-label');
 let historyMode = false;
 let returnFocus = null;
-let acknowledged = false;
-let pendingTimer = null;
 const lang = () => { try { return localStorage.getItem('toe_ui_language') === 'kz' ? 'kz' : 'ru'; } catch (_) { return 'ru'; } };
 const t = (ru, kz) => lang() === 'kz' ? kz : ru;
 const escape = value => String(value).replace(/[&<>"']/g, character => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[character]));
-const seenKey = () => 'sbp_release_seen_' + currentRelease?.version;
-function wasSeen() {
-  if (acknowledged || !currentRelease) return true;
-  try { return localStorage.getItem(seenKey()) === '1'; } catch (_) { return false; }
-}
-
 function releaseCard(release) {
   const language = lang();
   const date = new Intl.DateTimeFormat(language === 'kz' ? 'kk-KZ' : 'ru-RU', { day:'numeric', month:'long', year:'numeric' }).format(new Date(release.date + 'T12:00:00'));
@@ -63,8 +53,6 @@ function open(history) {
 }
 function close() {
   if (!modal || modal.classList.contains('hidden')) return;
-  acknowledged = true;
-  if (currentRelease) { try { localStorage.setItem(seenKey(), '1'); } catch (_) {} }
   modal.classList.add('hidden');
   document.body.classList.remove('release-notes-open');
   if (returnFocus?.isConnected && !returnFocus.closest('.hidden')) returnFocus.focus({ preventScroll:true });
@@ -86,29 +74,8 @@ document.addEventListener('keydown', event => {
   }
 });
 
-function showUnreadRelease() {
-  pendingTimer = null;
-  if (launchedFromPush || !modal || wasSeen() || !modal.classList.contains('hidden')) return;
-  if (document.visibilityState !== 'visible') return;
-  const busy = document.documentElement.classList.contains('sbp-app-launch') || [...document.querySelectorAll('.app-overlay,.bell-editor-overlay,[id$="-modal"]')].some(node => node !== modal && node.getClientRects().length);
-  if (busy) { pendingTimer = setTimeout(showUnreadRelease, 1000); return; }
-  open(false);
-}
-function schedulePrompt() {
-  if (pendingTimer !== null) clearTimeout(pendingTimer);
-  pendingTimer = setTimeout(showUnreadRelease, 1200);
-}
+// Release history is available only when explicitly opened from the menu.
 window.addEventListener('storage', event => {
-  if (event.key === seenKey() && event.newValue === '1') {
-    acknowledged = true;
-    if (!historyMode) close();
-  }
   if (event.key === 'toe_ui_language') window.refreshReleaseNotes();
 });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') schedulePrompt(); });
 window.refreshReleaseNotes();
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedulePrompt, { once:true });
-else schedulePrompt();
-
-
-
