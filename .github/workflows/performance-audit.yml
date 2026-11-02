@@ -2,13 +2,16 @@ name: Audit site performance (mobile first)
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/performance-audit.yml'
   push:
     branches: [main]
     paths:
       - '.github/workflows/performance-audit.yml'
+      - 'index.html'
+      - 'app.js'
+      - 'notifications-sw.js'
+      - 'performance.js'
+      - 'sbp-core.css'
+      - 'sbp-ui.css'
 
 permissions:
   contents: read
@@ -16,7 +19,7 @@ permissions:
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,63 +28,76 @@ jobs:
       - name: Install Lighthouse
         run: npm install --no-save lighthouse@12
 
-      - name: Mobile audit (simulated phone and network)
+      - name: Wait for the actual published build
+        run: |
+          set -eu
+          EXPECTED=$(grep -oE 'name="app-build" content="[^"]+"' index.html | head -n 1 | sed -E 's/.*content="([^"]+)"/\1/')
+          if [ -z "$EXPECTED" ]; then echo "Missing build identifier"; exit 1; fi
+          echo "Waiting for published build $EXPECTED before measuring."
+          for i in $(seq 1 60); do
+            if curl --fail --silent --show-error --max-time 12 "https://sbp-information.github.io/index.html?audit=$(date +%s)" \
+              | grep -Fq "$EXPECTED"; then
+              echo "Deployed site contains expected build $EXPECTED."
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "Published site did not update to expected build. Not measuring an old version." >&2
+          exit 1
+
+      - name: Measure mobile Lighthouse three times
         run: |
           mkdir -p reports
-          npx lighthouse https://sbp-information.github.io/ \
-            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
-            --only-categories=performance --form-factor=mobile \
-            --output=json --output-path=reports/mobile.json --quiet
+          for run in 1 2 3; do
+            npx lighthouse https://sbp-information.github.io/ \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --only-categories=performance --form-factor=mobile \
+              --output=json --output-path="reports/mobile-$run.json" --quiet
+          done
 
-      - name: Desktop audit
+      - name: Measure desktop Lighthouse
         run: |
           npx lighthouse https://sbp-information.github.io/ \
             --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
             --only-categories=performance --preset=desktop \
             --output=json --output-path=reports/desktop.json --quiet
 
-      - name: Write measured metrics to run summary
+      - name: Write measured medians to workflow summary
         run: |
           node <<'NODE'
-          const fs = require('node:fs');
-          const records = [['Mobile (emulated)', 'reports/mobile.json'], ['Desktop', 'reports/desktop.json']];
-          const metric = (data, id, suffix = 'ms', digits = 0) => {
-            const number = data.audits?.[id]?.numericValue;
-            return Number.isFinite(number) ? number.toFixed(digits) + ' ' + suffix : 'n/a';
-          };
-          const rows = records.map(([device, file]) => {
-            const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-            if (data.runtimeError) throw new Error(device + ': ' + data.runtimeError.message);
-            const score = data.categories?.performance?.score;
-            const performance = Number.isFinite(score) ? Math.round(score * 100) + '/100' : 'n/a';
-            return '| ' + [device, performance,
-              metric(data, 'first-contentful-paint'),
-              metric(data, 'largest-contentful-paint'),
-              metric(data, 'total-blocking-time'),
-              metric(data, 'cumulative-layout-shift', '', 3),
-              metric(data, 'speed-index')].join(' | ') + ' |';
-          });
-          const summary = [
-            '## SBP Information — Lighthouse performance',
+          const fs=require('node:fs');
+          const mobile=[1,2,3].map(i=>JSON.parse(fs.readFileSync('reports/mobile-'+i+'.json','utf8')));
+          const desktop=JSON.parse(fs.readFileSync('reports/desktop.json','utf8'));
+          const reports=[...mobile,desktop];
+          for(const d of reports)if(d.runtimeError)throw Error(d.runtimeError.message);
+          const median=v=>{const x=v.filter(Number.isFinite).sort((a,b)=>a-b);return x.length?x[Math.floor(x.length/2)]:NaN;};
+          const read=(d,id)=>id==='score'?100*d.categories.performance.score:d.audits?.[id]?.numericValue;
+          const columns=[['score',0,'/100'],['first-contentful-paint',0,' ms'],['largest-contentful-paint',0,' ms'],['total-blocking-time',0,' ms'],['cumulative-layout-shift',3,''],['speed-index',0,' ms']];
+          const format=(arr,digits,suffix)=>{const n=median(arr);return Number.isFinite(n)?n.toFixed(digits)+suffix:'n/a';};
+          const row=(label,records)=>'| '+label+' | '+columns.map(([id,digits,suffix])=>format(records.map(d=>read(d,id)),digits,suffix)).join(' | ')+' |';
+          const build=fs.readFileSync('index.html','utf8').match(/name="app-build" content="([^"]+)"/)?.[1]||'unknown';
+          const summary=[
+            '## SBP Information — published Lighthouse audit',
             '',
-            'Public website: https://sbp-information.github.io/',
+            'Published build: '+build,
             '',
             '| Mode | Score | FCP | LCP | TBT | CLS | Speed Index |',
-            '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
-            ...rows, '',
-            'Lighthouse is a synthetic lab test. A physical Android/PWA check is still required.',
-            'Reports are attached to the workflow run as JSON artifacts.',
+            '| --- | ---: | ---: | ---: | ---: | ---: |',
+            row('Mobile median (3 runs)',mobile),
+            row('Desktop (1 run)',[desktop]),
+            '',
+            'Synthetic Lighthouse measurements; network fluctuations affect scores. Android device and installed-PWA checks remain separate. Raw JSON reports are attached below.',
             ''
           ].join('\n');
           console.log(summary);
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,summary);
           NODE
 
-      - name: Save machine-readable Lighthouse reports
+      - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: site-performance-lighthouse
+          name: published-lighthouse
           path: reports/*.json
           if-no-files-found: warn
           retention-days: 30
