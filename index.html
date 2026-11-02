@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.46-postpaint-2026-11-02-v1">
+    <meta name="app-build" content="step19.47-launch-fast-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261102-brand-launch-v1">
@@ -223,7 +223,7 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-postpaint-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-launch-fast-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
@@ -247,13 +247,13 @@
         const splash = document.getElementById('sbp-launch-animation');
         if (!splash) return;
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const visibleFor = reduced ? 60 : 240;
+        const visibleFor = reduced ? 40 : 160;
         window.setTimeout(() => {
           splash.classList.add('is-leaving');
           window.setTimeout(() => {
             splash.remove();
             document.documentElement.classList.remove('sbp-app-launch');
-          }, reduced ? 40 : 150);
+          }, reduced ? 30 : 110);
         }, visibleFor);
       })();
     </script>
@@ -1142,7 +1142,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-postpaint-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-launch-fast-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1159,7 +1159,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-postpaint-v1"></script>
+    <script type="module" src="app.js?v=20261102-launch-fast-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

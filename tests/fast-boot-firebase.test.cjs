@@ -64,7 +64,7 @@ test('Android PWA launch animation shows icon and product name without extra del
  assert.match(html,/<div id="sbp-launch-animation" aria-hidden="true">[\s\S]*?class="sbp-launch-brand"/);
  assert.match(html,/<img src="\.\/sbp-icon-192\.png" alt="" width="90" height="90"/);
  assert.match(html,/<strong>SBP Information<\/strong>/);
- assert.match(html,/const visibleFor = reduced \? 60 : 240;/);
+ assert.match(html,/const visibleFor = reduced \? 40 : 160;/);
  assert.match(html,/sbp-launch-brand strong\{/);
  assert.match(html,/manifest\.webmanifest\?v=20261102-brand-launch-v1/);
  assert.match(worker,/manifest\.webmanifest\?v=20261102-brand-launch-v1/);
