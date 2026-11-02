@@ -2554,7 +2554,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
 
         function ensureMainViewVisible() {
-            const viewIds = ['view-home','view-tracker','view-roster','view-schedule'];
+            const viewIds = ['view-home','view-tracker','view-roster','view-schedule','view-college'];
             const views = viewIds.map(id => document.getElementById(id)).filter(Boolean);
             if (!views.length) return;
             const hasVisibleView = views.some(el => !el.classList.contains('hidden'));
@@ -2708,6 +2708,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
         }, { passive: true });
 
         window.addEventListener('beforeunload', saveCurrentScrollPosition);
+        window.addEventListener('pagehide', saveCurrentScrollPosition); // Android PWA may suspend without beforeunload.
 
         const mainViews = {
             home: document.getElementById('view-home'),
@@ -2800,7 +2801,8 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             const targetView = mainViews[viewName] || mainViews.home;
             if (!targetView) return;
 
-            saveCurrentScrollPosition();
+            // Cold boot and same-view refresh must not overwrite the saved scroll position with zero.
+            if (currentVisibleView && currentVisibleView !== viewName) saveCurrentScrollPosition();
             try { localStorage.setItem('toe_current_view', viewName); } catch(e) {}
 
             Object.values(mainViews).forEach(view => view?.classList.add('hidden'));

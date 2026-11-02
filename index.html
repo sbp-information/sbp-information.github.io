@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.40-history-manual-2026-11-02-v1">
+    <meta name="app-build" content="step19.41-mobile-pwa-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -64,6 +64,18 @@
       html[data-initial-view="schedule"] #view-schedule{display:block!important}
       html[data-initial-view="college"] #view-college{display:block!important}
 
+      /* Reserve the mobile lesson timeline before Firebase/local data paints. This is only a visual placeholder, not a lesson. */
+      #home-day-timeline .home-timeline-placeholder{display:grid;gap:0;min-height:425px;pointer-events:none;}
+      #home-day-timeline .home-timeline-placeholder-lesson{height:77px;display:flex;align-items:center;gap:14px;padding:12px 15px;border-top:1px solid #e8edf5;}
+      #home-day-timeline .home-timeline-placeholder-lesson::before{content:"";display:block;width:36px;height:36px;flex:none;border-radius:10px;background:#e8eef3;}
+      #home-day-timeline .home-timeline-placeholder-lesson::after{content:"";display:block;width:58%;max-width:210px;height:16px;border-radius:6px;background:#e8eef3;}
+      #home-day-timeline .home-timeline-placeholder-break{height:38px;margin:0 13px;border-top:1px solid #eff4f7;display:flex;align-items:center;}
+      #home-day-timeline .home-timeline-placeholder-break::after{content:"";display:block;width:38%;height:10px;border-radius:5px;background:#f0f3f6;}
+      #view-home.is-section-loading>.section-skeleton-home .skeleton-stack{min-height:430px;}
+      @media(max-width:400px){#home-day-timeline .home-timeline-placeholder{min-height:425px;}}
+      @media(prefers-reduced-motion:no-preference){#home-day-timeline .home-timeline-placeholder-lesson::after{animation:sbpTimelinePulse 1.7s ease-in-out infinite alternate;}}
+      @keyframes sbpTimelinePulse{to{opacity:.48}}
+      
       #sbp-launch-animation{display:none}
       html.sbp-app-launch #sbp-launch-animation{
         position:fixed;
@@ -175,13 +187,14 @@
     <link rel="apple-touch-icon" href="sbp-icon-180.png?v=20261031-icons-v1">
     <link rel="stylesheet" href="tailwind-local.css?v=20261101-no-violet-v1">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="sbp-core.css?v=20261101-localization-v1">
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-history-manual-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-mobile-pwa-v1" fetchpriority="high">
     <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-lab-v1">
@@ -480,7 +493,7 @@
                         <span id="home-reference-weekday">—</span>
                     </div>
                 </div>
-                <div id="home-day-timeline" class="home-ref-schedule-list"></div>
+                <div id="home-day-timeline" class="home-ref-schedule-list"><div class="home-timeline-placeholder" aria-hidden="true"><div class="home-timeline-placeholder-lesson"></div><div class="home-timeline-placeholder-break"></div><div class="home-timeline-placeholder-lesson"></div><div class="home-timeline-placeholder-break"></div><div class="home-timeline-placeholder-lesson"></div><div class="home-timeline-placeholder-break"></div><div class="home-timeline-placeholder-lesson"></div></div></div>
                 <button id="home-schedule-toggle" type="button" onclick="toggleHomeScheduleOverview()" data-i18n-skip aria-controls="home-day-timeline" aria-expanded="false" hidden>Показать остальные пары</button>
             </section>
 
@@ -1072,8 +1085,8 @@
         </section>
     </div>
 
-    <script type="module" src="release-notes.js?v=20261102-history-manual-v1"></script>
-    <script type="module" src="app.js?v=20261102-history-manual-v1"></script>
+    <script type="module" src="release-notes.js?v=20261102-mobile-pwa-v1"></script>
+    <script type="module" src="app.js?v=20261102-mobile-pwa-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

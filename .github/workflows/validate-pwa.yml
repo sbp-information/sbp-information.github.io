@@ -22,6 +22,7 @@ jobs:
           node tests/release-notes.test.cjs
           node scripts/build-css.cjs --check
           node tests/pwa-cache-consistency.test.cjs
+          node tests/mobile-pwa-performance.test.cjs
           node tests/css-bundle.test.cjs
           node tests/app-update.test.cjs
           node tests/notification-icon.test.cjs

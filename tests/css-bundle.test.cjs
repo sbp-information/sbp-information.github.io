@@ -26,6 +26,10 @@ test('only three local CSS files block page rendering instead of 23',()=>{
   ]);
   assert.ok(links.indexOf('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css') < links.indexOf('sbp-core.css?v='+version));
   assert.ok(links.indexOf('tailwind-local.css?v=20261101-no-violet-v1') < links.indexOf('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'));
+  // External icons must not block the critical local CSS on slow mobile connections.
+  assert.match(html, /<link rel="preload" as="style" href="https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/font-awesome\/6\.4\.0\/css\/all\.min\.css"/);
+  assert.match(html, /onload="this\.onload=null;this\.rel='stylesheet'"/);
+  assert.match(html, /<noscript><link rel="stylesheet" href="https:\/\/cdnjs\.cloudflare\.com/);
   assert.ok(!html.includes('href="desktop.css'), 'desktop rules must be scoped inside the core bundle');
 });
 test('desktop-only styling is inside its original min-width media query',()=>{
@@ -47,12 +51,12 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261102-history-manual-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261102-history-manual-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261102-history-manual-v1'));
+  assert.ok(assets.includes('./app.js?v=20261102-mobile-pwa-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261102-mobile-pwa-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261102-mobile-pwa-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
-  assert.match(worker,/sbp-shell-20261102-history-manual-v1/);
-  assert.match(html,/step19\.40-history-manual-2026-11-02-v1/);
+  assert.match(worker,/sbp-shell-20261102-mobile-pwa-v1/);
+  assert.match(html,/step19\.41-mobile-pwa-2026-11-02-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');
