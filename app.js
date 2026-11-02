@@ -53,7 +53,7 @@ import {
     restoreScheduleSelection,
     syncPendingScheduleData
 } from "./schedule.js?v=20261102-fast-start-v1";
-import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261102-lab-v1";
+import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261102-ios-install-v1";
 import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261102-fast-start-v1';
 import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261102-fast-start-v1';
 
@@ -4101,6 +4101,21 @@ function isStandaloneApp() {
 function isIOSDevice() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
+window.openIOSInstallGuide = function() {
+    const guide = document.getElementById('ios-install-modal');
+    if (!guide) { showToast(translateUI('На iPhone откройте «Поделиться» и выберите «На экран Домой»')); return; }
+    window.closeAppMenu?.();
+    guide.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    applyKzTranslations(guide);
+    guide.querySelector('.sheet-head button')?.focus({ preventScroll: true });
+};
+window.closeIOSInstallGuide = function() {
+    const guide = document.getElementById('ios-install-modal');
+    if (!guide || guide.classList.contains('hidden')) return;
+    guide.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+};
 window.updateInstallButton = function() {
     const button = document.getElementById('menu-install-button');
     const label = document.getElementById('menu-install-label');
@@ -4112,7 +4127,7 @@ window.updateInstallButton = function() {
     button.classList.toggle('is-installed', installed);
     button.disabled = installed;
     label.textContent = translateUI(installed ? 'Приложение установлено' : 'Установить веб-приложение');
-    hint.textContent = translateUI(installed ? 'SBP Information уже работает как приложение' : 'Установить SBP Information');
+    hint.textContent = translateUI(installed ? 'SBP Information уже работает как приложение' : (isIOSDevice() ? 'На iPhone: добавить на экран «Домой»' : 'Установить SBP Information'));
     if (apkButton) {
         apkButton.hidden = nativeApp;
         apkButton.disabled = true;
@@ -4125,19 +4140,18 @@ window.installSBPApp = async function() {
         window.updateInstallButton();
         return;
     }
+    if (isIOSDevice()) { window.openIOSInstallGuide(); return; }
     if (!deferredInstallPrompt) {
-        showToast(translateUI('Установка пока недоступна'));
+        showToast(translateUI('Откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран»'));
         return;
     }
     const promptEvent = deferredInstallPrompt;
     deferredInstallPrompt = null;
-    try {
-        await promptEvent.prompt();
-        await promptEvent.userChoice;
-    } catch (_) {}
+    try { await promptEvent.prompt(); await promptEvent.userChoice; } catch (_) {}
     window.updateInstallButton();
 };
 window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
     deferredInstallPrompt = event;
     window.updateInstallButton();
 });
@@ -4147,6 +4161,12 @@ window.addEventListener('appinstalled', () => {
     showToast(translateUI('Приложение установлено'));
 });
 window.matchMedia('(display-mode: standalone)').addEventListener?.('change', window.updateInstallButton);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !document.getElementById('ios-install-modal')?.classList.contains('hidden')) {
+        event.preventDefault();
+        window.closeIOSInstallGuide();
+    }
+});
 
 window.openHelpNavigation=function(){
     window.closeAppMenu?.();

@@ -8,10 +8,10 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.47-launch-fast-2026-11-02-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-launch-fast-v1'/);
+assert.match(build, /^step19\.48-ios-install-2026-11-02-v1$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-ios-install-v1'/);
 assert.match(release, /version:'19\.36',date:'2026-11-01'/);
-assert.match(read('release-notes.js'), /release-data\.js\?v=20261102-launch-fast-v1/);
+assert.match(read('release-notes.js'), /release-data\.js\?v=20261102-ios-install-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
 assert.ok(core, 'worker has a precache list');
 assert.ok(worker.includes('push-worker-config.js?v=20261101-cloudflare-live-v2'), 'Cloudflare configuration must be cached for installed Android PWA');
@@ -25,7 +25,12 @@ for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
   assert.ok(assets.includes(normalized), 'precache must match page: ' + asset);
   assert.ok(fs.existsSync(path.join(root, asset.split('?')[0])), 'asset must exist: ' + asset);
 }
-console.log('PWA cache consistency: build, icon files, page assets, and cache versions passed.');
+assert.match(html, /<meta name="apple-mobile-web-app-capable" content="yes">/);
+assert.match(html, /id="ios-install-modal"/);
+assert.match(read('app.js'), /window\.openIOSInstallGuide = function/);
+assert.match(read('app.js'), /event\.preventDefault\(\)/);
+assert.match(read('i18n.js'), /'Установка на iPhone':'iPhone құрылғысына орнату'/);
+console.log('PWA cache consistency: build, iPhone install guide, icon files, page assets, and cache versions passed.');
 
 // Check that shared ES modules are consistently versioned and cached in the installed PWA.
 const moduleFiles = fs.readdirSync(root).filter(name => name.endsWith('.js'));
@@ -43,7 +48,7 @@ for (const file of moduleFiles) {
 for (const [name,versions] of moduleVersions) {
   assert.equal(versions.size,1,'duplicate module instances for '+name);
   if (['i18n.js','firebase.js','schedule.js','group-tools.js','action-history.js','release-data.js','utils.js'].includes(name)) {
-    const version = name === 'release-data.js' ? '?v=20261102-launch-fast-v1' : ['firebase.js','schedule.js','group-tools.js','action-history.js'].includes(name) ? '?v=20261102-fast-start-v1' : '?v=20261102-lab-v1';
+    const version = name === 'release-data.js' ? '?v=20261102-ios-install-v1' : ['firebase.js','schedule.js','group-tools.js','action-history.js'].includes(name) ? '?v=20261102-fast-start-v1' : name === 'i18n.js' ? '?v=20261102-ios-install-v1' : '?v=20261102-lab-v1';
     assert.ok([...versions][0].endsWith(version),'stale version for '+name);
   }
 }

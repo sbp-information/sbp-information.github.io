@@ -1,4 +1,4 @@
-import { interfaceLocale, translateUI } from "./i18n.js?v=20261102-lab-v1";
+import { interfaceLocale, translateUI } from "./i18n.js?v=20261102-ios-install-v1";
 // Общие независимые функции проекта.
 // Здесь нет доступа к Firebase и состоянию журнала.
 

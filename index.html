@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.47-launch-fast-2026-11-02-v1">
+    <meta name="app-build" content="step19.48-ios-install-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.webmanifest?v=20261102-brand-launch-v1">
     <meta name="theme-color" content="#ffffff">
     <script>
@@ -223,7 +225,7 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-launch-fast-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-ios-install-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
@@ -232,6 +234,21 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
 <style id="sbp-group-only-cleanup">#view-roster #sbp-group-banner,#view-roster #group-icon-roster{display:none!important}</style>
+<style id="sbp-ios-install-style">
+#ios-install-modal .ios-install-panel{box-sizing:border-box;width:min(100%,520px);max-height:min(88dvh,700px);overflow-y:auto;padding:20px;border:1px solid var(--sbp-line,#dce3ef);background:var(--sbp-surface,#fff);color:var(--sbp-ink,#243248);box-shadow:0 -12px 45px rgba(20,70,95,.14)}
+#ios-install-modal .sheet-head{background:var(--sbp-surface,#fff);color:inherit}
+#ios-install-modal .sheet-head button{flex-shrink:0;color:inherit;background:var(--sbp-soft,#f1f3fa)}
+#ios-install-modal .ios-install-intro{display:flex;align-items:center;gap:14px;margin:14px 0 18px;padding:14px;border:1px solid var(--sbp-line,#dce3ef);border-radius:16px;background:var(--sbp-soft,#f4fbfe)}
+#ios-install-modal .ios-install-intro img{width:54px;height:54px;flex-shrink:0;object-fit:contain;border-radius:12px}
+#ios-install-modal .ios-install-intro p{margin:0;font-size:13px;line-height:1.5}
+#ios-install-modal .ios-install-steps{counter-reset:ios-install;list-style:none;margin:0;padding:0;display:grid;gap:11px}
+#ios-install-modal .ios-install-steps li{counter-increment:ios-install;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+#ios-install-modal .ios-install-steps li::before{content:counter(ios-install);display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:10px;background:var(--sbp-soft,#e9f6fd);border:1px solid var(--sbp-line,#cfe8f5);font-size:13px;font-weight:800;color:var(--sbp-ink,#28324a)}
+#ios-install-modal .ios-install-note{font-size:12px;line-height:1.55;color:var(--sbp-muted,#667085);margin:16px 0}
+#ios-install-modal .ios-install-done{width:100%;min-height:44px;padding:10px 14px;border-radius:13px;background:var(--sbp-accent,#1688c2);color:#fff;font-size:14px;font-weight:700}
+@media(min-width:640px){#ios-install-modal{align-items:center}#ios-install-modal .ios-install-panel{border-radius:24px}}
+@media(max-width:380px){#ios-install-modal .ios-install-panel{padding:14px}#ios-install-modal .ios-install-intro{padding:10px}}
+</style>
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
     <div id="sbp-launch-animation" aria-hidden="true">
@@ -1047,6 +1064,27 @@
         </section>
     </div>
 
+    <div id="ios-install-modal" class="app-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="ios-install-title" onclick="if(event.target===this) closeIOSInstallGuide()">
+        <section class="sheet-panel ios-install-panel">
+            <div class="sheet-head">
+                <div><span class="eyebrow">SBP Information</span><h2 id="ios-install-title">Установка на iPhone</h2></div>
+                <button type="button" onclick="closeIOSInstallGuide()" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="ios-install-intro">
+                <img src="sbp-icon-180.png" width="54" height="54" alt="" loading="lazy">
+                <p>Добавьте SBP Information на экран «Домой», чтобы запускать его как приложение.</p>
+            </div>
+            <ol class="ios-install-steps">
+                <li>Откройте этот сайт в Safari на iPhone.</li>
+                <li>Нажмите «Поделиться» в меню Safari.</li>
+                <li>Выберите «На экран Домой».</li>
+                <li>Включите «Открывать как веб-приложение», если есть такой переключатель, и нажмите «Добавить».</li>
+            </ol>
+            <p class="ios-install-note">После установки открывайте SBP Information через иконку на экране «Домой». App Store не нужен.</p>
+            <button class="ios-install-done" type="button" onclick="closeIOSInstallGuide()">Понятно</button>
+        </section>
+    </div>
+
     <div id="help-navigation-modal" class="app-overlay hidden" onclick="if(event.target===this) closeHelpNavigation()">
         <section class="sheet-panel help-navigation-panel">
             <div class="sheet-head">
@@ -1067,7 +1105,7 @@
                 <article><i class="fa-solid fa-gear"></i><div><strong>Настройки</strong><span>Здесь меняются язык RU/KZ, вид телефона или компьютера, уведомления и доступные параметры.</span></div></article>
                 <article><i class="fa-regular fa-comments"></i><div><strong>Поддержка</strong><span>Сообщите о проблеме или предложите улучшение. Ответ появится в диалоге и центре событий.</span></div></article>
                 <article><i class="fa-regular fa-bell"></i><div><strong>Центр событий</strong><span>Колокольчик показывает объявления, важные изменения и ответы поддержки.</span></div></article>
-                <article><i class="fa-solid fa-cloud-arrow-down"></i><div><strong>Установка приложения</strong><span>В меню нажмите «Установить приложение». Если кнопка браузера недоступна, появится подсказка для вашего устройства.</span></div></article>
+                <article><i class="fa-solid fa-cloud-arrow-down"></i><div><strong>Установка приложения</strong><span>В меню нажмите «Установить приложение». На iPhone появятся шаги установки через Safari, на Android — системный запрос установки.</span></div></article>
             </div>
 
             <div class="help-navigation-tip"><i class="fa-solid fa-language"></i><div><strong>Где поменять язык?</strong><span>Откройте «Настройки» → «Язык интерфейса» и выберите русский или қазақша.</span></div></div>
@@ -1142,7 +1180,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-launch-fast-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-ios-install-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1159,7 +1197,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-launch-fast-v1"></script>
+    <script type="module" src="app.js?v=20261102-ios-install-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
