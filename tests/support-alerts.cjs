@@ -113,6 +113,38 @@ console.log('PASS: displayed version follows build; incoming counts, read/unread
  node('notification-text').value='Сохранить при ошибке';await context.window.publishNotification();assert.equal(node('notification-text').value,'Сохранить при ошибке');assert.equal(node('notification-publish-button').disabled,false);
  context.setDoc=async(ref,data)=>writes.push({ref,data});context.getDoc=()=>new Promise(resolve=>release=resolve);
  const count=writes.length,pendingLogout=context.window.sendSupportMessage();context.auth.currentUser={uid:'visitor2'};context.currentAccessRole='viewer';context.window.refreshSupportNotifications();release({exists:()=>true,data:()=>records.b});await pendingLogout;assert.equal(writes.length,count,'logout cancels pending privileged send');
+
+ // Deleting conversations is restricted to staff, confirmed, and scoped to one thread.
+ context.auth.currentUser={uid:'owner1'};context.currentAccessRole='owner';context.window.refreshSupportNotifications();
+ emit(listeners.at(-1),Object.entries(records).map(([id,data])=>({id,...data})));
+ await context.window.openSupport();
+ assert.match(node('support-staff-inbox').innerHTML,/data-support-delete=/,'staff can see per-thread delete controls');
+ let confirmed=false,deleteCount=0;
+ context.window.confirm=()=>confirmed;
+ context.deleteDoc=async ref=>{deleteCount++;assert.equal(ref.path.at(-2),'support');assert.equal(ref.id,'a');};
+ await context.window.deleteSupportThread('a');
+ assert.equal(deleteCount,0,'cancelled deletion does not change any document');
+ confirmed=true;
+ context.currentAccessRole='viewer';
+ await context.window.deleteSupportThread('a');
+ assert.equal(deleteCount,0,'visitors cannot delete other users conversations');
+ context.currentAccessRole='admin';context.allowSupport=false;
+ await context.window.deleteSupportThread('a');
+ assert.equal(deleteCount,0,'admin without support permission cannot delete');
+ context.currentAccessRole='owner';context.window.openSupportThread('a');
+ node('support-text').value='Временный черновик';
+ context.deleteDoc=async()=>{throw {code:'permission-denied'}};
+ await context.window.deleteSupportThread('a');
+ assert.equal(toasts.at(-1),'Нет права удалять обращение');
+ assert.equal(vm.runInContext('activeSupportThreadId',context),'a','failed deletion retains active conversation');
+ context.deleteDoc=async ref=>{deleteCount++;assert.equal(ref.id,'a')};
+ await context.window.deleteSupportThread('a');
+ assert.equal(deleteCount,1,'only one support document deleted');
+ assert.equal(vm.runInContext('activeSupportThreadId',context),'','active deleted conversation closes');
+ assert.equal(node('support-text').value,'','deleted conversation draft cleared');
+ assert.ok(!node('support-staff-inbox').innerHTML.includes('data-support-delete="a"'),'deleted conversation is removed from inbox');
+ assert.ok(node('support-staff-inbox').innerHTML.includes('data-support-delete="b"'),'unrelated conversation remains');
+ assert.equal(toasts.at(-1),'Обращение удалено');
  assert.equal(app.includes('currentAccessLogin'),false,'undefined login variable removed');
  console.log('PASS: announcement publishing, author identity, permissions, exact support recipient, per-thread drafts, recipient-switch race, failure recovery, and logout during send. Firebase writes mocked.');
 })().catch(error=>{console.error(error);process.exitCode=1});
