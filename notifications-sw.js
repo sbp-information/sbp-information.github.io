@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-history-manual-v1';
+const CACHE_NAME = 'sbp-shell-20261102-mobile-pwa-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -14,9 +14,9 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261102-lab-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261102-lab-v1',
-  './release-notes.js?v=20261102-history-manual-v1',
-  './release-data.js?v=20261102-history-manual-v1',
-  './app.js?v=20261102-history-manual-v1',
+  './release-notes.js?v=20261102-mobile-pwa-v1',
+  './release-data.js?v=20261102-mobile-pwa-v1',
+  './app.js?v=20261102-mobile-pwa-v1',
   './firebase.js?v=20261017-admin-tap-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
@@ -138,7 +138,15 @@ self.addEventListener('fetch', event => {
   }
 
   if (request.mode === 'navigate' && url.searchParams.has('app-refresh')) {
-    event.respondWith(fetch(request, { cache: 'reload' }));
+    // An update request should prefer fresh HTML, but offline launches must still work.
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(request, { cache: 'reload' });
+        if (fresh.ok) return fresh;
+      } catch (_) {}
+      const cache = await caches.open(CACHE_NAME);
+      return (await cache.match('./index.html')) || (await cache.match('./')) || Response.error();
+    })());
     return;
   }
 
