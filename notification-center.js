@@ -183,7 +183,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     if (supported() && deviceEnabled() && Notification.permission === 'granted' && context()) {
       try {
         if (await registerDevice()) {
-          statusOverride = await remindersReady() ? '' : 'Служба напоминаний временно недоступна';
+          statusOverride = await remindersReady() ? '' : 'Уведомления разрешены. Фоновая доставка пока недоступна';
         }
       } catch (_) {
         statusOverride = 'Уведомления разрешены. Фоновая доставка пока недоступна';
@@ -218,7 +218,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
         write(DEVICE_KEY, '1');
         await worker();
         if (await registerDevice()) {
-          statusOverride = await remindersReady() ? '' : 'Служба напоминаний временно недоступна';
+          statusOverride = await remindersReady() ? '' : 'Уведомления разрешены. Фоновая доставка пока недоступна';
         } else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
       }
     } catch (error) {
