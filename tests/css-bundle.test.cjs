@@ -56,7 +56,7 @@ test('PWA caches only required local CSS while keeping original application scri
   assert.ok(assets.includes('./release-data.js?v=20261102-mobile-pwa-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
   assert.match(worker,/sbp-shell-20261102-mobile-pwa-v1/);
-  assert.match(html,/step19\.40-history-manual-2026-11-02-v1/);
+  assert.match(html,/step19\.41-mobile-pwa-2026-11-02-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');

@@ -8,7 +8,7 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.40-history-manual-2026-11-02-v1$/);
+assert.match(build, /^step19\.41-mobile-pwa-2026-11-02-v1$/);
 assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-mobile-pwa-v1'/);
 assert.match(release, /version:'19\.36',date:'2026-11-01'/);
 assert.match(read('release-notes.js'), /release-data\.js\?v=20261102-mobile-pwa-v1/);

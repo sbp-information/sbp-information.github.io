@@ -29,7 +29,7 @@ test('day heading with correct date and live current-day statuses are retained',
   assert.match(app,/if\(pauseState\.active\)/,'vacation/maintenance logic retained');
 });
 test('the 19.27 release and offline PWA ship the updated app',()=>{
-  assert.match(html,/step19\.40-history-manual-2026-11-02-v1/);
+  assert.match(html,/step19\.41-mobile-pwa-2026-11-02-v1/);
   assert.match(html,/app\.js\?v=20261102-mobile-pwa-v1/);
   assert.match(worker,/app\.js\?v=20261102-mobile-pwa-v1/);
   assert.match(worker,/sbp-shell-20261102-mobile-pwa-v1/);

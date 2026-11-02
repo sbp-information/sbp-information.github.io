@@ -31,7 +31,7 @@ test('first lesson has a small gap below the clean heading and keeps its outline
   assert.match(html,/id="home-reference-date"/);
 });
 test('build 19.28 refreshes the exact changed styles in the installed PWA',()=>{
-  assert.match(html,/step19\.40-history-manual-2026-11-02-v1/);
+  assert.match(html,/step19\.41-mobile-pwa-2026-11-02-v1/);
   assert.ok(html.includes('sbp-ui.css?v=20261101-localization-v1'),'latest UI CSS is linked');
   assert.ok(worker.includes('sbp-ui.css?v=20261101-localization-v1'),'latest UI CSS is cached');
   const output=read('sbp-ui.css');
