@@ -20,15 +20,15 @@ test('device dark mode has dedicated contrast styles with no manual setting requ
  assert.match(dark,/:root\[data-sbp-theme="dark"\]/);
  assert.doesNotMatch(dark,/html:not\(\[data-sbp-theme="dark"\]\)/);
  assert.ok((dark.match(/:root:root\[data-sbp-theme="dark"\]/g)||[]).length>30);
- assert.match(html,/sbp-core\.css\?v=20261101-localization-v1/);
- assert.match(sw,/sbp-core\.css\?v=20261101-localization-v1/);
+ assert.match(html,/sbp-core\.css\?v=20261102-calm-dark-v1/);
+ assert.match(sw,/sbp-core\.css\?v=20261102-calm-dark-v1/);
  const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
  assert.ok(version,'active app script version exists');
  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'dark theme is cached in current PWA build');
- assert.match(html,/sbp-core\.css\?v=20261101-localization-v1/);
- assert.match(sw,/sbp-core\.css\?v=20261101-localization-v1/);
- assert.match(app,/redesign\.js\?v=20261102-device-theme-v1/);
- assert.match(sw,/redesign\.js\?v=20261102-device-theme-v1/);
+ assert.match(html,/sbp-core\.css\?v=20261102-calm-dark-v1/);
+ assert.match(sw,/sbp-core\.css\?v=20261102-calm-dark-v1/);
+ assert.match(app,/redesign\.js\?v=20261102-calm-dark-v1/);
+ assert.match(sw,/redesign\.js\?v=20261102-calm-dark-v1/);
  assert.match(release,/version:'19\.09'/);
 });
 test('all core text colors pass WCAG AA contrast on relevant surfaces',()=>{
@@ -78,7 +78,7 @@ test('appearance follows Android, iOS and desktop OS, never a previously saved p
  assert.equal(accessed.includes('sbp_design_theme'),false,'old theme selection is ignored');
  mq.matches=true;mediaEvents.change();
  assert.equal(document.documentElement.dataset.sbpTheme,'dark');
- assert.equal(meta.getAttribute('content'),'#0b0f18');
+ assert.equal(meta.getAttribute('content'),'#121416');
  mq.matches=false;mediaEvents.change();
  assert.equal(document.documentElement.dataset.sbpTheme,'light');
  storage.set('toe_ui_language','kz');window.refreshRedesign();
@@ -94,6 +94,6 @@ test('theme selector removed from settings and early page paint never reads save
  const firstScript=html.slice(html.indexOf('// Let the device choose the light/dark appearance'),html.indexOf('</script>',html.indexOf('// Let the device choose the light/dark appearance')));
  assert.match(firstScript,/prefers-color-scheme: dark/);
  assert.doesNotMatch(firstScript,/localStorage|sbp_design_theme/);
- assert.match(html,/step19\.51-device-theme-2026-11-02-v1/);
+ assert.match(html,/step19\.52-calm-dark-2026-11-02-v1/);
  assert.match(release,/version:'19\.51'/);
 });
