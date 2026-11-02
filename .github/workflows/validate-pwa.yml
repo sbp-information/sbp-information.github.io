@@ -32,6 +32,7 @@ jobs:
           node tests/app-update.test.cjs
           node tests/notification-icon.test.cjs
           node tests/notification-coldstart.test.cjs
+          node tests/push-reminder-recovery.test.cjs
           node tests/support-delete.test.cjs
           node tests/service-worker-push.test.cjs
           node tests/notification-dispatch.test.cjs
