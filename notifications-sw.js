@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-remove-college-v1';
+const CACHE_NAME = 'sbp-shell-20261102-support-delete-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 // Precache HTML only once. Navigation fallbacks still support both root and index.html.
 const CORE_ASSETS = [
@@ -12,9 +12,9 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261102-fast-start-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261102-fast-start-v1',
-  './release-notes.js?v=20261102-remove-college-v1',
-  './release-data.js?v=20261102-remove-college-v1',
-  './app.js?v=20261102-remove-college-v1',
+  './release-notes.js?v=20261102-support-delete-v1',
+  './release-data.js?v=20261102-support-delete-v1',
+  './app.js?v=20261102-support-delete-v1',
   './firebase.js?v=20261102-fast-start-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
