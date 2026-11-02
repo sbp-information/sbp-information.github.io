@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.49-remove-college-2026-11-02-v1">
+    <meta name="app-build" content="step19.50-support-delete-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -223,7 +223,7 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-remove-college-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-support-delete-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
@@ -246,6 +246,14 @@
 #ios-install-modal .ios-install-done{width:100%;min-height:44px;padding:10px 14px;border-radius:13px;background:var(--sbp-accent,#1688c2);color:#fff;font-size:14px;font-weight:700}
 @media(min-width:640px){#ios-install-modal{align-items:center}#ios-install-modal .ios-install-panel{border-radius:24px}}
 @media(max-width:380px){#ios-install-modal .ios-install-panel{padding:14px}#ios-install-modal .ios-install-intro{padding:10px}}
+</style>
+<style id="support-thread-delete-style">
+#support-staff-inbox .support-thread-row{display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:stretch;gap:8px;margin-block:7px;min-width:0}
+#support-staff-inbox .support-thread-row>.support-thread-btn{min-width:0;width:100%;margin:0;text-align:left;overflow-wrap:anywhere}
+#support-staff-inbox .support-thread-delete{width:42px;min-height:44px;align-self:center;border:1px solid var(--sbp-line,#d0e5ee);border-radius:12px;background:var(--sbp-surface,#fff);color:var(--sbp-danger,#c43140);display:grid;place-items:center;cursor:pointer}
+#support-staff-inbox .support-thread-delete:hover,#support-staff-inbox .support-thread-delete:focus-visible{background:var(--sbp-soft,#edf7fb);border-color:currentColor}
+#support-staff-inbox .support-thread-delete:disabled{opacity:.45;cursor:wait}
+@media(max-width:380px){#support-staff-inbox .support-thread-row{gap:5px}}
 </style>
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
@@ -1172,7 +1180,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-remove-college-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-support-delete-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1189,7 +1197,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-remove-college-v1"></script>
+    <script type="module" src="app.js?v=20261102-support-delete-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
