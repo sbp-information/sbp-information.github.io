@@ -103,6 +103,16 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   async function requestPush(path, functionName, data) {
     return pushEndpoint ? pushRequest(path, data) : getCloud().callFunction(functionName, data);
   }
+  async function remindersReady() {
+    if (!pushEndpoint) return false;
+    try {
+      const health = await pushRequest('/health');
+      return health.configured === true && health.remindersReady === true;
+    } catch (error) {
+      console.warn('Push scheduler health check failed', error?.message);
+      return false;
+    }
+  }
   async function dispatch(kind, id) {
     if (!pushEndpoint || !context() || !id) return false;
     let failure;
@@ -139,8 +149,21 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     if (!settings?.vapidPublicKey) throw new Error('push-configuration-missing');
     const sw = await worker();
     let subscription = await sw.pushManager.getSubscription();
+    const applicationKey = vapidBytes(settings.vapidPublicKey);
+    const previousKey = subscription?.options?.applicationServerKey;
+    if (subscription && previousKey &&
+        (previousKey instanceof ArrayBuffer || ArrayBuffer.isView(previousKey))) {
+      const bytes = new Uint8Array(previousKey);
+      if (bytes.length !== applicationKey.length ||
+          bytes.some((byte, index) => byte !== applicationKey[index])) {
+        // The server rotates its VAPID key only rarely, but an old Chrome/
+        // Android subscription can look enabled while rejecting every push.
+        await subscription.unsubscribe();
+        subscription = null;
+      }
+    }
     if (!subscription) subscription = await sw.pushManager.subscribe({
-      userVisibleOnly: true, applicationServerKey: vapidBytes(settings.vapidPublicKey)
+      userVisibleOnly: true, applicationServerKey: applicationKey
     });
     try {
       await requestPush('/register', 'registerPushDevice', { subscription: subscription.toJSON(), language: language() });
@@ -159,8 +182,9 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     configuration = null;
     if (supported() && deviceEnabled() && Notification.permission === 'granted' && context()) {
       try {
-        await registerDevice();
-        statusOverride = '';
+        if (await registerDevice()) {
+          statusOverride = await remindersReady() ? '' : 'Уведомления разрешены. Фоновая доставка пока недоступна';
+        }
       } catch (_) {
         statusOverride = 'Уведомления разрешены. Фоновая доставка пока недоступна';
       }
@@ -193,8 +217,9 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       if (permission === 'granted') {
         write(DEVICE_KEY, '1');
         await worker();
-        if (await registerDevice()) statusOverride = '';
-        else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
+        if (await registerDevice()) {
+          statusOverride = await remindersReady() ? '' : 'Уведомления разрешены. Фоновая доставка пока недоступна';
+        } else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
       }
     } catch (error) {
       console.warn('Push activation failed', error);
@@ -225,7 +250,9 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       const entries = Object.entries(delivered).sort((a, b) => b[1] - a[1]).slice(0, 250);
       write(DELIVERY_KEY, JSON.stringify(Object.fromEntries(entries)));
       if (document.visibilityState === 'visible') { await chime(); toast(title); }
-      if (!push && deviceEnabled() && supported() && Notification.permission === 'granted' && document.visibilityState !== 'visible' && registeredContext !== context()) {
+      // Show an OS notification for foreground Firestore events as well.
+      // Push service-worker arrivals already displayed their own notification.
+      if (!push && deviceEnabled() && supported() && Notification.permission === 'granted') {
         try {
           const sw = await worker();
           await sw.showNotification(title, {
@@ -233,7 +260,7 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
             icon: './sbp-icon-192.png',
             tag: key,
             silent: false,
-            renotify: true,
+            renotify: false,
             vibrate: [110, 70, 110],
             data: { kind, threadId }
           });

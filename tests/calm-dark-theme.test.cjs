@@ -36,7 +36,7 @@ test('compiled CSS and installed PWA use the same updated dark palette',()=>{
  assert.ok(ui.includes('/* 19.52: charcoal dark UI'));
  assert.match(html,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
  assert.match(sw,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
- assert.match(sw,/sbp-shell-20261102-schedule-theme-v1/);
+ assert.match(sw,/sbp-shell-20261102-push-reminders-v1/);
  const release=read('release-data.js');
  const entry=release.slice(release.indexOf("version:'19.52'"),release.indexOf("version:'19.51'"));
  assert.match(entry,/ru:\[/);assert.match(entry,/kz:\[/);

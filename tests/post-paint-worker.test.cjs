@@ -37,5 +37,5 @@ test('desktop keeps immediate worker registration and offline update support',()
  assert.match(source,/else \{\s*registerWorker\(\);\s*\}/);
  assert.match(source,/if \(reg\.waiting && navigator\.serviceWorker\.controller\) showUpdatePrompt/);
  assert.match(source,/watchInstalling\(reg\.installing\)/);
- assert.match(sw,/const CACHE_NAME = 'sbp-shell-20261102-schedule-theme-v1'/);
+ assert.match(sw,/const CACHE_NAME = 'sbp-shell-20261102-push-reminders-v1'/);
 });

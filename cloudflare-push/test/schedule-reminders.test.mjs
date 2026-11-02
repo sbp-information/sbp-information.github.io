@@ -36,26 +36,28 @@ test('week parity follows exact PWA baseline and works across weekends', () => {
   assert.equal(weekTypeForDate('2026-10-06'), 'denominator');
   assert.equal(weekTypeForDate('2026-11-02'), 'denominator');
 });
-test('first lesson at 07:30 and not at unrelated times', () => {
-  const remind = dueReminders(normal, monday(450));
-  assert.equal(remind.length, 1);
-  assert.equal(remind[0].type, 'first');
-  assert.equal(remind[0].lesson.subject, 'Физика');
-  assert.equal(remind[0].key, 'lesson:2026-09-21:first');
-  assert.deepEqual(dueReminders(normal, monday(449)), []);
-  assert.equal(dueReminders(normal, monday(451))[0].key, remind[0].key, 'missed tick can retry with the same deduplication key');
-  assert.equal(dueReminders(normal, monday(454)).length, 1);
-  assert.deepEqual(dueReminders(normal, monday(455)), []);
+test('morning alert starts at 07:30 and recovers delayed ticks before first bell', () => {
+ const remind = dueReminders(normal, monday(450));
+ assert.equal(remind.length,1);assert.equal(remind[0].type,'first');
+ assert.equal(remind[0].lesson.subject,'Физика');
+ assert.equal(remind[0].key,'lesson:2026-09-21:first');
+ assert.deepEqual(dueReminders(normal,monday(449)),[]);
+ assert.equal(dueReminders(normal,monday(456))[0].key,remind[0].key);
+ assert.equal(dueReminders(normal,monday(479))[0].key,remind[0].key,'catch up before the bell');
+ assert.deepEqual(dueReminders(normal,monday(480)),[],'never call the first pair upcoming after it began');
 });
-test('next class reminder comes one minute before prior lesson ends', () => {
-  const first = dueReminders(normal, monday(9 * 60 + 29));
-  assert.equal(first.length, 1);
-  assert.equal(first[0].lesson.subject, 'Иностранный язык');
-  assert.equal(dueReminders(normal, monday(9 * 60 + 30))[0].key, first[0].key);
-  assert.deepEqual(dueReminders(normal, monday(9 * 60 + 34)), []);
-  assert.equal(dueReminders(normal, monday(11 * 60 + 9))[0].lesson.subject, 'Физическая культура');
-  assert.equal(dueReminders(normal, monday(12 * 60 + 59))[0].lesson.subject, 'История Казахстана');
-  assert.deepEqual(dueReminders(normal, monday(14 * 60 + 39)), [], 'last class has no next-class message');
+test('next pair reminder follows its OWN bell, not end of previous lesson',()=>{
+ assert.deepEqual(dueReminders(normal,monday(9*60+29)),[],'no premature alert before ten-minute break');
+ assert.deepEqual(dueReminders(normal,monday(9*60+38)),[]);
+ const next = dueReminders(normal,monday(9*60+39))[0];
+ assert.equal(next?.lesson.subject,'Иностранный язык');
+ assert.equal(next?.type,'next');
+ assert.equal(dueReminders(normal,monday(9*60+40))[0].type,'started','retry after a slightly late cron');
+ assert.equal(dueReminders(normal,monday(9*60+44))[0].key,next.key);
+ assert.deepEqual(dueReminders(normal,monday(9*60+45)),[],'no stale reminder five minutes after bell');
+ assert.equal(dueReminders(normal,monday(11*60+29))[0].lesson.subject,'Физическая культура','twenty-minute break respected');
+ assert.equal(dueReminders(normal,monday(13*60+9))[0].lesson.subject,'История Казахстана');
+ assert.deepEqual(dueReminders(normal,monday(14*60+39)),[],'last pair has no successor');
 });
 test('actual date overrides, shortened bell schedule and cancellations replace templates', () => {
   const override = structuredClone(normal);
@@ -70,9 +72,9 @@ test('actual date overrides, shortened bell schedule and cancellations replace t
       ]
     }
   };
-  assert.equal(dueReminders(override, monday(8 * 60 + 59))[0].lesson.subject, 'География', 'cancelled class never notified');
+  assert.equal(dueReminders(override, monday(10 * 60 + 29))[0].lesson.subject, 'География', 'cancelled class never notified');
   assert.deepEqual(dueReminders(override, monday(9 * 60 + 29)), [], 'old 90-minute bells not used');
-  assert.equal(dueReminders(override, monday(11 * 60 + 29))[0].lesson.subject, 'История Казахстана');
+  assert.equal(dueReminders(override, monday(11 * 60 + 39))[0].lesson.subject, 'История Казахстана');
 });
 test('date override only affects matching week, preserve recurring schedule', () => {
   const customized = structuredClone(normal);
@@ -117,7 +119,7 @@ test('messages have room, precise time, RU/KZ titles and no journal or release w
   assert.equal(kz.title, 'Бүгінгі бірінші сабақ');
   assert.equal(kz.body, 'Физика · 301-кабинет · 08:00–09:30');
   assert.equal(ru.kind, 'schedule');
-  assert.equal(reminderPayload({language:'kz'}, dueReminders(normal, monday(11*60+9))[0]).body,
+  assert.equal(reminderPayload({language:'kz'}, dueReminders(normal, monday(11*60+29))[0]).body,
     'Дене шынықтыру · Спорт залы · 11:30–13:00');
   assert.doesNotMatch(JSON.stringify([ru,kz]), /журнал|обновлени|жаңарту|оценк/i);
 });
@@ -140,8 +142,8 @@ test('class hour is not mistaken for the first normal pair or a next-pair remind
   assert.equal(lessons.length, 2);
   assert.equal(lessons[0].subject, 'Русский язык и литература');
   assert.equal(dueReminders(tuesday, clock(450))[0].lesson.subject, 'Русский язык и литература');
-  assert.deepEqual(dueReminders(tuesday, clock(8 * 60 + 29)), [], 'class hour end must not produce another message');
-  assert.equal(dueReminders(tuesday, clock(9 * 60 + 59))[0].lesson.subject, 'Математика');
+  assert.equal(dueReminders(tuesday, clock(8 * 60 + 29))[0].type, 'first', 'class hour end does not replace the still-due first regular lesson');
+  assert.equal(dueReminders(tuesday, clock(10 * 60 + 9))[0].lesson.subject, 'Математика');
 });
 
 test('cancelled changeType entries are excluded even if the legacy cancelled flag is false', () => {
@@ -150,6 +152,6 @@ test('cancelled changeType entries are excluded even if the legacy cancelled fla
   assert.deepEqual(activeLessons(schedule, monday(450)).map(lesson => lesson.subject), [
     'Физика', 'Физическая культура', 'История Казахстана'
   ]);
-  assert.equal(dueReminders(schedule, monday(9 * 60 + 29))[0].lesson.subject, 'Физическая культура');
-  assert.deepEqual(dueReminders(schedule, monday(11 * 60 + 9)), [], 'cancelled entry must not be a predecessor');
+  assert.equal(dueReminders(schedule, monday(11 * 60 + 29))[0].lesson.subject, 'Физическая культура');
+  assert.deepEqual(dueReminders(schedule, monday(9 * 60 + 39)), [], 'cancelled entry must not be a predecessor');
 });

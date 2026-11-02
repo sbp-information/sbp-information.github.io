@@ -227,8 +227,14 @@ async function deliver(env, devices, key, build, options = {}) {
   }
   const vapid = { privateKey: env.VAPID_PRIVATE_KEY, publicKey: env.VAPID_PUBLIC_KEY, subject: env.VAPID_SUBJECT };
   let sent = 0;
-  // Sequential sending keeps CPU/subrequest use predictable on the free tier.
-  for (const device of devices) {
+  let providerAttempts = 0;
+  // Reserve room for the Firestore/OAuth calls under Workers Free's 50
+  // external-subrequest limit. A following Cron tick retries the remainder.
+  const MAX_PROVIDER_ATTEMPTS = 40;
+  // Cloudflare permits at most six simultaneous outgoing connections.
+  // Four concurrent deliveries prevent a slow provider or device from delaying
+  // every classmate, without making unlimited parallel connections.
+  const sendOne = async device => {
     const receipt = await hash(key + ':' + device.id);
     const lease = crypto.randomUUID();
     const reserved = await env.DB.prepare(
@@ -240,7 +246,7 @@ async function deliver(env, devices, key, build, options = {}) {
       const existing = await env.DB.prepare('SELECT state FROM deliveries WHERE id = ?').bind(receipt).first();
       if (existing?.state === 'pending' && options.status) options.status.failed++;
       if (existing?.state === 'sent' && options.status) options.status.alreadySent = (options.status.alreadySent || 0) + 1;
-      continue;
+      return;
     }
     try {
       const subscription = { endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } };
@@ -248,12 +254,18 @@ async function deliver(env, devices, key, build, options = {}) {
       const payload = await buildPushPayload(
         { data: JSON.stringify(build(device)), options: { ttl: options.ttl || 86400, urgency: 'high' } }, subscription, vapid
       );
+      if (providerAttempts >= MAX_PROVIDER_ATTEMPTS) {
+        if (options.status) options.status.failed++;
+        await env.DB.prepare('DELETE FROM deliveries WHERE id = ? AND lease_token = ?').bind(receipt, lease).run();
+        return;
+      }
+      providerAttempts++;
       const response = await fetch(device.endpoint, { ...payload, signal: AbortSignal.timeout(8000) });
       if (!response.ok) {
         if ([404, 410].includes(response.status)) {
           await env.DB.prepare('DELETE FROM devices WHERE id = ?').bind(device.id).run();
           await env.DB.prepare("UPDATE deliveries SET state='sent' WHERE id=? AND lease_token=?").bind(receipt, lease).run();
-          continue;
+          return;
         }
         throw error('Push provider returned HTTP ' + response.status, 502);
       }
@@ -264,6 +276,9 @@ async function deliver(env, devices, key, build, options = {}) {
       await env.DB.prepare('DELETE FROM deliveries WHERE id = ? AND lease_token = ?').bind(receipt, lease).run();
       console.warn('Push delivery failed: ', reason?.message || 'unknown error');
     }
+  };
+  for (let i = 0; i < devices.length; i += 4) {
+    await Promise.all(devices.slice(i, i + 4).map(sendOne));
   }
   return sent;
 }
@@ -303,14 +318,19 @@ async function sendScheduleReminders(env, clock) {
   // This includes current bell times, cancellations, per-date changes and pauses.
   if (!shouldCheckSchedule(clock)) return 0;
   const schedule = await readOne(env, 'schedule', 'main');
-  if (!schedule) return 0;
+  if (!schedule) throw error('Main Firestore schedule is missing', 503);
   const reminders = dueReminders(schedule, clock);
   if (!reminders.length) return 0;
   const devices = await deviceRows(env);
   let sent = 0;
   for (const reminder of reminders) {
     const now = Date.now();
-    const expiresAt = now - now % 60000 + (reminder.lesson.range.start - clock.minute) * 60000;
+    // Morning notifications expire at the first bell. Next-pair reminders
+    // remain relevant briefly after a delayed Cron tick, never after the
+    // lesson is well underway.
+    const deadline = reminder.type === 'first'
+      ? reminder.lesson.range.start : Math.min(reminder.lesson.range.end, reminder.lesson.range.start + 5);
+    const expiresAt = now - now % 60000 + (deadline - clock.minute) * 60000;
     const ttl = Math.max(1, Math.min(300, Math.floor((expiresAt - now) / 1000)));
     sent += await deliver(env, devices, reminder.key,
       device => ({ ...reminderPayload(device, reminder), expiresAt }), {ttl});
@@ -333,25 +353,52 @@ async function sendHolidayNotices(env, clock) {
   return sent;
 }
 
+async function recordHeartbeat(env, changes) {
+  // Atomic heartbeat and delivery diagnostics. Never expose recipient data.
+  const fields = Object.entries(changes);
+  if (!fields.length) return;
+  const columns = fields.map(([name]) => name).join(', ');
+  const marks = fields.map(() => '?').join(', ');
+  const updates = fields.map(([name]) => name + '=excluded.' + name).join(', ');
+  await env.DB.prepare(
+    'INSERT INTO cron_health (id, ' + columns + ') VALUES (1, ' + marks + ') ' +
+    'ON CONFLICT(id) DO UPDATE SET ' + updates
+  ).bind(...fields.map(([, value]) => value)).run();
+}
 async function scheduled(env) {
   const clock = kazakhstanClock(new Date());
-  // Lesson timings need a one-minute clock. Existing announcement/support
-  // polling remains at two-minute intervals to control free-tier usage.
-  try { await sendScheduleReminders(env, clock); }
-  catch (err) { console.error('Lesson reminder delivery failed:', err?.message || 'unknown'); }
+  const now = Date.now();
+  await recordHeartbeat(env, { last_run_at: now });
+  let scheduleFailure;
+  try {
+    await sendScheduleReminders(env, clock);
+    if (shouldCheckSchedule(clock)) await recordHeartbeat(env, { last_schedule_ok_at: Date.now() });
+  } catch (err) {
+    scheduleFailure = err;
+    await recordHeartbeat(env, { last_schedule_error_at: Date.now() });
+    console.error('Lesson reminder delivery failed:', err?.message || 'unknown');
+  }
   try { await sendHolidayNotices(env, clock); }
   catch (err) { console.error('Holiday eve reminder delivery failed:', err?.message || 'unknown'); }
 
   if (clock.minute % 2 === 0) {
-    const [notifications, threads] = await Promise.all([
-      readRecent(env, 'notifications', 'createdAt'),
-      readRecent(env, 'support', 'updatedAt')
-    ]);
-    for (const notification of notifications.slice(0, 12)) await sendAnnouncement(env, notification);
-    for (const thread of threads.slice(0, 12)) await sendSupport(env, thread);
-    await env.DB.prepare('DELETE FROM deliveries WHERE created_at < ?')
-      .bind(Date.now() - 30 * 86400000).run();
+    try {
+      const [notifications, threads] = await Promise.all([
+        readRecent(env, 'notifications', 'createdAt'),
+        readRecent(env, 'support', 'updatedAt')
+      ]);
+      for (const notification of notifications.slice(0, 12)) await sendAnnouncement(env, notification);
+      for (const thread of threads.slice(0, 12)) await sendSupport(env, thread);
+      await env.DB.prepare('DELETE FROM deliveries WHERE created_at < ?')
+        .bind(Date.now() - 30 * 86400000).run();
+    } catch (err) {
+      console.error('Event dispatch check failed:', err?.message || 'unknown');
+      if (!scheduleFailure) scheduleFailure = err;
+    }
   }
+  // A broken Cron must be visible in Cloudflare Past Events, not reported as a
+  // successful tick with only a console log.
+  if (scheduleFailure) throw scheduleFailure;
 }
 async function requestJson(request) {
   if (Number(request.headers.get('content-length') || 0) > 12000) throw error('Request is too large', 413);
@@ -366,7 +413,26 @@ async function fetchHandler(request, env) {
   if (origin && !ALLOWED_ORIGINS.has(origin)) return reply({ error: 'Origin not allowed' }, 403);
   const url = new URL(request.url);
   if (request.method === 'GET' && url.pathname === '/health') {
-    return reply({ service: 'SBP Information Push', configured: !!(env.DB && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY && env.FIREBASE_SERVICE_ACCOUNT_JSON) }, 200, origin);
+    const configured = !!(env.DB && env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY &&
+      env.VAPID_SUBJECT && env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    let lastCronAt = null, lastScheduleOkAt = null, cronHealthy = false, scheduleHealthy = false;
+    if (configured) {
+      try {
+        const heartbeat = await env.DB.prepare(
+          'SELECT last_run_at, last_schedule_ok_at, last_schedule_error_at FROM cron_health WHERE id = 1'
+        ).first();
+        lastCronAt = heartbeat?.last_run_at || null;
+        lastScheduleOkAt = heartbeat?.last_schedule_ok_at || null;
+        cronHealthy = typeof lastCronAt === 'number' && lastCronAt > Date.now() - 5 * 60000;
+        scheduleHealthy = typeof lastScheduleOkAt === 'number' &&
+          lastScheduleOkAt >= (heartbeat?.last_schedule_error_at || 0) &&
+          lastScheduleOkAt > Date.now() - 5 * 60000;
+      } catch (err) { console.warn('Cron heartbeat lookup failed:', err?.message || 'unknown'); }
+    }
+    const clock = kazakhstanClock(new Date());
+    const remindersReady = cronHealthy && (!shouldCheckSchedule(clock) || scheduleHealthy);
+    return reply({ service: 'SBP Information Push', configured,
+      cronHealthy, scheduleHealthy, remindersReady, lastCronAt, lastScheduleOkAt }, 200, origin);
   }
   if (request.method === 'GET' && url.pathname === '/config') {
     if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.DB) return reply({ error: 'Not configured' }, 503, origin);
@@ -420,10 +486,9 @@ async function fetchHandler(request, env) {
 export default {
   fetch: fetchHandler,
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(scheduled(env)
-      .catch(e => console.error('Scheduled push failed:', e?.message || 'unknown')));
+    ctx.waitUntil(scheduled(env));
   }
 };
 
 // Pure helpers exposed for unit tests (not HTTP routes).
-export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload, announcementRecipients, isDeferredHolidayCreation, deliver };
+export const testing = { validSubscription, parseFirestore, decodeDocument, staffAllowed, recent, deviceRows, notificationPayload, announcementRecipients, isDeferredHolidayCreation, deliver, recordHeartbeat };
