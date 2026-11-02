@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.50-support-delete-2026-11-02-v1">
+    <meta name="app-build" content="step19.51-device-theme-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,16 +12,12 @@
     <link rel="manifest" href="manifest.webmanifest?v=20261102-brand-launch-v1">
     <meta name="theme-color" content="#ffffff">
     <script>
-      // Resolve the saved/system theme before styles load to avoid a white flash.
+      // Let the device choose the light/dark appearance before styles load.
       (() => {
-        let choice='light';
-        try { choice=localStorage.getItem('sbp_design_theme')||'light'; } catch (_) {}
-        if (!['light','dark','system'].includes(choice)) choice='light';
-        const systemDark=window.matchMedia?.('(prefers-color-scheme: dark)').matches===true;
-        const resolved=choice==='dark'||(choice==='system'&&systemDark)?'dark':'light';
-        document.documentElement.dataset.sbpTheme=resolved;
-        document.documentElement.style.colorScheme=resolved;
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content',resolved==='dark'?'#0b0f18':'#f6fbfd');
+        const systemDark=window.matchMedia?.('(prefers-color-scheme: dark)')?.matches===true;
+        document.documentElement.dataset.sbpTheme=systemDark?'dark':'light';
+        document.documentElement.style.colorScheme='light dark';
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content',systemDark?'#0b0f18':'#f6fbfd');
       })();
     </script>
     <script>
@@ -223,7 +219,7 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-support-delete-v1" fetchpriority="high">
+    <link rel="modulepreload" href="app.js?v=20261102-device-theme-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
     <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
@@ -299,10 +295,6 @@
                 <button id="lang-kz" type="button" onclick="setInterfaceLanguage('kz')">КЗ</button>
               </div>
             </div>
-          </section>
-          <section class="settings-reference-card sbp-theme-card" data-i18n-skip>
-            <div class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-palette"></i></span><span class="settings-reference-copy"><strong data-sbp-text="theme">Тема оформления</strong><small data-sbp-text="themeHint">Выберите удобный внешний вид</small></span></div>
-            <div class="sbp-theme-options"><button type="button" data-sbp-theme="light" aria-pressed="true"><i class="fa-regular fa-sun"></i><span data-sbp-text="light">Светлая</span></button><button type="button" data-sbp-theme="dark" aria-pressed="false"><i class="fa-regular fa-moon"></i><span data-sbp-text="dark">Тёмная</span></button><button type="button" data-sbp-theme="system" aria-pressed="false"><i class="fa-solid fa-display"></i><span data-sbp-text="system">Как на устройстве</span></button></div>
           </section>
           <details class="settings-reference-card" id="settings-display-section">
             <summary class="settings-reference-summary"><span class="settings-reference-icon"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="settings-reference-copy"><strong>Отображение</strong><small>Телефон / Компьютер</small></span><i class="fa-solid fa-chevron-down settings-reference-chevron"></i></summary>
@@ -1180,7 +1172,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-support-delete-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-device-theme-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1197,7 +1189,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-support-delete-v1"></script>
+    <script type="module" src="app.js?v=20261102-device-theme-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">

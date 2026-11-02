@@ -51,13 +51,13 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261102-support-delete-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261102-support-delete-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261102-support-delete-v1'));
+  assert.ok(assets.includes('./app.js?v=20261102-device-theme-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261102-device-theme-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261102-device-theme-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
   assert.ok(!assets.some(asset=>/college-data\.js|college-illustration\.svg/.test(asset)), 'removed college page is not precached');
-  assert.match(worker,/sbp-shell-20261102-support-delete-v1/);
-  assert.match(html,/step19\.50-support-delete-2026-11-02-v1/);
+  assert.match(worker,/sbp-shell-20261102-device-theme-v1/);
+  assert.match(html,/step19\.51-device-theme-2026-11-02-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');
