@@ -10,13 +10,13 @@
  --home-first-accent:#229ed9;
 }
 :root:root[data-sbp-theme="dark"] {
- --sbp-accent:#65c7f2;
- --sbp-accent-ink:#071c2a;
- --sbp-tint:#13354a;
- --sbp-raised:#203d50;
- --frame-active:#229ed9;
- --brand:#229ed9;
- --home-first-accent:#65c7f2;
+ --sbp-accent:#acc0ca;
+ --sbp-accent-ink:#172229;
+ --sbp-tint:#263238;
+ --sbp-raised:#2a2f33;
+ --frame-active:#536c78;
+ --brand:#7897a5;
+ --home-first-accent:#8ca7b3;
 }
 :root:root body.sbp-redesign {
  --sbp-accent:#1684ba;
@@ -26,11 +26,11 @@
  --home-first-accent:#229ed9;
 }
 :root:root[data-sbp-theme="dark"] body.sbp-redesign {
- --sbp-accent:#65c7f2;
- --sbp-tint:#13354a;
- --brand:#229ed9;
- --frame-active:#229ed9;
- --home-first-accent:#65c7f2;
+ --sbp-accent:#acc0ca;
+ --sbp-tint:#263238;
+ --brand:#7897a5;
+ --frame-active:#536c78;
+ --home-first-accent:#8ca7b3;
 }
 /* Only branding controls; never recolor journal attendance statuses. */
 :root:root body.sbp-redesign :is(#bottom-nav,.app-drawer,.settings-reference-page) :is(button.active,button[aria-current="page"],a.active) {
@@ -66,7 +66,7 @@
 /* 19.18: complete the blue branding without changing semantic status colours.
    Applied to both desktop and installed mobile PWA; no language-dependent selectors. */
 :root:root { --sbp-accent-text:#126a99; --sbp-accent-solid:#126e9e; }
-:root:root[data-sbp-theme="dark"] { --sbp-accent-text:#9bdeff; --sbp-accent-solid:#65c7f2; }
+:root:root[data-sbp-theme="dark"] { --sbp-accent-text:#acc0ca; --sbp-accent-solid:#65818f; }
 
 /* Notification permission controls previously retained violet foregrounds/gradients. */
 :root:root body.sbp-redesign .notification-preference-row input {
@@ -329,3 +329,235 @@
     border-radius:18px!important;
   }
 }
+
+
+/* 19.52: charcoal dark UI inspired by the requested quiet black reference.
+   LAST UI bundle layer: cancel old bright blue/white !important rules only
+   when the operating system selected dark. Light theme is untouched. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign {
+ --sbp-page:#121416;
+ --sbp-surface:#1c1f21;
+ --sbp-soft:#222629;
+ --sbp-raised:#2a2f33;
+ --sbp-sunken:#17191b;
+ --sbp-line:#343b3f;
+ --sbp-ink:#e2e6e8;
+ --sbp-muted:#afb8bc;
+ --sbp-accent:#acc0ca;
+ --sbp-accent-ink:#172229;
+ --sbp-accent-solid:#65818f;
+ --sbp-accent-text:#acc0ca;
+ --sbp-tint:#263238;
+ --sbp-green:#a5c9b5;
+ --sbp-green-soft:#1d2f29;
+ --sbp-green-line:#405d4e;
+ --sbp-warning:#d9bb8a;
+ --sbp-warning-soft:#342e24;
+ --sbp-danger:#dda9ad;
+ --sbp-danger-soft:#36272b;
+ --home-first-soft:#263238;
+ --home-first-edge:#343b3f;
+ --home-first-text:#e2e6e8;
+ --home-first-accent:#8ca7b3;
+ --frame-active:#536c78;
+ --brand:#7897a5;
+ --line:#343b3f;
+ --text:#e2e6e8;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ #view-home,#view-tracker,#view-schedule,#view-roster,#admin-settings-modal,
+ .app-drawer,.settings-reference-page,.help-navigation-panel,.notification-panel,
+ .support-panel,.release-notes-sheet,.report-preview-sheet
+) {
+ background-color:var(--sbp-page)!important;
+ background-image:none!important;
+ color:var(--sbp-ink)!important;
+ border-color:var(--sbp-line)!important;
+}
+/* Cards are charcoal, with shallow tonal separation instead of bright borders. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ #view-home .home-ref-today,#view-home .home-ref-group-card,
+ #view-home .home-ref-lesson-card,#view-home .home-ref-break-card,
+ #view-home .home-ref-notification-card,#view-home .home-ref-notification-empty,
+ #view-tracker .journal-ref-panel,#view-tracker .journal-student-card,
+ #view-tracker .assessment-student-row,#view-schedule .schedule-ref-card,
+ #view-roster .roster-person-card,#admin-settings-modal .settings-reference-card,
+ .notification-card,.notification-ref-card,.notification-item,
+ .support-msg,.support-thread-btn,.release-card,.mini-calendar,.calendar-dropdown
+) {
+ background:var(--sbp-surface)!important;
+ background-image:none!important;
+ border-color:var(--sbp-line)!important;
+ color:var(--sbp-ink)!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(
+ .home-ref-today-head,.home-ref-datebar,.home-ref-section-head,
+ .home-ref-group-card,.home-ref-today,.home-ref-notifications
+) {
+ background-image:none!important;
+ border-color:var(--sbp-line)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-today-head {
+ background:transparent!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .settings-reference-summary,.settings-reference-content,.drawer-nav-section,
+ .journal-ref-controls,.journal-ref-datebar,.schedule-ref-datebar,
+ .schedule-ref-day-state,.home-ref-day-status,.home-ref-progress-row,
+ .support-active-thread,.support-compose,.notification-composer,
+ .help-navigation-card,.release-history-item,.assessment-detail-stats>div
+) {
+ background-color:var(--sbp-soft)!important;
+ background-image:none!important;
+ border-color:var(--sbp-line)!important;
+ color:var(--sbp-ink)!important;
+}
+/* Neutralise high-chroma brand fills from old UI styles. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-group-icon,.journal-ref-group-icon,
+ #view-tracker .journal-section-tabs button.active,
+ #view-schedule .schedule-ref-week-switch button:is(.active,[aria-selected="true"]),
+ #view-schedule .schedule-ref-days button.active,
+ .drawer-install-action:not(.is-installed)>i,
+ .help-navigation-hero>i,.settings-reference-icon
+) {
+ background:#2b3940!important;
+ background-image:none!important;
+ color:#c2d0d5!important;
+ border-color:#42545c!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-group-icon,.journal-ref-group-icon
+) i {color:#c2d0d5!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ #bottom-nav,.app-drawer,.settings-reference-page
+) :is(button.active,button[aria-current="page"],a.active) {
+ background-color:#263238!important;
+ border-color:#475860!important;
+ color:#c2d0d5!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ #bottom-nav,.app-drawer,.settings-reference-page
+) :is(button.active,button[aria-current="page"],a.active) :is(i,svg,span) {
+ color:#c2d0d5!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .drawer-nav-section > button:is(:hover,:focus-visible,.active,[aria-current="page"]),
+ .device-mode-btn.active,.journal-section-tabs button.active,
+ .schedule-ref-week-switch button.active,.schedule-ref-days button.active,
+ .calendar-dropdown .selected,.mini-calendar-day.selected,
+ .notification-setting-button:not(.primary)
+) {
+ background:#263238!important;
+ background-image:none!important;
+ border-color:#46545c!important;
+ color:#c2d0d5!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .primary,.primary-wide,.settings-reference-save,
+ .notification-setting-button.primary,#app-update-now,
+ .native-app-update-actions .update-primary
+) {
+ background:#536d7a!important;
+ background-image:none!important;
+ border-color:#637d8a!important;
+ color:#f0f3f4!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .primary,.primary-wide,.settings-reference-save,
+ .notification-setting-button.primary,#app-update-now,
+ .native-app-update-actions .update-primary
+) :is(span,strong,i) {color:#f0f3f4!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .primary:hover,.primary-wide:hover,.settings-reference-save:hover
+) {background:#617d8b!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-lesson-card.next:not(.current),
+ .home-ref-break-card.nearest,.home-ref-break-card:not(.current),
+ .home-day-status.nearest,.home-day-status.before
+) {
+ background:var(--sbp-surface)!important;
+ border-color:#3b454a!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home :is(
+ .home-ref-lesson-card:not(.current):not(.cancelled) .home-ref-lesson-number,
+ .home-ref-lesson-card.next:not(.current) .home-ref-lesson-number
+) {
+ background:var(--sbp-soft)!important;
+ border-color:#455056!important;
+ color:var(--sbp-ink)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-home .home-ref-progress i {
+ background-image:linear-gradient(90deg,#637c87,#829da9)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-lesson-card.current,.schedule-ref-row.current .schedule-ref-card,
+ .home-day-status.lesson,.home-ref-lesson-card.lesson
+) {
+ background:var(--sbp-green-soft)!important;
+ border-color:var(--sbp-green-line)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-lesson-card.current .home-ref-lesson-number,
+ .schedule-ref-row.current .schedule-ref-number
+) {
+ background:#334d40!important;
+ border-color:#4c6c59!important;
+ color:#dae9df!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-lesson-card.current .home-ref-lesson-number,
+ .schedule-ref-row.current .schedule-ref-number
+) :is(span,strong,i) {color:#dae9df!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-break-card.current,.schedule-ref-break-card.current
+) {
+ background:#352f25!important;
+ border-color:#62533c!important;
+ color:#dbc39a!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .sbp-cover-banner,#sbp-home-banner
+) {
+ background:linear-gradient(115deg,#242b30,#1d2529 55%,#20262b)!important;
+ border-color:var(--sbp-line)!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .support-reply-label,.support-active-thread,
+ .schedule-pause-manage>span,.schedule-pause-editor-header>span
+) {
+ background:#263238!important;
+ color:#c2d0d5!important;
+ border-color:#3c4b53!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .mini-calendar-day.today,.calendar-dropdown .today,
+ .calendar-trigger,.notification-item-icon,.settings-reference-icon
+) {
+ border-color:#526671!important;
+ color:#c2d0d5!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+ select,textarea
+) {
+ background-color:#17191b!important;
+ color:var(--sbp-ink)!important;
+ border-color:#3a4246!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .notification-item strong,.support-msg strong,.home-ref-lesson-main strong,
+ .schedule-ref-subject,.journal-ref-name
+) {color:var(--sbp-ink)!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .home-ref-student-line,.home-ref-break-main,.support-thread-btn p,
+ .notification-author,.schedule-ref-meta small,.journal-ref-index
+) {color:var(--sbp-muted)!important}
