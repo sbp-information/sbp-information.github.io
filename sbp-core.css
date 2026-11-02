@@ -9259,35 +9259,36 @@ body.sbp-admin-drawer-open { overflow:hidden; }
 
 /* === dark-mode.css === */
 /* SBP Information 19.09 – cohesive dark appearance for website and installed PWA.
-   Explicitly scoped to selected/resolved dark mode; never changes light mode.
+   Scoped to the system-resolved dark mode; light mode is unchanged.
    Surfaces and semantic status colours share a contrast-tested palette. */
 :root[data-sbp-theme="dark"] {
-  --sbp-page:#0b0f18;
-  --sbp-surface:#151b29;
-  --sbp-soft:#202838;
-  --sbp-raised:#263149;
-  --sbp-sunken:#111723;
-  --sbp-line:#39445c;
-  --sbp-ink:#f2f5ff;
-  --sbp-muted:#b8c4d9;
-  --sbp-accent:#53c8ff;
-  --sbp-accent-ink:#0c161a;
-  --sbp-tint:#1f323b;
-  --sbp-green:#8ee2bb;
-  --sbp-green-soft:#173b32;
-  --sbp-green-line:#366c56;
-  --sbp-danger:#ff9da9;
-  --sbp-danger-soft:#45242e;
-  --sbp-warning:#ffd18a;
-  --sbp-warning-soft:#493720;
-  --sbp-blue:#a7cfff;
-  --sbp-blue-soft:#1c3451;
-  --sbp-backdrop:rgba(4,7,14,.78);
-  --sbp-shadow:0 12px 36px rgba(0,0,0,.32);
+  /* Neutral, low-glare charcoal surfaces; device still selects dark automatically. */
+  --sbp-page:#121416;
+  --sbp-surface:#1c1f21;
+  --sbp-soft:#222629;
+  --sbp-raised:#2a2f33;
+  --sbp-sunken:#17191b;
+  --sbp-line:#343b3f;
+  --sbp-ink:#e2e6e8;
+  --sbp-muted:#afb8bc;
+  --sbp-accent:#acc0ca;
+  --sbp-accent-ink:#172229;
+  --sbp-tint:#263238;
+  --sbp-green:#a5c9b5;
+  --sbp-green-soft:#1d2f29;
+  --sbp-green-line:#405d4e;
+  --sbp-danger:#dda9ad;
+  --sbp-danger-soft:#36272b;
+  --sbp-warning:#d9bb8a;
+  --sbp-warning-soft:#342e24;
+  --sbp-blue:#aec1cf;
+  --sbp-blue-soft:#26343d;
+  --sbp-backdrop:rgba(6,7,8,.74);
+  --sbp-shadow:0 8px 26px rgba(0,0,0,.22);
   --frame-soft:var(--sbp-line);
   --frame-control:var(--sbp-line);
-  --frame-active:var(--sbp-accent);
-  --brand:var(--sbp-accent);
+  --frame-active:#536c78;
+  --brand:#7897a5;
   --line:var(--sbp-line);
   --text:var(--sbp-ink);
   color-scheme:dark;
@@ -9524,7 +9525,7 @@ body.sbp-admin-drawer-open { overflow:hidden; }
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.primary:hover,.primary-wide:hover,
     .settings-reference-save:hover,.bg-indigo-600:hover,
     .sbp-banner-actions button:last-child:hover) {
-  background-color:#82d8ff!important;
+  background-color:var(--sbp-raised)!important;
 }
 
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.secondary,.bg-slate-100,.bg-slate-50,.device-mode-btn,
@@ -9603,11 +9604,11 @@ body.sbp-admin-drawer-open { overflow:hidden; }
 
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.system-status-banner[data-kind="offline"] .system-status-icon,
     .system-status-banner[data-kind="warning"] .system-status-icon) {
-  background-color:#624724!important;color:var(--sbp-warning)!important;
+  background-color:#3f3527!important;color:var(--sbp-warning)!important;
 }
 
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.system-status-banner[data-kind="error"] .system-status-icon) {
-  background-color:#67323d!important;color:var(--sbp-danger)!important;
+  background-color:#422d33!important;color:var(--sbp-danger)!important;
 }
 
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.system-status-banner[data-kind="success"] .system-status-icon) {
@@ -9645,7 +9646,7 @@ body.sbp-admin-drawer-open { overflow:hidden; }
 }
 
 :root:root[data-sbp-theme="dark"] body.sbp-redesign :is(.sbp-cover-banner) {
-  background:linear-gradient(120deg,#16272f,#20333c 55%,#202943)!important;
+  background:linear-gradient(120deg,#1b2125,#252a2e 55%,#1a2025)!important;
    border-color:var(--sbp-line)!important;
 }
 
