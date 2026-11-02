@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.38-notification-lab-2026-11-02-v1">
+    <meta name="app-build" content="step19.39-mentions-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
     <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
@@ -385,7 +385,6 @@
               <p>Уведомления на устройство включаются только с вашего разрешения</p>
               <button id="notification-device-enable" class="notification-setting-button primary" type="button">Разрешить уведомления</button>
               <button id="notification-device-disable" class="notification-setting-button" type="button" hidden>Отключить уведомления</button>
-              <a href="./notification-test.html" class="notification-setting-button">Проверить доставку уведомлений</a>
               <p id="notification-device-status" role="status" data-i18n-skip></p>
             </div>
           </details>
@@ -1040,6 +1039,7 @@
                 <select id="notification-priority" aria-label="Тип объявления">
                     <option value="normal">Обычное объявление</option>
                     <option value="important">Важное объявление</option>
+                    <option value="mention">Упоминание группы</option>
                 </select>
                 <label class="gt-field" data-i18n-skip><span data-gt="titleRu">Заголовок на русском</span><input id="notification-title" data-gt-placeholder="titleRu" placeholder="Заголовок на русском" maxlength="200"></label>
                 <label class="gt-field" data-i18n-skip><span data-gt="textRu">Текст на русском</span><textarea id="notification-text" data-gt-placeholder="textRu" rows="3" placeholder="Текст на русском" maxlength="6000"></textarea></label>
