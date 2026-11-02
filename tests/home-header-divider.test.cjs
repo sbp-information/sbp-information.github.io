@@ -38,7 +38,7 @@ test('build 19.28 refreshes the exact changed styles in the installed PWA',()=>{
   for(const name of ['approved-interface.css','brand-blue.css']) {
     assert.ok(output.includes('/* === '+name+' === */'),'source CSS preserved in deployed UI bundle: '+name);
   }
-  assert.match(worker,/sbp-shell-20261102-history-manual-v1/);
+  assert.match(worker,/sbp-shell-20261102-mobile-pwa-v1/);
   const releases=read('release-data.js');
   const latest=releases.slice(releases.indexOf("version:'19.28'"),releases.indexOf("version:'19.27'"));
   assert.match(latest,/ru:\[/);
