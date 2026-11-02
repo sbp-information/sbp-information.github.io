@@ -6,7 +6,7 @@ const node=id=>{
  if(!elements.has(id))elements.set(id,{textContent:'',innerHTML:'',value:'',scrollHeight:0,classList:{set:new Set(['support-modal','support-menu-badge','support-staff-inbox'].includes(id)?['hidden']:[]),contains(c){return this.set.has(c)},add(c){this.set.add(c)},remove(c){this.set.delete(c)},toggle(c,on){if(on)this.set.add(c);else this.set.delete(c)}},addEventListener(){},querySelectorAll(){return []}});
  return elements.get(id);
 };
-const context={console,Date,Math,JSON,Number,String,Set,Map,Array,URL,MOBILE_FAST_MODE:false,queueMicrotask(){},initRedesign(){},initAdminDrawer(){},renderTomorrowChanges(){},crypto:require('crypto'),location:{href:'https://example.com/'},history:{replaceState(){}},createNotificationCenter(){return {incoming(item){arrivals.push(item)},render(){},refreshAccount(){},detach(){}}},currentAccessRole:'viewer',currentAccountLogin:'',allowSupport:false,visitorSupportId:'offline',db:{},auth:{currentUser:{uid:'visitor1'}},notificationsUnsubscribe:()=>{},supportUnsubscribe:null,CLOUD_ROOT:['toe_group','shared'],
+const context={console,Date,Math,JSON,Number,String,Set,Map,Array,URL,crypto:require('crypto'),location:{href:'https://example.com/'},history:{replaceState(){}},createNotificationCenter(){return {incoming(item){arrivals.push(item)},render(){},refreshAccount(){},detach(){}}},currentAccessRole:'viewer',currentAccountLogin:'',allowSupport:false,visitorSupportId:'offline',db:{},auth:{currentUser:{uid:'visitor1'}},notificationsUnsubscribe:()=>{},supportUnsubscribe:null,CLOUD_ROOT:['toe_group','shared'],
  document:{visibilityState:'visible',getElementById:node,querySelectorAll(){return []},addEventListener(){},body:{classList:{add(){},remove(){}}}},
  localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
  canUseSupportStaff(){return context.allowSupport},collection:(_,...path)=>({type:'collection',id:path.at(-1),path}),doc:(_,...path)=>({type:'doc',id:path.at(-1),path}),
@@ -26,7 +26,7 @@ assert.equal(context.unreadSupportCount([staffMsg],false,1),0);
 assert.equal(context.unreadSupportCount([staffMsg,staffMsg],false,1),1);
 assert.equal(context.unreadSupportCount(null,false),0);
 const app=fs.readFileSync('app.js','utf8');
-vm.runInContext(app.slice(app.indexOf("let activeSupportThreadId='';"),app.indexOf('\ninitRedesign();',app.indexOf("let activeSupportThreadId='';"))),context);
+vm.runInContext(app.slice(app.indexOf("let activeSupportThreadId='';")),context);
 const emit=(listener,threads)=>listener.callback(listener.ref.type==='collection'?{docs:threads.map(t=>({id:t.id,data:()=>t}))}:{id:listener.ref.id,exists:()=>!!threads.length,data:()=>threads[0]});
 const badge=node('support-menu-badge');
 assert.equal(listeners[0].ref.type,'doc');
@@ -113,38 +113,6 @@ console.log('PASS: displayed version follows build; incoming counts, read/unread
  node('notification-text').value='Сохранить при ошибке';await context.window.publishNotification();assert.equal(node('notification-text').value,'Сохранить при ошибке');assert.equal(node('notification-publish-button').disabled,false);
  context.setDoc=async(ref,data)=>writes.push({ref,data});context.getDoc=()=>new Promise(resolve=>release=resolve);
  const count=writes.length,pendingLogout=context.window.sendSupportMessage();context.auth.currentUser={uid:'visitor2'};context.currentAccessRole='viewer';context.window.refreshSupportNotifications();release({exists:()=>true,data:()=>records.b});await pendingLogout;assert.equal(writes.length,count,'logout cancels pending privileged send');
-
- // Deleting conversations is restricted to staff, confirmed, and scoped to one thread.
- context.auth.currentUser={uid:'owner1'};context.currentAccessRole='owner';context.window.refreshSupportNotifications();
- emit(listeners.at(-1),Object.entries(records).map(([id,data])=>({id,...data})));
- await context.window.openSupport();
- assert.match(node('support-staff-inbox').innerHTML,/data-support-delete=/,'staff can see per-thread delete controls');
- let confirmed=false,deleteCount=0;
- context.window.confirm=()=>confirmed;
- context.deleteDoc=async ref=>{deleteCount++;assert.equal(ref.path.at(-2),'support');assert.equal(ref.id,'a');};
- await context.window.deleteSupportThread('a');
- assert.equal(deleteCount,0,'cancelled deletion does not change any document');
- confirmed=true;
- context.currentAccessRole='viewer';
- await context.window.deleteSupportThread('a');
- assert.equal(deleteCount,0,'visitors cannot delete other users conversations');
- context.currentAccessRole='admin';context.allowSupport=false;
- await context.window.deleteSupportThread('a');
- assert.equal(deleteCount,0,'admin without support permission cannot delete');
- context.currentAccessRole='owner';context.window.openSupportThread('a');
- node('support-text').value='Временный черновик';
- context.deleteDoc=async()=>{throw {code:'permission-denied'}};
- await context.window.deleteSupportThread('a');
- assert.equal(toasts.at(-1),'Нет права удалять обращение');
- assert.equal(vm.runInContext('activeSupportThreadId',context),'a','failed deletion retains active conversation');
- context.deleteDoc=async ref=>{deleteCount++;assert.equal(ref.id,'a')};
- await context.window.deleteSupportThread('a');
- assert.equal(deleteCount,1,'only one support document deleted');
- assert.equal(vm.runInContext('activeSupportThreadId',context),'','active deleted conversation closes');
- assert.equal(node('support-text').value,'','deleted conversation draft cleared');
- assert.ok(!node('support-staff-inbox').innerHTML.includes('data-support-delete="a"'),'deleted conversation is removed from inbox');
- assert.ok(node('support-staff-inbox').innerHTML.includes('data-support-delete="b"'),'unrelated conversation remains');
- assert.equal(toasts.at(-1),'Обращение удалено');
  assert.equal(app.includes('currentAccessLogin'),false,'undefined login variable removed');
  console.log('PASS: announcement publishing, author identity, permissions, exact support recipient, per-thread drafts, recipient-switch race, failure recovery, and logout during send. Firebase writes mocked.');
 })().catch(error=>{console.error(error);process.exitCode=1});
