@@ -8,8 +8,8 @@ const worker = read('notifications-sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
-assert.match(build, /^step19\.48-ios-install-2026-11-02-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-ios-install-v1'/);
+assert.match(build, /^step19\.49-remove-college-2026-11-02-v1$/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-remove-college-v1'/);
 assert.match(release, /version:'19\.36',date:'2026-11-01'/);
 assert.match(read('release-notes.js'), /release-data\.js\?v=20261102-ios-install-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
@@ -27,6 +27,8 @@ for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
 }
 assert.match(html, /<meta name="apple-mobile-web-app-capable" content="yes">/);
 assert.match(html, /id="ios-install-modal"/);
+assert.doesNotMatch(html, /id="view-college"|menu-college-button/);
+assert.doesNotMatch(worker, /college-data\.js|college-illustration\.svg/);
 assert.match(read('app.js'), /window\.openIOSInstallGuide = function/);
 assert.match(read('app.js'), /event\.preventDefault\(\)/);
 assert.match(read('i18n.js'), /'Установка на iPhone':'iPhone құрылғысына орнату'/);
