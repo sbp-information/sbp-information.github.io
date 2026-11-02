@@ -242,7 +242,7 @@ async function deliver(env, devices, key, build, options = {}) {
       const existing = await env.DB.prepare('SELECT state FROM deliveries WHERE id = ?').bind(receipt).first();
       if (existing?.state === 'pending' && options.status) options.status.failed++;
       if (existing?.state === 'sent' && options.status) options.status.alreadySent = (options.status.alreadySent || 0) + 1;
-      continue;
+      return;
     }
     try {
       const subscription = { endpoint: device.endpoint, keys: { p256dh: device.p256dh, auth: device.auth } };
@@ -255,7 +255,7 @@ async function deliver(env, devices, key, build, options = {}) {
         if ([404, 410].includes(response.status)) {
           await env.DB.prepare('DELETE FROM devices WHERE id = ?').bind(device.id).run();
           await env.DB.prepare("UPDATE deliveries SET state='sent' WHERE id=? AND lease_token=?").bind(receipt, lease).run();
-          continue;
+          return;
         }
         throw error('Push provider returned HTTP ' + response.status, 502);
       }
