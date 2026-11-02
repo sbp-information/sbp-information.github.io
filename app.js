@@ -24,7 +24,7 @@ import {
     updateDoc,
     deleteDoc,
     deleteField
-} from "./firebase.js?v=20261017-admin-tap-v1";
+} from "./firebase.js?v=20261102-fast-start-v1";
 
 import {
     getWeekTypeForDate,
@@ -52,10 +52,10 @@ import {
     getScheduleAdminSnapshot,
     restoreScheduleSelection,
     syncPendingScheduleData
-} from "./schedule.js?v=20261102-lab-v1";
+} from "./schedule.js?v=20261102-fast-start-v1";
 import { currentLang, interfaceLocale, translateUI, applyKzTranslations, startInterfaceTranslations } from "./i18n.js?v=20261102-lab-v1";
-import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261102-lab-v1';
-import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261102-lab-v1';
+import { configureGroupTools, updateGroupAnnouncements, pinControl, bindPinControls, gt, refreshGroupTools } from './group-tools.js?v=20261102-fast-start-v1';
+import { configureActionHistory, refreshActionHistoryAccess, recordActionHistory, confirmActionHistory } from './action-history.js?v=20261102-fast-start-v1';
 
         
 let homeScheduleExpanded=false;
@@ -1000,7 +1000,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             }
 
             updateWeekTypeButtons(currentWeekType);
-            renderApp();
+            if (!document.getElementById('view-tracker')?.classList.contains('hidden')) renderApp();
 
             // Если дата изменена офлайн, локальная версия имеет приоритет до синхронизации.
             const pendingAttendance = readOfflineQueue().attendance?.[dateStr];
@@ -1014,7 +1014,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                         if (data.weekType) currentWeekType = data.weekType;
                         localStorage.setItem(`toe_att_${dateStr}`, JSON.stringify(data));
                         updateWeekTypeButtons(currentWeekType);
-                        renderApp();
+                        if (!document.getElementById('view-tracker')?.classList.contains('hidden')) renderApp();
                     }
                 } catch (e) {
                     reportAppError('journal-load', e, { localSaved:!!saved });
@@ -1208,7 +1208,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             // ВАЖНО: ошибка чтения/правил Firestore не должна отключать сам Firebase.
             // Иначе сайт ошибочно переключается в локальный режим даже при успешной инициализации SDK.
             try {
-                ({ app, auth, db } = createFirebaseServices());
+                ({ app, auth, db } = await createFirebaseServices());
                 firebaseDiag.init = true;
                 window.__firebaseDebug.init = true;
                 firebaseDiag.error = null;
@@ -1327,10 +1327,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
             try {
                 renderGroupInfo();
-                renderRosterList();
-                renderApp(true);
                 syncScheduleToToday();
-                renderSchedule(getCurrentScheduleDay());
+                // The requested view is drawn by switchView. Do not build three invisible
+                // panels first on low-end phones (journal/roster/schedule DOM is expensive).
                 if (savedView && ['home','tracker','roster','schedule','college'].includes(savedView)) switchView(savedView, true);
                 else {
                     switchView('home', true);
@@ -1350,20 +1349,26 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 if (document.visibilityState === 'visible' && homeView && !homeView.classList.contains('hidden')) updateHomeTodayCard();
             }, MOBILE_FAST_MODE ? 90000 : 30000);
 
-            // CLOUD BOOT: Firebase and realtime listeners connect in parallel without blocking the UI.
-            queueMicrotask(async () => {
+            // Start the remote SDK after the first local frame, not in a microtask before paint.
+            // Important on slow phones: Firebase Auth/Firestore need not gate the timetable UI.
+            const startCloudBoot = async () => {
                 try {
                     await initFirebase();
                     renderGroupInfo();
-                    renderRosterList();
-                    renderApp(true);
-                    renderSchedule(getCurrentScheduleDay());
+                    if (currentVisibleView === 'roster') renderRosterList();
+                    if (currentVisibleView === 'tracker') renderApp(true);
+                    if (currentVisibleView === 'schedule') renderSchedule(getCurrentScheduleDay());
                     // Do not wait 90 seconds for the periodic maintenance tick on Android.
                     syncRealtimeModules();
                 } catch (e) {
                     reportAppError('cloud-init', e, { localSaved:true });
                 }
-            });
+            };
+            if (document.visibilityState === 'visible' && typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => setTimeout(startCloudBoot, 0));
+            } else {
+                setTimeout(startCloudBoot, 0);
+            }
         });
 
 
@@ -2812,17 +2817,19 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             mainNavButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.nav === viewName));
             bottomNavElement?.classList.remove('hidden');
 
-            // Build expensive DOM while the target is still hidden: this avoids repeated
-            // layout/paint work during the actual visible transition.
-            if (viewName === 'home') {
-                renderHomeDayTimeline();
-            } else if (viewName === 'tracker') {
-                renderApp();
-            } else if (viewName === 'roster') {
-                renderRosterList();
-            } else if (viewName === 'schedule') {
-                syncScheduleToToday();
-                renderSchedule(getCurrentScheduleDay());
+            // During cold start, the target skeleton is shown until local data is restored.
+            // Skip an eager, then immediately discarded, render of hidden data.
+            if (!fromReload || homeTimelineBootReady) {
+                if (viewName === 'home') {
+                    renderHomeDayTimeline();
+                } else if (viewName === 'tracker') {
+                    renderApp();
+                } else if (viewName === 'roster') {
+                    renderRosterList();
+                } else if (viewName === 'schedule') {
+                    syncScheduleToToday();
+                    renderSchedule(getCurrentScheduleDay());
+                }
             }
 
             Object.values(mainViews).forEach(view => view?.classList.remove('is-view-entering'));

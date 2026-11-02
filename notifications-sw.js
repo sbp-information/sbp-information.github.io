@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-lazy-history-v1';
+const CACHE_NAME = 'sbp-shell-20261102-fast-start-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 // Precache HTML only once. Navigation fallbacks still support both root and index.html.
 const CORE_ASSETS = [
@@ -11,16 +11,16 @@ const CORE_ASSETS = [
   './college-illustration.svg?v=20261101-no-violet-v1',
   './home-overview.js?v=20261017-admin-tap-v1',
   './schedule-dates.js?v=20261017-admin-tap-v1',
-  './group-tools.js?v=20261102-lab-v1',
+  './group-tools.js?v=20261102-fast-start-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
-  './action-history.js?v=20261102-lab-v1',
-  './release-notes.js?v=20261102-lazy-history-v1',
-  './release-data.js?v=20261102-lazy-history-v1',
-  './app.js?v=20261102-lazy-history-v1',
-  './firebase.js?v=20261017-admin-tap-v1',
+  './action-history.js?v=20261102-fast-start-v1',
+  './release-notes.js?v=20261102-fast-start-v1',
+  './release-data.js?v=20261102-fast-start-v1',
+  './app.js?v=20261102-fast-start-v1',
+  './firebase.js?v=20261102-fast-start-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
-  './schedule.js?v=20261102-lab-v1',
+  './schedule.js?v=20261102-fast-start-v1',
   './i18n.js?v=20261102-lab-v1',
   './performance.js?v=20261101-localization-v1',
   './notification-center.js?v=20261102-push-retry-v1',
@@ -30,7 +30,7 @@ const CORE_ASSETS = [
   './tailwind-local.css?v=20261101-no-violet-v1',
   './sbp-core.css?v=20261101-localization-v1',
   './sbp-ui.css?v=20261101-localization-v1',
-  './manifest.webmanifest?v=20261031-icons-v1',
+  './manifest.webmanifest?v=20261102-brand-launch-v1',
   './sbp-icon-32.png?v=20261031-icons-v1',
   './sbp-icon-180.png?v=20261031-icons-v1',
   './sbp-icon-192.png',
@@ -50,12 +50,19 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await Promise.all(CORE_ASSETS.map(async url => {
-      try {
-        const response = await fetch(url, { cache: 'reload', mode: url.startsWith('http') ? 'cors' : 'same-origin' });
-        if (response.ok || response.type === 'opaque') await cache.put(url, response);
-      } catch (_) {}
-    }));
+    // Limit background precaching to four concurrent requests. Dozens of parallel
+    // font/SDK downloads compete with the first app paint on budget Android phones.
+    const remaining = CORE_ASSETS.slice();
+    const cacheNext = async () => {
+      while (remaining.length) {
+        const url = remaining.shift();
+        try {
+          const response = await fetch(url, { cache: url.startsWith('http') ? 'force-cache' : 'reload', mode: url.startsWith('http') ? 'cors' : 'same-origin' });
+          if (response.ok || response.type === 'opaque') await cache.put(url, response);
+        } catch (_) {}
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(4, remaining.length) }, cacheNext));
   })());
 });
 

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBP Information</title>
-    <meta name="app-build" content="step19.44-lazy-history-2026-11-02-v1">
+    <meta name="app-build" content="step19.45-fast-start-2026-11-02-v1">
     <meta name="application-name" content="SBP Information">
     <meta name="apple-mobile-web-app-title" content="SBP Information">
-    <link rel="manifest" href="manifest.webmanifest?v=20261031-icons-v1">
+    <link rel="manifest" href="manifest.webmanifest?v=20261102-brand-launch-v1">
     <meta name="theme-color" content="#ffffff">
     <script>
       // Resolve the saved/system theme before styles load to avoid a white flash.
@@ -150,6 +150,21 @@
         filter:blur(9px);
         animation:sbpLaunchPulse .95s cubic-bezier(.16,.8,.24,1) both;
       }
+      /* Logo and product name are part of the existing short launch animation, never an extra splash delay. */
+      #sbp-launch-animation .sbp-launch-brand{
+        position:absolute;inset:0;z-index:1;
+        display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;
+        padding:24px;text-align:center;
+      }
+      #sbp-launch-animation .sbp-launch-brand img{
+        display:block;width:90px;height:90px;object-fit:cover;border-radius:20px;
+        box-shadow:0 12px 36px rgba(8,63,104,.23);
+      }
+      #sbp-launch-animation .sbp-launch-brand strong{
+        color:#fff;font-family:Inter,system-ui,-apple-system,sans-serif;
+        font-weight:750;font-size:21px;line-height:1.2;letter-spacing:.01em;
+        text-shadow:0 2px 12px rgba(5,56,97,.28);
+      }
       #sbp-launch-animation.is-leaving{
         opacity:0!important;
         transform:scale(1.035)!important;
@@ -208,11 +223,10 @@
     <link rel="stylesheet" href="sbp-ui.css?v=20261101-localization-v1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="modulepreload" href="app.js?v=20261102-fast-start-v1" fetchpriority="high">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-    <link rel="modulepreload" href="app.js?v=20261102-lazy-history-v1" fetchpriority="high">
-    <link rel="modulepreload" href="firebase.js?v=20261017-admin-tap-v1">
     <link rel="modulepreload" href="utils.js?v=20261102-lab-v1">
-    <link rel="modulepreload" href="schedule.js?v=20261102-lab-v1">
+    <link rel="modulepreload" href="schedule.js?v=20261102-fast-start-v1">
     <script defer src="performance.js?v=20261101-localization-v1"></script>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
@@ -220,7 +234,13 @@
 <style id="sbp-group-only-cleanup">#view-roster #sbp-group-banner,#view-roster #group-icon-roster{display:none!important}</style>
 </head>
 <body class="sbp-redesign min-h-screen text-slate-800 antialiased font-sans bg-slate-50">
-    <div id="sbp-launch-animation" aria-hidden="true"><span class="sbp-launch-orb"></span></div>
+    <div id="sbp-launch-animation" aria-hidden="true">
+      <span class="sbp-launch-orb"></span>
+      <div class="sbp-launch-brand">
+        <img src="./sbp-icon-192.png" alt="" width="90" height="90" decoding="async">
+        <strong>SBP Information</strong>
+      </div>
+    </div>
     <script>
       (() => {
         if (!document.documentElement.classList.contains('sbp-app-launch')) return;
@@ -1122,7 +1142,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-lazy-history-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-fast-start-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
@@ -1139,7 +1159,7 @@
         window.openReleaseHistory = openHistoryOnDemand;
       })();
     </script>
-    <script type="module" src="app.js?v=20261102-lazy-history-v1"></script>
+    <script type="module" src="app.js?v=20261102-fast-start-v1"></script>
 
     <div id="report-preview-modal" onclick="if(event.target===this) closeReportPreview()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
         <div class="report-preview-sheet w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
