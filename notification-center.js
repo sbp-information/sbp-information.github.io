@@ -77,21 +77,27 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   }
 
   const pushEndpoint = typeof PUSH_WORKER_URL === 'string' ? PUSH_WORKER_URL.replace(/\/+$/, '') : '';
-  async function pushRequest(path, data = undefined) {
+  async function pushRequest(path, data = undefined, forceRefresh = false) {
     if (!pushEndpoint || !/^https:\/\/[a-z0-9.-]+$/i.test(pushEndpoint)) throw new Error('push-worker-not-configured');
     const headers = { 'content-type': 'application/json' };
     if (data !== undefined) {
       const user = getCloud().auth?.currentUser;
       if (!user) throw new Error('firebase-login-required');
-      headers.authorization = 'Bearer ' + await user.getIdToken();
+      headers.authorization = 'Bearer ' + await user.getIdToken(forceRefresh);
     }
     const response = await fetch(pushEndpoint + path, {
       method: data === undefined ? 'GET' : 'POST',
       headers,
       body: data === undefined ? undefined : JSON.stringify(data),
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(12000),
+      keepalive: path === '/dispatch'
     });
-    if (!response.ok) throw new Error('push-worker-http-' + response.status);
+    if (!response.ok) {
+      const error = new Error('push-worker-http-' + response.status);
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   }
   async function requestPush(path, functionName, data) {
@@ -99,14 +105,23 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   }
   async function dispatch(kind, id) {
     if (!pushEndpoint || !context() || !id) return false;
-    try {
-      await pushRequest('/dispatch', { kind, id });
-      return true;
-    } catch (error) {
-      // Firestore already saved the change; cron delivery will retry.
-      console.warn('Instant push dispatch deferred to scheduled delivery', error?.message || error);
-      return false;
+    let failure;
+    let forceRefresh = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const result = await pushRequest('/dispatch', { kind, id }, forceRefresh);
+        if (!result.retryable) return true;
+        failure = new Error('push-provider-retry-needed');
+      } catch (error) {
+        failure = error;
+        if (error.status === 401 && !forceRefresh) forceRefresh = true;
+        else if (error.status && error.status < 500 && ![408,429].includes(error.status)) break;
+      }
+      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, [500,1500][attempt]));
     }
+    // Scheduled delivery remains the fallback after short, deduplicated retries.
+    console.warn('Instant push dispatch deferred to scheduled delivery', failure?.message);
+    return false;
   }
 
   // Keep push registration tied to the authenticated Firebase account.

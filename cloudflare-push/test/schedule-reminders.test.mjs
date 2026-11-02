@@ -43,13 +43,16 @@ test('first lesson at 07:30 and not at unrelated times', () => {
   assert.equal(remind[0].lesson.subject, 'Физика');
   assert.equal(remind[0].key, 'lesson:2026-09-21:first');
   assert.deepEqual(dueReminders(normal, monday(449)), []);
-  assert.deepEqual(dueReminders(normal, monday(451)), []);
+  assert.equal(dueReminders(normal, monday(451))[0].key, remind[0].key, 'missed tick can retry with the same deduplication key');
+  assert.equal(dueReminders(normal, monday(454)).length, 1);
+  assert.deepEqual(dueReminders(normal, monday(455)), []);
 });
 test('next class reminder comes one minute before prior lesson ends', () => {
   const first = dueReminders(normal, monday(9 * 60 + 29));
   assert.equal(first.length, 1);
   assert.equal(first[0].lesson.subject, 'Иностранный язык');
-  assert.deepEqual(dueReminders(normal, monday(9 * 60 + 30)), []);
+  assert.equal(dueReminders(normal, monday(9 * 60 + 30))[0].key, first[0].key);
+  assert.deepEqual(dueReminders(normal, monday(9 * 60 + 34)), []);
   assert.equal(dueReminders(normal, monday(11 * 60 + 9))[0].lesson.subject, 'Физическая культура');
   assert.equal(dueReminders(normal, monday(12 * 60 + 59))[0].lesson.subject, 'История Казахстана');
   assert.deepEqual(dueReminders(normal, monday(14 * 60 + 39)), [], 'last class has no next-class message');

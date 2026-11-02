@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261101-i18n-audit-v1';
+const CACHE_NAME = 'sbp-shell-20261102-push-retry-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
@@ -14,16 +14,16 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261101-i18n-audit-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261101-i18n-audit-v1',
-  './release-notes.js?v=20261101-i18n-audit-v1',
-  './release-data.js?v=20261101-i18n-audit-v1',
-  './app.js?v=20261101-i18n-audit-v1',
+  './release-notes.js?v=20261102-push-retry-v1',
+  './release-data.js?v=20261102-push-retry-v1',
+  './app.js?v=20261102-push-retry-v1',
   './firebase.js?v=20261017-admin-tap-v1',
   './utils.js?v=20261101-i18n-audit-v1',
   './storage.js?v=20261017-admin-tap-v1',
   './schedule.js?v=20261101-i18n-audit-v1',
   './i18n.js?v=20261101-i18n-audit-v1',
   './performance.js?v=20261101-localization-v1',
-  './notification-center.js?v=20261101-cloudflare-live-v2',
+  './notification-center.js?v=20261102-push-retry-v1',
   './push-worker-config.js?v=20261101-cloudflare-live-v2',
   './notification-state.js?v=20261017-admin-tap-v1',
   './support-state.js?v=20261017-admin-tap-v1',
@@ -158,6 +158,7 @@ self.addEventListener('push', event => {
     let payload;
     try { payload = event.data?.json(); } catch (_) {}
     payload ||= { title: 'SBP Information', body: 'Новое уведомление', key: 'toe-new', kind: 'events' };
+    if (Number.isFinite(payload.expiresAt) && payload.expiresAt <= Date.now()) return;
     await self.registration.showNotification(payload.title || 'SBP Information', {
       body: payload.body || '',
       icon: './sbp-icon-192.png',

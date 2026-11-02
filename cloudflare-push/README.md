@@ -34,3 +34,11 @@ Worker құрылғыларды тек тексерілген Firebase пайд�
 Іске қосу үшін Cloudflare Free аккаунты, шектеулі Cloudflare API token, Firestore-ды тек оқи алатын жеке сервис аккаунты және GitHub Actions құпиялары қажет. Жеке кілттерді GitHub файлдарына немесе чатқа жібермеңіз. Іске қосылғаннан кейін Worker URL мекенжайы `push-worker-config.js` файлына жазылады. Android құрылғысында хабарландыруға рұқсат беріп, қолданба жабық кезде тексеру керек.
 
 Қосымшадағы сабақ кестесі, журнал, оқытушылар және Firebase ережелері өзгермейді.
+
+
+### Delivery recovery (19.37)
+- Interactive dispatch retries transient failures twice (after 0.5 and 1.5 seconds), refreshes an expired Firebase token, and bounds each HTTP request to 12 seconds. The two-minute scheduled poll remains a fallback.
+- Push requests use high urgency. This requests immediate delivery but does not guarantee an OS notification deadline.
+- Migration 0002 preserves existing receipts as sent. New pending receipts have a 30-second lease, so an interrupted attempt can recover. Successful recipients are skipped on retries; ambiguous provider timeouts can still redeliver with the same notification tag.
+- Lesson reminders retry for five minutes after their scheduled minute, always before lesson start. Their provider TTL is at most five minutes and their payload expires at lesson start. No past lessons are replayed.
+- Tests exercise actual Web Push encryption and SQLite reservation SQL with mocked provider responses. They do not establish real Android/iOS delivery; verify the first support reply after idle and the next scheduled lesson on a subscribed phone.
