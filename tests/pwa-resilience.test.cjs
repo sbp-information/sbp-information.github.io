@@ -12,7 +12,7 @@ function fixture() {
  let failing = '', online = true, claimed = 0;
  const cacheName = source.match(/CACHE_NAME = '([^']+)'/)[1];
  const resources = [...source.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map(x => x[1]);
- const key = input => typeof input === 'string' ? input : input?.url;
+ const key = input => new URL(typeof input === 'string' ? input : input?.url, 'https://sbp-information.github.io/').href;
  const caches = {
   async keys(){return [...data.keys()];},
   async open(name){if(!data.has(name))data.set(name,new Map());const cache=data.get(name);
@@ -28,7 +28,7 @@ function fixture() {
   addEventListener(name,fn){listeners.set(name,fn);}
  };
  async function fetch(url){
-  const name=key(url);requests.push(name);
+  const name=typeof url==='string'?url:url?.url;requests.push(name);
   if(!online)throw Error('Network offline');
   if(name===failing)return new Response('missing',{status:503});
   return new Response('fresh:'+name,{status:200});
@@ -87,9 +87,7 @@ test('new worker retains exactly one previous shell for old running tabs and doe
  f.setOnline(false);
  const old=await f.event('fetch',{request:{method:'GET',mode:'same-origin',
    destination:'script',cache:'default',url:'https://sbp-information.github.io/old.js?v=1'}});
- // Real browser cache keys normalize relative precache URLs to absolute URLs;
- // the fake Map uses exact strings, so fetch via the previous cache's key too.
- assert.ok(old instanceof Response);
+ assert.equal(await old.text(),'sbp-shell-previous','old running tabs load the exact older script offline');
 });
 
 test('reopening the PWA restores its saved view and reconnects the offline edit queue',()=>{
