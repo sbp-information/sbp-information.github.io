@@ -21,7 +21,7 @@ test('all requested settings sections use the same rounded, clipped card contain
   const ids=['settings-display-section','settings-admins-section','settings-notifications-section','settings-system-section'];
   for(const id of ids)assert.match(html,new RegExp('<details class="settings-reference-card" id="'+id+'">'));
   assert.match(html, /class="settings-reference-card settings-language-card"/);
-  assert.match(html, /class="settings-reference-card sbp-theme-card"/);
+  assert.doesNotMatch(html, /class="settings-reference-card sbp-theme-card"/, 'theme controls are no longer selectable');
   const rule=latest.match(/#admin-settings-modal\.settings-reference \.settings-reference-list > \.settings-reference-card\s*\{([\s\S]*?)\}/);
   assert.ok(rule,'outer settings cards need one reusable radius');
   for(const token of ['border-radius:18px!important','overflow:hidden!important','background:var(--sbp-surface)!important','border:1px solid var(--sbp-line)!important']){
