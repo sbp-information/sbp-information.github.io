@@ -15,7 +15,7 @@ export function initRedesign(){
   // Browser-native controls and scrollbars follow the operating system too.
   if(root.style.colorScheme!=='light dark')root.style.colorScheme='light dark';
   const meta=document.querySelector('meta[name="theme-color"]');
-  const themeColor=theme==='dark'?'#0b0f18':'#f6fbfd';
+  const themeColor=theme==='dark'?'#121416':'#f6fbfd';
   if(meta?.getAttribute('content')!==themeColor)meta?.setAttribute('content',themeColor);
  }
  function refresh(){
