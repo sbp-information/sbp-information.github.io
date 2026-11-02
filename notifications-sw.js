@@ -50,12 +50,19 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await Promise.all(CORE_ASSETS.map(async url => {
-      try {
-        const response = await fetch(url, { cache: url.startsWith('http') ? 'force-cache' : 'reload', mode: url.startsWith('http') ? 'cors' : 'same-origin' });
-        if (response.ok || response.type === 'opaque') await cache.put(url, response);
-      } catch (_) {}
-    }));
+    // Limit background precaching to four concurrent requests. Dozens of parallel
+    // font/SDK downloads compete with the first app paint on budget Android phones.
+    const remaining = CORE_ASSETS.slice();
+    const cacheNext = async () => {
+      while (remaining.length) {
+        const url = remaining.shift();
+        try {
+          const response = await fetch(url, { cache: url.startsWith('http') ? 'force-cache' : 'reload', mode: url.startsWith('http') ? 'cors' : 'same-origin' });
+          if (response.ok || response.type === 'opaque') await cache.put(url, response);
+        } catch (_) {}
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(4, remaining.length) }, cacheNext));
   })());
 });
 

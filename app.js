@@ -1000,7 +1000,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             }
 
             updateWeekTypeButtons(currentWeekType);
-            renderApp();
+            if (!document.getElementById('view-tracker')?.classList.contains('hidden')) renderApp();
 
             // Если дата изменена офлайн, локальная версия имеет приоритет до синхронизации.
             const pendingAttendance = readOfflineQueue().attendance?.[dateStr];
@@ -1014,7 +1014,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                         if (data.weekType) currentWeekType = data.weekType;
                         localStorage.setItem(`toe_att_${dateStr}`, JSON.stringify(data));
                         updateWeekTypeButtons(currentWeekType);
-                        renderApp();
+                        if (!document.getElementById('view-tracker')?.classList.contains('hidden')) renderApp();
                     }
                 } catch (e) {
                     reportAppError('journal-load', e, { localSaved:!!saved });
@@ -1327,10 +1327,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
             try {
                 renderGroupInfo();
-                renderRosterList();
-                renderApp(true);
                 syncScheduleToToday();
-                renderSchedule(getCurrentScheduleDay());
+                // The requested view is drawn by switchView. Do not build three invisible
+                // panels first on low-end phones (journal/roster/schedule DOM is expensive).
                 if (savedView && ['home','tracker','roster','schedule','college'].includes(savedView)) switchView(savedView, true);
                 else {
                     switchView('home', true);
@@ -1356,9 +1355,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 try {
                     await initFirebase();
                     renderGroupInfo();
-                    renderRosterList();
-                    renderApp(true);
-                    renderSchedule(getCurrentScheduleDay());
+                    if (currentVisibleView === 'roster') renderRosterList();
+                    if (currentVisibleView === 'tracker') renderApp(true);
+                    if (currentVisibleView === 'schedule') renderSchedule(getCurrentScheduleDay());
                     // Do not wait 90 seconds for the periodic maintenance tick on Android.
                     syncRealtimeModules();
                 } catch (e) {
@@ -2818,17 +2817,19 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             mainNavButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.nav === viewName));
             bottomNavElement?.classList.remove('hidden');
 
-            // Build expensive DOM while the target is still hidden: this avoids repeated
-            // layout/paint work during the actual visible transition.
-            if (viewName === 'home') {
-                renderHomeDayTimeline();
-            } else if (viewName === 'tracker') {
-                renderApp();
-            } else if (viewName === 'roster') {
-                renderRosterList();
-            } else if (viewName === 'schedule') {
-                syncScheduleToToday();
-                renderSchedule(getCurrentScheduleDay());
+            // During cold start, the target skeleton is shown until local data is restored.
+            // Skip an eager, then immediately discarded, render of hidden data.
+            if (!fromReload || homeTimelineBootReady) {
+                if (viewName === 'home') {
+                    renderHomeDayTimeline();
+                } else if (viewName === 'tracker') {
+                    renderApp();
+                } else if (viewName === 'roster') {
+                    renderRosterList();
+                } else if (viewName === 'schedule') {
+                    syncScheduleToToday();
+                    renderSchedule(getCurrentScheduleDay());
+                }
             }
 
             Object.values(mainViews).forEach(view => view?.classList.remove('is-view-entering'));
