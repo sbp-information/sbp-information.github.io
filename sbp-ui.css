@@ -1267,3 +1267,124 @@
  .home-ref-student-line,.home-ref-break-main,.support-thread-btn p,
  .notification-author,.schedule-ref-meta small,.journal-ref-index
 ) {color:var(--sbp-muted)!important}
+
+/* 19.53: neutral dark controls, including the actual attendance cells.
+   Keep this after the legacy attendance fills and the branding overrides. */
+:root:root[data-sbp-theme="dark"],
+:root:root[data-sbp-theme="dark"] body.sbp-redesign {
+ --sbp-accent:#e2e2e2;
+ --sbp-accent-text:#e2e2e2;
+ --sbp-accent-solid:#444444;
+ --sbp-accent-ink:#f2f2f2;
+ --sbp-tint:#282828;
+ --sbp-raised:#303030;
+ --sbp-line:rgba(255,255,255,.22);
+ --sbp-focus:#e2e2e2;
+ --frame-active:var(--sbp-focus);
+ --brand:#e2e2e2;
+ --home-first-accent:#e2e2e2;
+ --home-first-edge:rgba(255,255,255,.22);
+ --line:var(--sbp-line);
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign ::selection {background:#494949;color:#fff}
+
+/* Semantic colour is carried by letters and small labels, never a light tile. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .present {--attendance-ink:#b1c9ba}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .sick {--attendance-ink:#d3b5bb}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .excused {--attendance-ink:#bcc6d5}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .unexcused {--attendance-ink:#d3c2a5}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .late {--attendance-ink:#bdc9ca}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker :is(
+ .journal-status-btn,.status-head,.journal-score-tiles>div,
+ .journal-group-tiles>div,.assessment-detail-stats>div
+) {
+ background:#252729!important;
+ background-image:none!important;
+ color:var(--attendance-ink,var(--sbp-ink))!important;
+ border:1px solid var(--sbp-line)!important;
+ box-shadow:none!important;
+ filter:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .journal-status-btn.selected {
+ background:#3b3d3f!important;
+ color:#f2f2f2!important;
+ border-color:var(--sbp-focus)!important;
+ box-shadow:inset 0 0 0 1px var(--sbp-focus)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker .journal-status-btn:not(:disabled):hover {
+ background:#353739!important;
+ border-color:var(--sbp-focus)!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker :is(
+ .journal-ref-index,.journal-ref-note,.journal-ref-note.has-note,.journal-note-btn,
+ .journal-ref-edit-tools button,.journal-ref-actions button,.assessment-back-btn,
+ .journal-score-avatar,.journal-ref-avatar,.journal-history-row,.assessment-list-head
+) {
+ background:var(--sbp-soft)!important;
+ background-image:none!important;
+ color:var(--sbp-ink)!important;
+ border-color:var(--sbp-line)!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker :is(
+ .journal-score-progress,.journal-group-progress
+) {background:#303234!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker :is(
+ .journal-score-progress i,.journal-group-progress i
+) {background:#8b9e92!important;background-image:none!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-tracker :is(
+ #journal-score-percent,#assessment-detail-percent,.assessment-percent
+) {color:#b1c9ba!important}
+
+/* Group avatars/actions and small header icons must not retain light fills.
+   Photo pixels and user-uploaded images are deliberately unaffected. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(#view-roster,#view-tracker,#view-home,
+ #student-profile-modal,#leader-profile-modal) :is(
+ .student-profile-avatar,.student-profile-preview,.leader-profile-avatar,.leader-profile-preview,
+ .roster-avatar,.roster-profile-avatar,.leadership-card i,.roster-person-actions button,
+ .home-ref-group-icon,.journal-ref-group-icon,.home-ref-role-card>i
+) {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ color:var(--sbp-ink)!important;
+ border-color:var(--sbp-line)!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign #view-roster .roster-person-actions button.danger {
+ color:var(--sbp-danger)!important;
+}
+
+/* White/neutral outlines replace residual blue edges in both header and panels. */
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(#view-home,#view-tracker,#view-schedule,#view-roster,
+ #bottom-nav,#admin-settings-modal,.app-drawer,.settings-reference-page) :is(
+ .journal-section-tabs button.active,.schedule-ref-week-switch button.active,
+ .schedule-ref-days button.active,.device-mode-btn.active,
+ button[aria-current="page"],button.active,.calendar-trigger,
+ .home-ref-lesson-card.next:not(.current),.home-ref-break-card:not(.current),
+ .home-day-status.nearest,.home-day-status.before,
+ .home-ref-lesson-card:not(.current):not(.cancelled) .home-ref-lesson-number
+) {
+ background:var(--sbp-tint)!important;
+ background-image:none!important;
+ border-color:var(--sbp-focus)!important;
+ color:var(--sbp-ink)!important;
+ box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .primary,.primary-wide,.settings-reference-save,.notification-setting-button,
+ #app-update-now,.native-app-update-actions .update-primary,
+ .mini-calendar-day.selected,.mini-calendar-day.today,.calendar-dropdown .selected,
+ .drawer-nav-section>button:is(:hover,:focus-visible,.active,[aria-current="page"])
+) {
+ background:#343434!important;background-image:none!important;
+ border-color:var(--sbp-focus)!important;color:#ededed!important;box-shadow:none!important;
+}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ .primary:hover,.primary-wide:hover,.settings-reference-save:hover
+) {background:#444!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(
+ input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea
+) {border-color:var(--sbp-line)!important}
+:root:root[data-sbp-theme="dark"] body.sbp-redesign :is(:focus-visible) {
+ outline:2px solid var(--sbp-focus)!important;outline-offset:3px;
+}

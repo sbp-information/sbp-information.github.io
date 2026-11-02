@@ -34,9 +34,9 @@ test('cards, navigation, fields, banner and current lesson are muted and separat
 test('compiled CSS and installed PWA use the same updated dark palette',()=>{
  assert.ok(core.includes('--sbp-page:#121416'));
  assert.ok(ui.includes('/* 19.52: charcoal dark UI'));
- assert.match(html,/sbp-ui\.css\?v=20261102-calm-dark-v1/);
- assert.match(sw,/sbp-ui\.css\?v=20261102-calm-dark-v1/);
- assert.match(sw,/sbp-shell-20261102-calm-dark-v1/);
+ assert.match(html,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
+ assert.match(sw,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
+ assert.match(sw,/sbp-shell-20261102-neutral-dark-v1/);
  const release=read('release-data.js');
  const entry=release.slice(release.indexOf("version:'19.52'"),release.indexOf("version:'19.51'"));
  assert.match(entry,/ru:\[/);assert.match(entry,/kz:\[/);
