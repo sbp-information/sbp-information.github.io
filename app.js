@@ -1313,7 +1313,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
             // Show the last-used screen immediately. Its skeleton masks the short
             // local/IndexedDB restore instead of leaving a blank or half-built page.
-            showSectionLoading(initialView);
+            // Home already has an accessible, sized timetable placeholder in the HTML.
+            // Hiding the whole shell behind a shorter skeleton causes major layout shifts.
+            if (initialView !== 'home') showSectionLoading(initialView);
             switchView(initialView, true);
             document.documentElement.removeAttribute('data-initial-view');
 
@@ -1321,6 +1323,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 loadAttendanceForDate(effectiveTodayStr),
                 loadScheduleData()
             ]);
+            homeTimelineBootReady = true;
 
             try {
                 renderGroupInfo();
@@ -1338,7 +1341,7 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
                 ensureMainViewVisible();
             }
 
-            hideSectionLoading(initialView);
+            if (initialView !== 'home') hideSectionLoading(initialView);
             ensureMainViewVisible();
             updateHomeWeekBanner();
             updateHomeTodayCard();
@@ -4412,6 +4415,8 @@ function renderHomePauseCard(pauseState){
     return '<section class="home-schedule-pause-card"><span class="home-schedule-pause-icon"><i class="fa-solid '+meta.icon+'"></i></span><div><span>'+translateUI('Расписание приостановлено')+'</span><strong>'+translateUI(meta.label)+'</strong><small>'+label+'</small><p>'+translateUI('В остальные дни расписание работает как обычно.')+'</p></div></section>';
 }
 let tomorrowSummaryDateKey = '';
+// Do not replace the initial sized timeline placeholder before schedule data is ready.
+let homeTimelineBootReady = false;
 function renderTomorrowChanges(now = new Date()) {
     tomorrowSummaryDateKey = formatLocalDate(now);
     const host = document.getElementById('home-tomorrow-changes');
@@ -4425,6 +4430,7 @@ function renderTomorrowChanges(now = new Date()) {
 }
 window.refreshTomorrowChanges = renderTomorrowChanges;
 function renderHomeDayTimeline(){
+    if (!homeTimelineBootReady) return;
     renderTomorrowChanges();
     const box=document.getElementById('home-day-timeline');
     if(!box)return;
