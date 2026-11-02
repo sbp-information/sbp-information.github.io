@@ -9,7 +9,7 @@ const manifest = JSON.parse(read('manifest.webmanifest'));
 const release = read('release-data.js');
 const build = html.match(/<meta name="app-build" content="([^"]+)"/)?.[1];
 assert.match(build, /^step19\.38-notification-lab-2026-11-02-v1$/);
-assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-install-guide-v1'/);
+assert.match(worker, /CACHE_NAME = 'sbp-shell-20261102-lab-v1'/);
 assert.match(release, /version:'19\.36',date:'2026-11-01'/);
 assert.match(read('release-notes.js'), /release-data\.js\?v=20261102-lab-v1/);
 const core = worker.match(/const CORE_ASSETS = \[([\s\S]*?)\];/)?.[1];
