@@ -20,10 +20,12 @@ test('home renders reserved lesson space before JS without inventing a timetable
  assert.ok(html.includes('#home-day-timeline .home-timeline-placeholder{display:grid;gap:0;min-height:425px;'),'desktop fallback keeps its original size');
  assert.match(app,/box\.innerHTML=html/,'real lesson cards replace the placeholder');
 });
-test('saved college view and precise scroll survive a cold boot and update',()=>{
+test('removed College view falls back to Home while other view scroll positions survive',()=>{
  assert.match(html,/const savedView = localStorage\.getItem\('toe_current_view'\)/);
- assert.match(html,/html\[data-initial-view="college"\] #view-college\{display:block!important\}/);
- assert.match(app,/const viewIds = \['view-home','view-tracker','view-roster','view-schedule','view-college'\]/);
+ assert.match(html,/\['home','tracker','roster','schedule'\]\.includes\(savedView\)/);
+ assert.doesNotMatch(html, /data-initial-view="college"|id="view-college"/);
+ assert.match(app,/const viewIds = \['view-home','view-tracker','view-roster','view-schedule'\]/);
+ assert.match(app,/mainViews\[viewName\] \|\| mainViews\.home/);
  assert.match(app,/if \(currentVisibleView && currentVisibleView !== viewName\) saveCurrentScrollPosition\(\)/);
  assert.match(app,/window\.addEventListener\('pagehide', saveCurrentScrollPosition\)/);
  assert.match(app,/restoreScrollPosition\(viewName\)/);
