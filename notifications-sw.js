@@ -1,14 +1,12 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-ios-install-v1';
+const CACHE_NAME = 'sbp-shell-20261102-remove-college-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 // Precache HTML only once. Navigation fallbacks still support both root and index.html.
 const CORE_ASSETS = [
   './index.html',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
-  './redesign.js?v=20261101-no-violet-v1',
-  './college-data.js?v=20261017-admin-tap-v1',
-  './college-illustration.svg?v=20261101-no-violet-v1',
+  './redesign.js?v=20261102-remove-college-v1',
   './home-overview.js?v=20261017-admin-tap-v1',
   './schedule-dates.js?v=20261017-admin-tap-v1',
   './group-tools.js?v=20261102-fast-start-v1',
@@ -16,7 +14,7 @@ const CORE_ASSETS = [
   './action-history.js?v=20261102-fast-start-v1',
   './release-notes.js?v=20261102-ios-install-v1',
   './release-data.js?v=20261102-ios-install-v1',
-  './app.js?v=20261102-ios-install-v1',
+  './app.js?v=20261102-remove-college-v1',
   './firebase.js?v=20261102-fast-start-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
