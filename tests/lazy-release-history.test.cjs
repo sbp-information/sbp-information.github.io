@@ -17,7 +17,7 @@ test('release history is not an eager module, while PWA still precaches it for o
 test('manual history loads only on menu click, exactly once, and switches RU/KZ labels',async()=>{
  const script=html.match(/<script id="sbp-lazy-release-history">([\s\S]*?)<\/script>/)?.[1];
  assert.ok(script,'history bootstrap is found');
- const code=script.replace("import('./release-notes.js?v=20261102-ios-install-v1')",'window.__importHistory()');
+ const code=script.replace("import('./release-notes.js?v=20261102-remove-college-v1')",'window.__importHistory()');
  let loads=0,opens=0,lang='ru',notification='',listener=null;
  const label={textContent:''};
  const window={addEventListener(type,fn){if(type==='storage')listener=fn;},showToast(msg){notification=msg;},__importHistory(){
