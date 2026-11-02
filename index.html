@@ -1172,7 +1172,7 @@
         function openHistoryOnDemand() {
           if (opening) return;
           opening = true;
-          if (!pending) pending = import('./release-notes.js?v=20261102-ios-install-v1').catch(error => {
+          if (!pending) pending = import('./release-notes.js?v=20261102-remove-college-v1').catch(error => {
             console.warn('Release history module unavailable', error);
             pending = null;
             return null;
