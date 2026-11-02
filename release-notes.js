@@ -1,4 +1,4 @@
-import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261102-lab-v1';
+import { releaseForBuild, releasesForBuild, releaseTypeLabel } from './release-data.js?v=20261102-mentions-v1';
 
 const build = document.querySelector('meta[name="app-build"]')?.content;
 // A Push deep link must open its destination first, never be covered by the update dialog.

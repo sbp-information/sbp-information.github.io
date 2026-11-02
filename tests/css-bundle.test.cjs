@@ -47,9 +47,9 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
   ].sort());
-  assert.ok(assets.includes('./app.js?v=20261102-lab-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261102-lab-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261102-lab-v1'));
+  assert.ok(assets.includes('./app.js?v=20261102-mentions-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261102-mentions-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261102-mentions-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
   assert.match(worker,/sbp-shell-20261102-mentions-v1/);
   assert.match(html,/step19\.39-mentions-2026-11-02-v1/);
