@@ -11,10 +11,10 @@ const worker = read('notifications-sw.js');
 const releases = read('release-data.js');
 
 test('the blue brand stylesheet is active in the page and offline PWA', () => {
-  assert.match(html, /sbp-ui\.css\?v=20261101-localization-v1/);
-  assert.match(worker, /sbp-ui\.css\?v=20261101-localization-v1/);
-  assert.match(html, /step19\.51-device-theme-2026-11-02-v1/);
-  assert.match(worker, /sbp-shell-20261102-device-theme-v1/);
+  assert.match(html, /sbp-ui\.css\?v=20261102-calm-dark-v1/);
+  assert.match(worker, /sbp-ui\.css\?v=20261102-calm-dark-v1/);
+  assert.match(html, /step19\.52-calm-dark-2026-11-02-v1/);
+  assert.match(worker, /sbp-shell-20261102-calm-dark-v1/);
 });
 test('notification, admin, schedule editor and support styling share blue tokens', () => {
   for (const selector of [
@@ -30,9 +30,9 @@ test('notification, admin, schedule editor and support styling share blue tokens
     '.schedule-pause-manage>span,.schedule-pause-editor-header>span'
   ]) assert.ok(css.includes(selector), 'missing blue override: ' + selector);
   assert.match(css, /--sbp-accent-text:#126a99/);
-  assert.match(css, /--sbp-accent-text:#9bdeff/);
+  assert.match(css, /--sbp-accent-text:#acc0ca/);
   assert.match(css, /--sbp-accent-solid:#126e9e/);
-  assert.match(css, /--sbp-accent-solid:#65c7f2/);
+  assert.match(css, /--sbp-accent-solid:#65818f/);
 });
 test('status colours and lesson timing remain outside the brand change', () => {
   assert.doesNotMatch(css, /(?:attendance-status|journal-flat-status|schedule-pause-status|home-schedule-pause-card)/);
