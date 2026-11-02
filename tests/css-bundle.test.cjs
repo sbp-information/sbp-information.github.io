@@ -43,7 +43,6 @@ test('PWA caches only required local CSS while keeping original application scri
   const assets=[...precache.matchAll(/'([^']+)'/g)].map(match=>match[1]);
   const cachedCss=assets.filter(asset=>/^\.\/[^?]+\.css\?/.test(asset));
   assert.deepEqual(cachedCss.sort(),[
-    './notification-test.css?v=20261102-install-guide-v1',
     './tailwind-local.css?v=20261101-no-violet-v1',
     './sbp-core.css?v='+version,
     './sbp-ui.css?v='+version
@@ -52,8 +51,8 @@ test('PWA caches only required local CSS while keeping original application scri
   assert.ok(assets.includes('./release-notes.js?v=20261102-lab-v1'));
   assert.ok(assets.includes('./release-data.js?v=20261102-lab-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
-  assert.match(worker,/sbp-shell-20261102-lab-v1/);
-  assert.match(html,/step19\.38-notification-lab-2026-11-02-v1/);
+  assert.match(worker,/sbp-shell-20261102-mentions-v1/);
+  assert.match(html,/step19\.39-mentions-2026-11-02-v1/);
 });
 test('the 19.29 performance release has both RU and KZ descriptions',()=>{
   const release=read('release-data.js');

@@ -10,6 +10,7 @@ on:
       - 'tests/service-worker-push.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
       - 'tests/holiday-push-policy.test.cjs'
+      - 'tests/group-mentions.test.cjs'
   pull_request:
     paths:
       - 'cloudflare-push/**'
@@ -20,6 +21,7 @@ on:
       - 'tests/service-worker-push.test.cjs'
       - 'tests/notification-coldstart.test.cjs'
       - 'tests/holiday-push-policy.test.cjs'
+      - 'tests/group-mentions.test.cjs'
 
 permissions:
   contents: read
