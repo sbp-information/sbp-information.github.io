@@ -52,8 +52,8 @@ test('PWA caches only required local CSS while keeping original application scri
     './sbp-ui.css?v='+version
   ].sort());
   assert.ok(assets.includes('./app.js?v=20261102-remove-college-v1'));
-  assert.ok(assets.includes('./release-notes.js?v=20261102-ios-install-v1'));
-  assert.ok(assets.includes('./release-data.js?v=20261102-ios-install-v1'));
+  assert.ok(assets.includes('./release-notes.js?v=20261102-remove-college-v1'));
+  assert.ok(assets.includes('./release-data.js?v=20261102-remove-college-v1'));
   assert.ok(assets.includes('./sbp-icon-192.png'));
   assert.ok(!assets.some(asset=>/college-data\.js|college-illustration\.svg/.test(asset)), 'removed college page is not precached');
   assert.match(worker,/sbp-shell-20261102-remove-college-v1/);
