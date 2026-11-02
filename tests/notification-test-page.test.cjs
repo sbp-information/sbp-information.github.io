@@ -12,3 +12,13 @@ test('all test-page labels have RU/KZ translations and release notes render',()=
  assert.equal(releases[0].updates.ru.length,3);assert.equal(releases[0].updates.kz.length,3);
  assert.ok(read('index.html').includes('href="./notification-test.html"'));
 });
+
+test('test app installs separately and starts on its own diagnostic page',()=>{
+ const manifest=JSON.parse(read('notification-test.webmanifest'));
+ assert.equal(manifest.id,'./notification-test.html');
+ assert.equal(manifest.start_url,'./notification-test.html');
+ assert.equal(manifest.display,'standalone');
+ assert.notEqual(manifest.id,JSON.parse(read('manifest.webmanifest')).id);
+ for(const icon of manifest.icons)assert.ok(fs.existsSync(path.join(__dirname,'..',icon.src)));
+ assert.match(read('notification-test.html'),/notification-test.webmanifest/);
+});

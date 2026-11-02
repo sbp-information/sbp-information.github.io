@@ -4,6 +4,10 @@ const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
   './index.html',
+  './notification-test.html',
+  './notification-test.js?v=20261102-lab-v2',
+  './notification-test.css?v=20261102-lab-v2',
+  './notification-test.webmanifest?v=20261102-lab-v2',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
   './redesign.js?v=20261101-no-violet-v1',
@@ -144,7 +148,10 @@ self.addEventListener('fetch', event => {
 
   // The standalone diagnostic page must never replace the main offline shell.
   if (request.mode === 'navigate' && url.pathname.endsWith('/notification-test.html')) {
-    event.respondWith(fetch(request, {cache:'no-cache'}));
+    event.respondWith(fetch(request, {cache:'no-cache'}).catch(async () => {
+      const cache = await caches.open(CACHE_NAME);
+      return await cache.match('./notification-test.html') || Response.error();
+    }));
     return;
   }
 

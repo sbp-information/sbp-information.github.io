@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#143d8c"><meta name="description" content="Проверка доставки уведомлений SBP Information">
+<meta name="apple-mobile-web-app-title" content="Push Test"><link rel="apple-touch-icon" href="./sbp-icon-180.png">
 <title>Проверка уведомлений · SBP Information</title>
-<link rel="icon" href="./sbp-icon-32.png"><link rel="manifest" href="./manifest.webmanifest?v=20261031-icons-v1">
+<link rel="icon" href="./sbp-icon-32.png"><link rel="manifest" href="./notification-test.webmanifest?v=20261102-lab-v2">
 <link rel="stylesheet" href="./notification-test.css?v=20261102-lab-v1">
 </head>
 <body>
@@ -13,6 +14,12 @@
 <section class="intro"><p class="eyebrow" data-text="eyebrow">ДИАГНОСТИКА УВЕДОМЛЕНИЙ</p>
 <h1 data-text="title">Проверим, доходит ли Push.</h1><p class="lead" data-text="lead">Три коротких теста — от разрешения браузера до доставки при закрытом сайте.</p>
 <div class="privacy"><span class="dot"></span><span data-text="privacy">Тесты приходят только на это устройство</span></div></section>
+<section class="install-card" aria-labelledby="install-title"><div><p class="eyebrow" data-text="phoneEyebrow">ПРОВЕРКА НА ТЕЛЕФОНЕ</p><h2 id="install-title" data-text="installTitle">Установите Push Test</h2><p data-text="installText">Откройте эту публичную страницу на телефоне и установите тестовое приложение. Оно открывает сразу эту проверку.</p></div>
+<div class="install-actions"><button id="install" class="primary" data-text="installButton">Установить приложение</button><button id="copy-link" data-text="copyLink">Скопировать ссылку для телефона</button></div>
+<details id="install-help"><summary data-text="installHelp">Как установить на Android или iPhone</summary><p data-text="androidHelp">Android: откройте ссылку в Chrome → меню ⋮ → «Установить приложение» или «Добавить на главный экран».</p><p data-text="iphoneHelp">iPhone: откройте ссылку в Safari → «Поделиться» → «На экран Домой». Затем откройте Push Test с новой иконки.</p></details>
+<p class="hint" data-text="desktopHelp">На компьютере установка необязательна: подключите уведомления ниже и нажмите «Отправить Push». Ожидайте системное уведомление за пределами страницы.</p>
+<p id="install-status" role="status"></p>
+</section>
 <section class="connection" aria-labelledby="connection-title"><div><p class="eyebrow" data-text="connection">ПОДКЛЮЧЕНИЕ</p><h2 id="connection-title" data-text="setupTitle">Подготовьте устройство</h2><p id="device-status" role="status"></p></div><button id="prepare" class="primary" data-text="prepare">Подключить уведомления</button>
 <p class="hint" data-text="ios">На iPhone откройте установленное приложение с экрана «Домой». Проверка в обычной вкладке может быть недоступна.</p></section>
 <section class="tests" aria-label="Тесты" data-aria="tests">

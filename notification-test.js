@@ -1,6 +1,6 @@
 import { PUSH_WORKER_URL } from './push-worker-config.js?v=20261101-cloudflare-live-v2';
 const words={
-ru:{stepLocal:'01 / БРАУЗЕР',stepBackground:'03 / ФОН',
+ru:{phoneEyebrow:'ПРОВЕРКА НА ТЕЛЕФОНЕ',installTitle:'Установите Push Test',installText:'Откройте эту публичную страницу на телефоне и установите тестовое приложение. Оно открывает сразу эту проверку.',installButton:'Установить приложение',copyLink:'Скопировать ссылку для телефона',installHelp:'Как установить на Android или iPhone',androidHelp:'Android: откройте ссылку в Chrome → меню ⋮ → «Установить приложение» или «Добавить на главный экран».',iphoneHelp:'iPhone: откройте ссылку в Safari → «Поделиться» → «На экран Домой». Затем откройте Push Test с новой иконки.',desktopHelp:'На компьютере установка необязательна: подключите уведомления ниже и нажмите «Отправить Push». Ожидайте системное уведомление за пределами страницы.',copied:'Публичная ссылка скопирована. Отправьте её себе и откройте на телефоне.',installed:'Приложение установлено. Откройте Push Test с его иконки.',standalone:'Вы открыли установленное приложение.',manualInstall:'Если окно установки не появилось, воспользуйтесь инструкцией ниже.',copyFailed:'Скопируйте ссылку из адресной строки публичной страницы.',stepLocal:'01 / БРАУЗЕР',stepBackground:'03 / ФОН',
 eyebrow:'ДИАГНОСТИКА УВЕДОМЛЕНИЙ',title:'Проверим, доходит ли Push.',lead:'Три коротких теста — от разрешения браузера до доставки при закрытом сайте.',privacy:'Тесты приходят только на это устройство',connection:'ПОДКЛЮЧЕНИЕ',setupTitle:'Подготовьте устройство',prepare:'Подключить уведомления',
 ios:'На iPhone откройте установленное приложение с экрана «Домой». Проверка в обычной вкладке может быть недоступна.',tests:'Тесты',
 localTitle:'Показ на устройстве',localText:'Проверяет разрешение и показ уведомления браузером. Без отправки через сервер.',localButton:'Показать уведомление',
@@ -13,7 +13,7 @@ preparing:'Подключаем это устройство…',connected:'По�
 queued:'Тест запланирован. Закройте страницу и подождите 1–2 минуты.',sent:'Push-служба приняла уведомление.',received:'Получено устройством',pending:'Ожидает отправки',accepted:'Отправлено',expired:'Время теста истекло',cancelled:'Подписка недоступна',
 empty:'Серверных тестов пока нет.',noLog:'Запустите проверку — здесь появятся её шаги.',planned:'Запланировано',arrival:'Получено',delay:'Задержка от запланированного времени',seconds:'с',test:'Проверка',error:'Не удалось выполнить проверку. Проверьте интернет и повторите.',rate:'Подождите 30 секунд перед следующим серверным тестом.',auth:'Не удалось войти. Откройте основной сайт, дождитесь входа и вернитесь к проверке.',subscription:'Сначала подключите устройство кнопкой выше.',refreshDone:'Результаты обновлены.',pageTitle:'Проверка уведомлений · SBP Information'
 },
-kz:{stepLocal:'01 / БРАУЗЕР',stepBackground:'03 / ФОН',
+kz:{phoneEyebrow:'ТЕЛЕФОНДА ТЕКСЕРУ',installTitle:'Push Test орнатыңыз',installText:'Осы жария бетті телефонда ашып, тест қолданбасын орнатыңыз. Ол бірден осы тексерісті ашады.',installButton:'Қолданбаны орнату',copyLink:'Телефонға арналған сілтемені көшіру',installHelp:'Android немесе iPhone құрылғысына орнату',androidHelp:'Android: сілтемені Chrome браузерінде ашыңыз → ⋮ мәзірі → «Қолданбаны орнату» немесе «Басты экранға қосу».',iphoneHelp:'iPhone: сілтемені Safari браузерінде ашыңыз → «Бөлісу» → «Басты экранға қосу». Содан кейін жаңа белгішеден Push Test ашыңыз.',desktopHelp:'Компьютерде орнату міндетті емес: төменде хабарландыруларды қосып, «Push жіберу» батырмасын басыңыз. Беттен тыс жүйелік хабарландыруды күтіңіз.',copied:'Жария сілтеме көшірілді. Өзіңізге жіберіп, телефонда ашыңыз.',installed:'Қолданба орнатылды. Push Test белгішесін ашыңыз.',standalone:'Орнатылған қолданба ашылды.',manualInstall:'Орнату терезесі ашылмаса, төмендегі нұсқаулықты пайдаланыңыз.',copyFailed:'Жария беттің мекенжай жолағынан сілтемені көшіріңіз.',stepLocal:'01 / БРАУЗЕР',stepBackground:'03 / ФОН',
 eyebrow:'ХАБАРЛАНДЫРУЛАРДЫ ТЕКСЕРУ',title:'Push жететінін тексерейік.',lead:'Браузер рұқсатынан бастап жабық сайтқа жеткізуге дейінгі үш қысқа тексеріс.',privacy:'Тест хабарламалары тек осы құрылғыға келеді',connection:'ҚОСЫЛУ',setupTitle:'Құрылғыны дайындаңыз',prepare:'Хабарландыруларды қосу',
 ios:'iPhone құрылғысында басты экранға орнатылған қолданбаны ашыңыз. Кәдімгі браузер бетінде тексеріс қолжетімсіз болуы мүмкін.',tests:'Тексерістер',
 localTitle:'Құрылғыда көрсету',localText:'Браузер рұқсатын және хабарландыруды көрсету мүмкіндігін тексереді. Серверден жіберілмейді.',localButton:'Хабарландыруды көрсету',
@@ -32,6 +32,8 @@ const save=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));}ca
 let baseLang='ru';try{baseLang=localStorage.getItem('toe_ui_language')==='kz'?'kz':'ru';}catch{}
 let lang=read('sbp_test_language',baseLang)==='kz'?'kz':'ru',logs=read('sbp_test_log',[]),tests=[],receipts={},ready=false,busy=false,feedback='',registration,subscription,auth,authPromise;
 if(!Array.isArray(logs))logs=[];
+let installPrompt=null,installStatus='',workerPromise;
+const installedMode=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const t=key=>words[lang][key]||key;
 const supported=()=>window.isSecureContext&&'Notification'in window&&'serviceWorker'in navigator&&'PushManager'in window;
 const time=value=>new Date(value).toLocaleTimeString(lang==='kz'?'kk-KZ':'ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -43,6 +45,8 @@ function render(){
  $('language').textContent=lang==='ru'?'ҚАЗ':'РУС';$('language').setAttribute('aria-label',lang==='ru'?'Қазақша':'Русский');
  $('device-status').textContent=t(!supported()?'unsupported':Notification.permission==='denied'?'denied':ready?'ready':Notification.permission==='default'?'default':'notReady');
  $('feedback').textContent=feedback?t(feedback):'';
+ $('install-status').textContent=t(installedMode()?'standalone':installStatus)||'';
+ $('install').disabled=installedMode();
  for(const id of ['prepare','local','immediate','delayed','refresh'])$(id).disabled=busy||!supported()||(id!=='prepare'&&!ready);
  $('log').replaceChildren();
  if(!logs.length)$('log').append(element('li',t('noLog')));
@@ -76,6 +80,10 @@ async function api(path,data){
  return response.json();
 }
 async function worker(){
+ if(!workerPromise)workerPromise=setupWorker().catch(error=>{workerPromise=null;throw error;});
+ return workerPromise;
+}
+async function setupWorker(){
  registration=await navigator.serviceWorker.register('./notifications-sw.js',{scope:'./',updateViaCache:'none'});
  await registration.update();
  const waiting=registration.waiting;
@@ -117,6 +125,18 @@ async function run(fn){
  try{await fn();}catch(error){log(error.status===429?'rate':error.status===403?'subscription':error.status===401?'auth':'error');}
  finally{busy=false;render();}
 }
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
+window.addEventListener('appinstalled',()=>{installPrompt=null;installStatus='installed';render();});
+$('install').onclick=async()=>{
+ if(installPrompt){const prompt=installPrompt;installPrompt=null;try{await prompt.prompt();await prompt.userChoice;}catch{}}
+ else{$('install-help').open=true;installStatus='manualInstall';}
+ render();
+};
+$('copy-link').onclick=async()=>{
+ try{await navigator.clipboard.writeText('https://sbp-information.github.io/notification-test.html');installStatus='copied';}
+ catch{installStatus='copyFailed';}
+ render();
+};
 $('prepare').onclick=()=>run(prepare);
 $('local').onclick=()=>run(async()=>{await registration.showNotification(t('localTitle'),{body:t('localBody'),icon:'./sbp-icon-192.png',tag:'sbp-local-test',data:{kind:'test'}});log('localShown');});
 async function send(delay){
@@ -133,6 +153,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ready)run
 setInterval(()=>{if(!document.hidden&&ready&&!busy)run(refresh);},10000);
 render();
 // Reuse an existing account and subscription; never prompt on page load.
+if(supported())worker().catch(()=>{});
 if(supported()&&Notification.permission==='granted')run(async()=>{
  await identity();await worker();subscription=await registration.pushManager.getSubscription();
  if(subscription){try{await refresh();ready=true;}catch(error){if(error.status!==403)throw error;}}
