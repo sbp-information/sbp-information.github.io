@@ -1,12 +1,12 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-lab-v1';
+const CACHE_NAME = 'sbp-shell-20261102-install-guide-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 const CORE_ASSETS = [
   './',
   './index.html',
   './notification-test.html',
-  './notification-test.js?v=20261102-lab-v2',
-  './notification-test.css?v=20261102-lab-v2',
+  './notification-test.js?v=20261102-install-guide-v1',
+  './notification-test.css?v=20261102-install-guide-v1',
   './notification-test.webmanifest?v=20261102-lab-v2',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
