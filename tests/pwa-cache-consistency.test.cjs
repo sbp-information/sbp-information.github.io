@@ -25,7 +25,12 @@ for (const asset of [...linked, ...manifest.icons.map(icon => icon.src)]) {
   assert.ok(assets.includes(normalized), 'precache must match page: ' + asset);
   assert.ok(fs.existsSync(path.join(root, asset.split('?')[0])), 'asset must exist: ' + asset);
 }
-console.log('PWA cache consistency: build, icon files, page assets, and cache versions passed.');
+assert.match(html, /<meta name="apple-mobile-web-app-capable" content="yes">/);
+assert.match(html, /id="ios-install-modal"/);
+assert.match(read('app.js'), /window\.openIOSInstallGuide = function/);
+assert.match(read('app.js'), /event\.preventDefault\(\)/);
+assert.match(read('i18n.js'), /'Установка на iPhone':'iPhone құрылғысына орнату'/);
+console.log('PWA cache consistency: build, iPhone install guide, icon files, page assets, and cache versions passed.');
 
 // Check that shared ES modules are consistently versioned and cached in the installed PWA.
 const moduleFiles = fs.readdirSync(root).filter(name => name.endsWith('.js'));
