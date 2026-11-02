@@ -50,3 +50,15 @@ test('offline app-refresh navigation falls back to the locally cached shell',asy
  assert.equal(requests,1,'always prefer the network for a genuine update');
  assert.deepEqual(cachedKeys,['./index.html']);
 });
+
+test('home keeps its real shell during local schedule hydration, with no short skeleton swap',()=>{
+ const start=app.indexOf("window.addEventListener('DOMContentLoaded', async () =>");
+ assert.ok(start>=0);
+ const boot=app.slice(start,app.indexOf("        let miniCalendarMonth",start));
+ assert.match(boot,/if \(initialView !== 'home'\) showSectionLoading\(initialView\)/);
+ assert.match(boot,/if \(initialView !== 'home'\) hideSectionLoading\(initialView\)/);
+ assert.match(boot,/homeTimelineBootReady = true;/);
+ assert.ok(boot.indexOf('homeTimelineBootReady = true;')>boot.indexOf('await Promise.allSettled(['));
+ assert.match(app,/function renderHomeDayTimeline\(\)\{\s*if \(!homeTimelineBootReady\) return;/);
+ assert.match(html,/id="home-day-timeline" class="home-ref-schedule-list"/);
+});
