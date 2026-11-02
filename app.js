@@ -4965,22 +4965,56 @@ function markSupportThreadRead(id,messages){
     updateSupportBadge();
     if(isSupportStaff())renderSupportInbox();
 }
+const deletingSupportThreadIds=new Set();
 function renderSupportInbox(){
     const inbox=document.getElementById('support-staff-inbox');if(!inbox||!isSupportStaff())return;
     inbox.innerHTML=supportThreadsCache.length?'<div class="support-inbox-title">Обращения</div>'+supportThreadsCache.map(thread=>{
-        const unread=threadUnread(thread),id=escapeNotificationText(thread.id);
-        return `<button data-support-thread="${id}" class="support-thread-btn ${thread.id===activeSupportThreadId?'active':''}"><strong ${thread.displayName?'data-i18n-skip':''}>${escapeNotificationText(thread.displayName||'Пользователь')}${unread?`<span class="support-unread-badge" data-i18n-skip>${unread>99?'99+':unread}</span>`:''}</strong><span>${thread.updatedAt?new Date(thread.updatedAt).toLocaleString(interfaceLocale()):''}</span><p data-i18n-skip>${escapeNotificationText((thread.messages?.at(-1)?.text||'').slice(0,80))}</p><span class="support-reply-label">${translateUI('Ответить')}</span></button>`;
+        const unread=threadUnread(thread),id=encodeURIComponent(thread.id);
+        const deleteLabel=translateUI('Удалить обращение');
+        return `<div class="support-thread-row"><button type="button" data-support-thread="${id}" class="support-thread-btn ${thread.id===activeSupportThreadId?'active':''}"><strong ${thread.displayName?'data-i18n-skip':''}>${escapeNotificationText(thread.displayName||'Пользователь')}${unread?`<span class="support-unread-badge" data-i18n-skip>${unread>99?'99+':unread}</span>`:''}</strong><span>${thread.updatedAt?new Date(thread.updatedAt).toLocaleString(interfaceLocale()):''}</span><p data-i18n-skip>${escapeNotificationText((thread.messages?.at(-1)?.text||'').slice(0,80))}</p><span class="support-reply-label">${translateUI('Ответить')}</span></button><button type="button" class="support-thread-delete" data-support-delete="${id}" title="${deleteLabel}" aria-label="${deleteLabel}" ${deletingSupportThreadIds.has(thread.id)?'disabled':''}><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button></div>`;
     }).join(''):'<div class="empty-state">Обращений пока нет.</div>';
-    inbox.querySelectorAll('[data-support-thread]').forEach(button=>button.addEventListener('click',()=>window.openSupportThread(button.dataset.supportThread)));
+    inbox.querySelectorAll('[data-support-thread]').forEach(button=>button.addEventListener('click',()=>window.openSupportThread(decodeURIComponent(button.dataset.supportThread))));
+    inbox.querySelectorAll('[data-support-delete]').forEach(button=>button.addEventListener('click',()=>window.deleteSupportThread(decodeURIComponent(button.dataset.supportDelete),button)));
     applyKzTranslations(inbox);
     updateSupportRecipient();
 }
+window.deleteSupportThread=async function(id,button){
+    if(!isSupportStaff()||!auth?.currentUser||!db||!supportThreadsCache.some(thread=>thread.id===id)||deletingSupportThreadIds.has(id))return;
+    if(!window.confirm(translateUI('Удалить обращение вместе со всей перепиской? Это действие нельзя отменить.')))return;
+    const context=supportContext();
+    deletingSupportThreadIds.add(id);
+    if(button)button.disabled=true;
+    try{
+        await deleteDoc(doc(db,...CLOUD_ROOT,'support',id));
+        if(context!==supportContext()||!isSupportStaff())return;
+        if(activeSupportThreadId===id){
+            supportUnsubscribe?.();supportUnsubscribe=null;activeSupportThreadId='';
+            displayedSupportMessages=[];
+            const field=document.getElementById('support-text');if(field)field.value='';
+            const box=document.getElementById('support-messages');if(box)box.innerHTML='';
+        }
+        if(pendingSupportThreadId===id)pendingSupportThreadId='';
+        supportDrafts.delete(id);
+        delete supportReadCounts[id];
+        try{localStorage.setItem(supportReadKey(),JSON.stringify(supportReadCounts));}catch(_){}
+        supportThreadsCache=supportThreadsCache.filter(thread=>thread.id!==id);
+        updateSupportBadge();
+        renderSupportInbox();
+        showToast(translateUI('Обращение удалено'));
+    }catch(error){
+        console.warn('delete support thread',error);
+        showToast(translateUI(error?.code==='permission-denied'?'Нет права удалять обращение':'Не удалось удалить обращение'));
+    }finally{
+        deletingSupportThreadIds.delete(id);
+        if(button?.isConnected)button.disabled=false;
+    }
+};
 window.refreshSupportNotifications=function(){
     const context=supportContext();
     if(context!==supportNotificationsContext){
         supportNotificationsUnsubscribe?.();supportNotificationsUnsubscribe=null;
         supportUnsubscribe?.();supportUnsubscribe=null;activeSupportThreadId='';
-        supportNotificationsContext=context;supportThreadsCache=[];supportReadCounts={};supportRetryAfter=0;supportDrafts.clear();supportArrivals.reset();displayedSupportMessages=[];
+        supportNotificationsContext=context;supportThreadsCache=[];supportReadCounts={};supportRetryAfter=0;supportDrafts.clear();deletingSupportThreadIds.clear();supportArrivals.reset();displayedSupportMessages=[];
         const draft=document.getElementById('support-text');if(draft)draft.value='';
         try{const saved=JSON.parse(localStorage.getItem(supportReadKey())||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))supportReadCounts=saved;}catch(_){}
         const box=document.getElementById('support-messages');if(box)box.innerHTML='';
