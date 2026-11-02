@@ -419,8 +419,10 @@ async function fetchHandler(request, env) {
           lastScheduleOkAt > Date.now() - 5 * 60000;
       } catch (err) { console.warn('Cron heartbeat lookup failed:', err?.message || 'unknown'); }
     }
+    const clock = kazakhstanClock(new Date());
+    const remindersReady = cronHealthy && (!shouldCheckSchedule(clock) || scheduleHealthy);
     return reply({ service: 'SBP Information Push', configured,
-      cronHealthy, scheduleHealthy, lastCronAt, lastScheduleOkAt }, 200, origin);
+      cronHealthy, scheduleHealthy, remindersReady, lastCronAt, lastScheduleOkAt }, 200, origin);
   }
   if (request.method === 'GET' && url.pathname === '/config') {
     if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || !env.DB) return reply({ error: 'Not configured' }, 503, origin);
