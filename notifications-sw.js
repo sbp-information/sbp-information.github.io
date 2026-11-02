@@ -6,7 +6,7 @@ const CORE_ASSETS = [
   './index.html',
   './schedule-summary.js?v=20261017-admin-tap-v1',
   './admin-drawer.js?v=20261017-admin-tap-v1',
-  './redesign.js?v=20261102-device-theme-v1',
+  './redesign.js?v=20261102-calm-dark-v1',
   './home-overview.js?v=20261017-admin-tap-v1',
   './schedule-dates.js?v=20261017-admin-tap-v1',
   './group-tools.js?v=20261102-fast-start-v1',
