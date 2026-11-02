@@ -103,6 +103,16 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
   async function requestPush(path, functionName, data) {
     return pushEndpoint ? pushRequest(path, data) : getCloud().callFunction(functionName, data);
   }
+  async function remindersReady() {
+    if (!pushEndpoint) return false;
+    try {
+      const health = await pushRequest('/health');
+      return health.configured === true && health.remindersReady === true;
+    } catch (error) {
+      console.warn('Push scheduler health check failed', error?.message);
+      return false;
+    }
+  }
   async function dispatch(kind, id) {
     if (!pushEndpoint || !context() || !id) return false;
     let failure;
@@ -172,8 +182,9 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
     configuration = null;
     if (supported() && deviceEnabled() && Notification.permission === 'granted' && context()) {
       try {
-        await registerDevice();
-        statusOverride = '';
+        if (await registerDevice()) {
+          statusOverride = await remindersReady() ? '' : 'Служба напоминаний временно недоступна';
+        }
       } catch (_) {
         statusOverride = 'Уведомления разрешены. Фоновая доставка пока недоступна';
       }
@@ -206,8 +217,9 @@ export function createNotificationCenter({ getCloud, translate, toast, open }) {
       if (permission === 'granted') {
         write(DEVICE_KEY, '1');
         await worker();
-        if (await registerDevice()) statusOverride = '';
-        else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
+        if (await registerDevice()) {
+          statusOverride = await remindersReady() ? '' : 'Служба напоминаний временно недоступна';
+        } else statusOverride = 'Уведомления разрешены. Войдите в аккаунт для фоновой доставки';
       }
     } catch (error) {
       console.warn('Push activation failed', error);
