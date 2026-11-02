@@ -25,6 +25,7 @@ jobs:
           node tests/pwa-cache-consistency.test.cjs
           node tests/mobile-pwa-performance.test.cjs
           node tests/mobile-fast-launch.test.cjs
+          node tests/pwa-resilience.test.cjs
           node tests/fast-boot-firebase.test.cjs
           node tests/post-paint-worker.test.cjs
           node --check firebase.js
