@@ -17,7 +17,7 @@ test('home renders reserved lesson space before JS without inventing a timetable
  assert.equal((initialMarkup.match(/class="home-timeline-placeholder-break"/g)||[]).length,3);
  assert.match(initialMarkup,/aria-hidden="true"/);
  assert.doesNotMatch(initialMarkup,/\d\d:\d\d|Физика|Математика/);
- assert.match(html,/#home-day-timeline \.home-timeline-placeholder\{[^}]*min-height:425px/);
+ assert.match(html,/#home-day-timeline \\.home-timeline-placeholder\\{[^}]*min-height:425px/);
  assert.match(app,/box\.innerHTML=html/,'real lesson cards replace the placeholder');
 });
 test('saved college view and precise scroll survive a cold boot and update',()=>{
@@ -61,4 +61,12 @@ test('home keeps its real shell during local schedule hydration, with no short s
  assert.ok(boot.indexOf('homeTimelineBootReady = true;')>boot.indexOf('await Promise.allSettled(['));
  assert.match(app,/function renderHomeDayTimeline\(\)\{\s*if \(!homeTimelineBootReady\) return;/);
  assert.match(html,/id="home-day-timeline" class="home-ref-schedule-list"/);
+});
+
+test('mobile first-paint placeholder matches four lesson and break rows at 412/390/320px',()=>{
+ assert.match(html, /@media\\(max-width:767px\\)\\{[\\s\\S]*?home-timeline-placeholder\\{min-height:628px/);
+ assert.match(html, /@media\\(max-width:400px\\)\\{[\\s\\S]*?home-timeline-placeholder\\{min-height:650px/);
+ assert.match(html, /@media\\(max-width:350px\\)\\{[\\s\\S]*?home-timeline-placeholder\\{min-height:687px/);
+ assert.match(worker, /CORE_ASSETS = \\[\\s*'\\.\\/index\\.html'/);
+ assert.doesNotMatch(worker, /CORE_ASSETS = \\[\\s*'\\.\\/',/);
 });
