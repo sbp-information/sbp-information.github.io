@@ -1,5 +1,5 @@
 // SBP Information PWA service worker: fast app-shell caching + Web Push.
-const CACHE_NAME = 'sbp-shell-20261102-device-theme-v1';
+const CACHE_NAME = 'sbp-shell-20261102-calm-dark-v1';
 const CACHE_PREFIX = 'sbp-shell-';
 // Precache HTML only once. Navigation fallbacks still support both root and index.html.
 const CORE_ASSETS = [
@@ -12,9 +12,9 @@ const CORE_ASSETS = [
   './group-tools.js?v=20261102-fast-start-v1',
   './group-tools-data.js?v=20261017-admin-tap-v1',
   './action-history.js?v=20261102-fast-start-v1',
-  './release-notes.js?v=20261102-device-theme-v1',
-  './release-data.js?v=20261102-device-theme-v1',
-  './app.js?v=20261102-device-theme-v1',
+  './release-notes.js?v=20261102-calm-dark-v1',
+  './release-data.js?v=20261102-calm-dark-v1',
+  './app.js?v=20261102-calm-dark-v1',
   './firebase.js?v=20261102-fast-start-v1',
   './utils.js?v=20261102-lab-v1',
   './storage.js?v=20261017-admin-tap-v1',
@@ -26,8 +26,8 @@ const CORE_ASSETS = [
   './notification-state.js?v=20261017-admin-tap-v1',
   './support-state.js?v=20261017-admin-tap-v1',
   './tailwind-local.css?v=20261101-no-violet-v1',
-  './sbp-core.css?v=20261101-localization-v1',
-  './sbp-ui.css?v=20261101-localization-v1',
+  './sbp-core.css?v=20261102-calm-dark-v1',
+  './sbp-ui.css?v=20261102-calm-dark-v1',
   './manifest.webmanifest?v=20261102-brand-launch-v1',
   './sbp-icon-32.png?v=20261031-icons-v1',
   './sbp-icon-180.png?v=20261031-icons-v1',
