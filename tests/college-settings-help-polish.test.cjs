@@ -21,7 +21,7 @@ test('all requested settings sections use the same rounded, clipped card contain
   const ids=['settings-display-section','settings-admins-section','settings-notifications-section','settings-system-section'];
   for(const id of ids)assert.match(html,new RegExp('<details class="settings-reference-card" id="'+id+'">'));
   assert.match(html, /class="settings-reference-card settings-language-card"/);
-  assert.doesNotMatch(html, /class="settings-reference-card sbp-theme-card"/, 'theme controls are no longer selectable');
+  assert.match(html, /class="settings-reference-card sbp-theme-card"/, 'theme controls share the settings card container');
   const rule=latest.match(/#admin-settings-modal\.settings-reference \.settings-reference-list > \.settings-reference-card\s*\{([\s\S]*?)\}/);
   assert.ok(rule,'outer settings cards need one reusable radius');
   for(const token of ['border-radius:18px!important','overflow:hidden!important','background:var(--sbp-surface)!important','border:1px solid var(--sbp-line)!important']){
@@ -51,8 +51,8 @@ test('19.26 release, active CSS, script and offline worker versions agree',()=>{
   const rel=read('release-data.js');
   const block=rel.slice(rel.indexOf("version:'19.26'"),rel.indexOf("version:'19.25'"));
   assert.match(block,/ru:\[/);assert.match(block,/kz:\[/);
-  assert.match(html,/step19\.53-neutral-dark-2026-11-02-v1/);
-  assert.match(html,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
-  assert.match(sw,/sbp-ui\.css\?v=20261102-neutral-dark-v1/);
-  assert.match(sw,/sbp-shell-20261102-neutral-dark-v1/);
+  assert.match(html,/step19\.54-schedule-theme-2026-11-02-v1/);
+  assert.match(html,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
+  assert.match(sw,/sbp-ui\.css\?v=20261102-schedule-theme-v1/);
+  assert.match(sw,/sbp-shell-20261102-schedule-theme-v1/);
 });

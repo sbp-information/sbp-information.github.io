@@ -28,8 +28,8 @@ test('all headers use the Home bell slot and allow taps without covering languag
   assert.match(css, /\.notification-bell\s*\{[\s\S]*?grid-column:3!important/);
   assert.match(css, /pointer-events:auto!important/);
   assert.match(css, /\.notification-badge\.hidden\s*\{\s*display:none!important/);
-  assert.match(html, /sbp-ui\.css\?v=20261102-neutral-dark-v1/);
-  assert.match(worker, /sbp-ui\.css\?v=20261102-neutral-dark-v1/);
+  assert.match(html, /sbp-ui\.css\?v=20261102-schedule-theme-v1/);
+  assert.match(worker, /sbp-ui\.css\?v=20261102-schedule-theme-v1/);
 });
 test('unread counts update and clear simultaneously on every page',()=>{
   const start=app.indexOf('function updateNotificationBadge(){');
