@@ -16,7 +16,7 @@ function luminance(hex){
  return values[0]*.2126+values[1]*.7152+values[2]*.0722;
 }
 function contrast(a,b){const [x,y]=[luminance(a),luminance(b)].sort((x,y)=>y-x);return (x+.05)/(y+.05);}
-test('new dark theme is only enabled by resolved dark setting',()=>{
+test('device dark mode has dedicated contrast styles with no manual setting required',()=>{
  assert.match(dark,/:root\[data-sbp-theme="dark"\]/);
  assert.doesNotMatch(dark,/html:not\(\[data-sbp-theme="dark"\]\)/);
  assert.ok((dark.match(/:root:root\[data-sbp-theme="dark"\]/g)||[]).length>30);
@@ -27,8 +27,8 @@ test('new dark theme is only enabled by resolved dark setting',()=>{
  assert.ok(sw.includes(`const CACHE_NAME = 'sbp-shell-${version}'`),'dark theme is cached in current PWA build');
  assert.match(html,/sbp-core\.css\?v=20261101-localization-v1/);
  assert.match(sw,/sbp-core\.css\?v=20261101-localization-v1/);
- assert.match(app,/redesign\.js\?v=20261102-remove-college-v1/);
- assert.match(sw,/redesign\.js\?v=20261102-remove-college-v1/);
+ assert.match(app,/redesign\.js\?v=20261102-device-theme-v1/);
+ assert.match(sw,/redesign\.js\?v=20261102-device-theme-v1/);
  assert.match(release,/version:'19\.09'/);
 });
 test('all core text colors pass WCAG AA contrast on relevant surfaces',()=>{
@@ -48,48 +48,52 @@ test('semantic lesson colors, modal surfaces, sections and form controls are pre
   '.notification-item','.support-msg','.release-card','.journal-ref-panel',
   '.schedule-ref-card','.roster-person-card','.home-ref-lesson-card.current',
   '.system-status-banner[data-kind="warning"]','.system-status-banner[data-kind="error"]',
-  'input:not([type="checkbox"])','input[type="checkbox"]','.sbp-theme-options button[aria-pressed="true"]'])
+  'input:not([type="checkbox"])','input[type="checkbox"]'])
  assert.ok(dark.includes(x),'missing dark style for '+x);
  assert.equal((dark.match(/\{/g)||[]).length,(dark.match(/\}/g)||[]).length);
 });
-test('switching light, dark and system theme persists and updates accessibility state',()=>{
- const storage=new Map([['sbp_design_theme','light'],['toe_ui_language','ru']]);
- const events={},mediaEvents={};
+test('appearance follows Android, iOS and desktop OS, never a previously saved preference',()=>{
+ const storage=new Map([['sbp_design_theme','dark'],['toe_ui_language','ru']]);
+ const accessed=[],mediaEvents={};
  const mq={matches:false,addEventListener(event,fn){mediaEvents[event]=fn;}};
- const makeButton=value=>({dataset:{sbpTheme:value},attributes:{},
-  getAttribute(key){return this.attributes[key]},setAttribute(key,value){this.attributes[key]=value;},addEventListener(){} });
- const buttons=['light','dark','system'].map(makeButton);
  const meta={attributes:{content:'#fafafe'},getAttribute(k){return this.attributes[k]},
   setAttribute(k,v){this.attributes[k]=v;}};
+ const languageButtons=['ru','kz'].map(value=>({dataset:{sbpLang:value},attributes:{},
+  setAttribute(k,v){this.attributes[k]=v;},addEventListener(){}}));
  const document={
   documentElement:{dataset:{},style:{}},
   querySelector(sel){return sel==='meta[name="theme-color"]'?meta:null},
-  querySelectorAll(sel){return sel==='button[data-sbp-theme]'?buttons:[]},
-  getElementById(){return null}
+  querySelectorAll(sel){return sel==='[data-sbp-lang]'?languageButtons:[]}
  };
- const window={localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
-  matchMedia:()=>mq,addEventListener:(key,fn)=>events[key]=fn};
- const src=redesign.replace(/^import .*;\s*/,'').replaceAll('export ','');
- const ctx={window,document,console,encodeURIComponent};
+ const window={localStorage:{getItem(k){accessed.push(k);return storage.get(k)||null;},
+  setItem(k,v){throw Error('Theme must not be written to storage');}},
+  matchMedia:()=>mq};
+ const src=redesign.replaceAll('export ','');
+ const ctx={window,document,console};
  vm.runInNewContext(src+'\ninitRedesign();',ctx);
- assert.equal(document.documentElement.dataset.sbpTheme,'light');
- window.setSBPTheme('dark');
- assert.equal(storage.get('sbp_design_theme'),'dark');
- assert.equal(document.documentElement.dataset.sbpTheme,'dark');
- assert.equal(document.documentElement.style.colorScheme,'dark');
- assert.equal(meta.getAttribute('content'),'#0b0f18');
- assert.equal(buttons[1].getAttribute('aria-pressed'),'true');
- window.setSBPTheme('light');
- assert.equal(document.documentElement.dataset.sbpTheme,'light');
- assert.equal(buttons[0].getAttribute('aria-pressed'),'true');
- window.setSBPTheme('system');
- assert.equal(document.documentElement.dataset.sbpTheme,'light');
+ assert.equal(document.documentElement.dataset.sbpTheme,'light','OS light overrules stale dark preference');
+ assert.equal(document.documentElement.style.colorScheme,'light dark','native controls use automatic OS scheme');
+ assert.equal(meta.getAttribute('content'),'#f6fbfd');
+ assert.equal(window.setSBPTheme,undefined,'there is no manual theme API');
+ assert.equal(accessed.includes('sbp_design_theme'),false,'old theme selection is ignored');
  mq.matches=true;mediaEvents.change();
  assert.equal(document.documentElement.dataset.sbpTheme,'dark');
+ assert.equal(meta.getAttribute('content'),'#0b0f18');
  mq.matches=false;mediaEvents.change();
  assert.equal(document.documentElement.dataset.sbpTheme,'light');
- storage.set('sbp_design_theme','dark');
- events.storage({key:'sbp_design_theme'});
- assert.equal(document.documentElement.dataset.sbpTheme,'dark');
- assert.equal(buttons[1].getAttribute('aria-pressed'),'true');
+ storage.set('toe_ui_language','kz');window.refreshRedesign();
+ assert.equal(document.documentElement.dataset.sbpTheme,'light','language switch keeps device appearance');
+ assert.equal(languageButtons[1].attributes['aria-pressed'],'true');
+ assert.equal(ctx.resolvedTheme(true),'dark');
+ assert.equal(ctx.resolvedTheme(false),'light');
+});
+
+test('theme selector removed from settings and early page paint never reads saved override',()=>{
+ assert.doesNotMatch(html,/sbp-theme-card|sbp-theme-options|data-sbp-theme="(?:light|dark|system)"/);
+ assert.doesNotMatch(redesign,/sbp_design_theme|setSBPTheme|data-sbp-theme/);
+ const firstScript=html.slice(html.indexOf('// Let the device choose the light/dark appearance'),html.indexOf('</script>',html.indexOf('// Let the device choose the light/dark appearance')));
+ assert.match(firstScript,/prefers-color-scheme: dark/);
+ assert.doesNotMatch(firstScript,/localStorage|sbp_design_theme/);
+ assert.match(html,/step19\.51-device-theme-2026-11-02-v1/);
+ assert.match(release,/version:'19\.51'/);
 });
