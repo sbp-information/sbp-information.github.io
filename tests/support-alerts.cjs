@@ -26,7 +26,7 @@ assert.equal(context.unreadSupportCount([staffMsg],false,1),0);
 assert.equal(context.unreadSupportCount([staffMsg,staffMsg],false,1),1);
 assert.equal(context.unreadSupportCount(null,false),0);
 const app=fs.readFileSync('app.js','utf8');
-vm.runInContext(app.slice(app.indexOf("let activeSupportThreadId='';")),context);
+vm.runInContext(app.slice(app.indexOf("let activeSupportThreadId='';"),app.indexOf('\ninitRedesign();',app.indexOf("let activeSupportThreadId='';"))),context);
 const emit=(listener,threads)=>listener.callback(listener.ref.type==='collection'?{docs:threads.map(t=>({id:t.id,data:()=>t}))}:{id:listener.ref.id,exists:()=>!!threads.length,data:()=>threads[0]});
 const badge=node('support-menu-badge');
 assert.equal(listeners[0].ref.type,'doc');
