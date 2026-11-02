@@ -162,12 +162,48 @@
     });
   }
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./notifications-sw.js', { scope: './', updateViaCache: 'none' }).then(reg => {
-      registration = reg;
-      if (reg.waiting && navigator.serviceWorker.controller) showUpdatePrompt(reg.waiting);
-      watchInstalling(reg.installing);
-      reg.addEventListener('updatefound', () => watchInstalling(reg.installing));
-    }).catch(error => console.warn('PWA registration unavailable', error));
+    let registrationStarted = false;
+    const registerWorker = () => {
+      if (registrationStarted) return;
+      registrationStarted = true;
+      navigator.serviceWorker.register('./notifications-sw.js', { scope: './', updateViaCache: 'none' }).then(reg => {
+        registration = reg;
+        if (reg.waiting && navigator.serviceWorker.controller) showUpdatePrompt(reg.waiting);
+        watchInstalling(reg.installing);
+        reg.addEventListener('updatefound', () => watchInstalling(reg.installing));
+      }).catch(error => console.warn('PWA registration unavailable', error));
+    };
+
+    // Already-installed PWAs are controlled by the existing worker immediately.
+    // On slow phones, do not begin 30+ precache/network requests before first paint.
+    // Chrome supports the buffered paint observer; older browsers use a load fallback.
+    if (mobileFast && document.visibilityState === 'visible') {
+      let scheduled = false;
+      const afterPaint = () => {
+        if (scheduled) return;
+        scheduled = true;
+        setTimeout(registerWorker, 0);
+      };
+      try {
+        const paints = performance.getEntriesByType?.('paint') || [];
+        if (paints.some(entry => entry.name === 'first-contentful-paint')) {
+          afterPaint();
+        } else if (typeof PerformanceObserver === 'function') {
+          const observer = new PerformanceObserver(list => {
+            if (list.getEntries().some(entry => entry.name === 'first-contentful-paint')) {
+              observer.disconnect();
+              afterPaint();
+            }
+          });
+          observer.observe({ type: 'paint', buffered: true });
+        }
+      } catch (_) { /* load-event fallback below */ }
+      const fallback = () => setTimeout(afterPaint, 1600);
+      if (document.readyState === 'complete') fallback();
+      else window.addEventListener('load', fallback, { once: true });
+    } else {
+      registerWorker();
+    }
   }
   setTimeout(checkForUpdate, initialUpdateDelay);
   window.addEventListener('online', () => checkForUpdate(true));
