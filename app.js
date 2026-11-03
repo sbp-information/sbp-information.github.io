@@ -2,7 +2,7 @@ import { nextCalendarDay, summarizeScheduleChanges, scheduleSummaryMarkup } from
 import { initAdminDrawer } from './admin-drawer.js?v=20261017-admin-tap-v1';
 import { initRedesign } from './redesign.js?v=20261102-schedule-theme-v1';
 import { scheduleCalendarLabel } from './schedule-dates.js?v=20261017-admin-tap-v1';
-import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261017-admin-tap-v1';
+import { selectHomeOverviewEntries, homeOverviewToggleLabel } from './home-overview.js?v=20261103-class-hour-v1';
 import { createArrivalTracker } from './notification-state.js?v=20261017-admin-tap-v1';
 import { createNotificationCenter } from './notification-center.js?v=20261102-push-reminders-v1';
 import { getSiteVersion, incomingSupportCount, unreadSupportCount } from './support-state.js?v=20261017-admin-tap-v1';
@@ -3358,8 +3358,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
             if (!dayKey) return [];
             const weekType = getWeekTypeForDate(date);
             const source = getScheduleDataForWeek(weekType, date);
+            // Class hours are real scheduled activities too: they must keep
+            // Home on today and appear as the nearest/current activity.
             return (source[dayKey] || []).filter(item =>
-                !item.isClassHour &&
                 !item.cancelled &&
                 item.changeType !== 'cancel'
             );
@@ -3429,7 +3430,9 @@ console.info('[SBP Information] build', window.__SITE_BUILD__);
 
             const { date, lesson, weekType } = result;
             const sameDay = formatLocalDate(date) === formatLocalDate(now);
-            if (captionEl) captionEl.textContent = sameDay ? 'Следующая пара' : 'Следующий учебный день';
+            if (captionEl) captionEl.textContent = sameDay
+                ? (lesson.isClassHour ? 'Классный час' : 'Следующая пара')
+                : 'Следующий учебный день';
             dateEl.textContent = date.toLocaleDateString(interfaceLocale(), {weekday:'long',day:'numeric',month:'long'});
             weekEl.textContent = weekType === 'numerator' ? 'Числитель' : 'Знаменатель';
 
@@ -4355,7 +4358,7 @@ function renderHomeDayStatus({mode,entry,nextEntry,breakInfo,nowMinutes}){
     </div>`;
 }
 function renderHomeLessonCard(entry,nowMinutes,state=''){
-    const {it,index,r}=entry;
+    const {it,index,r,pairNumber}=entry;
     const floor=getFloorFromRoom(it.room);
     const cancelled=!!it.cancelled||it.changeType==='cancel';
     const live=nowMinutes>=0&&!cancelled?homeLiveMetrics(it.time):null;
@@ -4394,9 +4397,9 @@ function renderHomeLessonCard(entry,nowMinutes,state=''){
                 <span><span>${translateUI('Прошло')}:</span> <b data-live-elapsed>${homeDurationLabel(live.elapsedSec)}</b> ${translateUI('из')} <b data-live-total>${homeDurationLabel(live.durationSec)}</b></span>
             </div>
         </div>`:''; 
-    return `<article class="home-ref-lesson-card ${current?'current':''} ${next?'next':''} ${cancelled?'cancelled':''} ${replacement?'replacement':''}" ${current&&live?`data-live-lesson="1" data-start-sec="${live.startSec}" data-end-sec="${live.endSec}"`:''}>
+    return `<article class="home-ref-lesson-card ${it.isClassHour?'class-hour':''} ${current?'current':''} ${next?'next':''} ${cancelled?'cancelled':''} ${replacement?'replacement':''}" ${current&&live?`data-live-lesson="1" data-start-sec="${live.startSec}" data-end-sec="${live.endSec}"`:''}>
         <div class="home-ref-lesson-row">
-            <div class="home-ref-lesson-number">${index+1}</div>
+            <div class="home-ref-lesson-number" ${it.isClassHour?`title="${translateUI('Классный час')}" aria-label="${translateUI('Классный час')}"`:''}>${it.isClassHour?(currentLang()==='kz'?'ТС':'КЧ'):pairNumber}</div>
             <div class="home-ref-lesson-main">${stateBadge}${changeMain}</div>
             ${meta}
         </div>
@@ -4484,10 +4487,16 @@ function renderHomeDayTimeline(){
 
     const type=getWeekTypeForDate(studyDate);
     const source=getScheduleDataForWeek(type, studyDate);
-    const raw=(source[dayKey]||[]).filter(x=>!x.isClassHour);
+    // Include class hours on Home; they have their own label and must not
+    // shift the numbering of normal pairs.
+    const raw=source[dayKey]||[];
     if(!raw.length){box.innerHTML='<div class="home-ref-empty">На ближайший учебный день занятий нет.</div>';return;}
 
-    const entries=raw.map((it,index)=>({it,index,r:parseMinutes(it.time)})).filter(x=>x.r);
+    let regularPairNumber=0;
+    const entries=raw.map((it,index)=>({
+        it,index,pairNumber:it.isClassHour?null:++regularPairNumber,
+        r:parseMinutes(it.time)
+    })).filter(x=>x.r);
     if(!entries.length){box.innerHTML='<div class="home-ref-empty">Расписание ещё не заполнено.</div>';return;}
 
     if(isNearestStudyDay){
