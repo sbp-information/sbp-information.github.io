@@ -3,7 +3,9 @@
 export function selectHomeOverviewEntries(entries, expanded, isCancelled) {
   let active = 0, end = entries.length;
   for (let i = 0; i < entries.length; i++) {
-    if (!isCancelled(entries[i])) active++;
+    // A class hour is displayed, but it is not a numbered pair and does
+    // not use one of the four visible regular-lesson slots on Home.
+    if (!isCancelled(entries[i]) && !entries[i]?.it?.isClassHour) active++;
     if (active === 4) { end = i + 1; break; }
   }
   return { visible: expanded ? entries : entries.slice(0, end), hasMore: end < entries.length };
