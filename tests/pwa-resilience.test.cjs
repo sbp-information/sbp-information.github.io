@@ -47,13 +47,13 @@ test('failed critical asset keeps old installed app and rejects half-filled new 
  const f=fixture();
  const old=(await f.caches.open('sbp-shell-previous'));
  await old.put('./index.html',new Response('complete previous app'));
- f.setFail('./app.js?v=20261102-push-reminders-v1');
+ f.setFail('./app.js?v=20261103-class-hour-v1');
  await assert.rejects(f.event('install'),/Incomplete PWA shell/);
  assert.equal(f.data.has(f.cacheName),false,'no broken new version is left in Cache Storage');
  assert.equal(await (await old.match('./index.html')).text(),'complete previous app');
  f.setFail('');await f.event('install');
  assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/index.html'));
- assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/app.js?v=20261102-push-reminders-v1'));
+ assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/app.js?v=20261103-class-hour-v1'));
  assert.ok(f.data.get(f.cacheName).has('https://sbp-information.github.io/firebase.js?v=20261102-fast-start-v1'));
  assert.ok(f.data.get(f.cacheName).has('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'));
 });
