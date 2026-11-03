@@ -73,7 +73,7 @@ test('Class hour number is КЧ / ТС, and first regular pair stays 1', () => {
   assert.match(kz, /class="home-ref-lesson-number"[^>]*>ТС<\/div>/);
   assert.match(kz, /aria-label="Тәрбие сағаты"/);
   const next = card({ subject:'Физика', time:'08:30 - 10:00', room:'Каб. 301' }, 1);
-  assert.match(next, /class="home-ref-lesson-number">1<\/div>/);
+  assert.match(next, /class="home-ref-lesson-number"\s*>1<\/div>/);
   assert.doesNotMatch(next, /class-hour/);
 });
 
