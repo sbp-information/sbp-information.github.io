@@ -24,7 +24,7 @@ test('device dark mode has dedicated contrast styles with no manual setting requ
  assert.match(sw,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
  const version=html.match(/<script type="module" src="app\.js\?v=([^"]+)"/)?.[1];
  assert.ok(version,'active app script version exists');
- assert.ok(sw.includes("const CACHE_NAME = 'sbp-shell-20261102-pwa-reliability-v1'"),'new PWA shell caches unchanged dark-mode assets');
+ assert.ok(sw.includes("const CACHE_NAME = 'sbp-shell-20261103-class-hour-v1'"),'new PWA shell caches unchanged dark-mode assets');
  assert.match(html,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
  assert.match(sw,/sbp-core\.css\?v=20261102-schedule-theme-v1/);
  assert.match(app,/redesign\.js\?v=20261102-schedule-theme-v1/);
